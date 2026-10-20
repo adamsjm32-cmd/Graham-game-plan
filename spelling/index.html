@@ -1,0 +1,1972 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1a2b">
+<meta name="apple-mobile-web-app-title" content="Spelling Reps">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Spelling Reps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2ea; --field:#e3ead9; --panel:#ffffff; --ink:#122033; --muted:#5b6878; --line:#d5dccf;
+  --turf:#1f7a45; --turf-ink:#ffffff; --gold:#e8a317; --gold-ink:#2a1d00; --coral:#c8553d; --sky:#2f6fb0;
+  --board:#0f1a2b; --board-ink:#f5f1e3; --board-dim:#93a0b4; --ok:#1f7a45; --bad:#c8553d;
+  --shadow:0 2px 0 rgba(18,32,51,.08), 0 8px 24px rgba(18,32,51,.08);
+  --radius:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b131f; --field:#101b2a; --panel:#152235; --ink:#eef2f7; --muted:#9fb0c4; --line:#24354d;
+    --turf:#2ea862; --turf-ink:#06140b; --gold:#f2b632; --gold-ink:#211600; --coral:#ef7a62; --sky:#6aa8e8;
+    --board:#060c15; --board-ink:#f5f1e3; --board-dim:#7f8da3; --ok:#3cc177; --bad:#ef7a62;
+    --shadow:0 2px 0 rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b131f; --field:#101b2a; --panel:#152235; --ink:#eef2f7; --muted:#9fb0c4; --line:#24354d;
+  --turf:#2ea862; --turf-ink:#06140b; --gold:#f2b632; --gold-ink:#211600; --coral:#ef7a62; --sky:#6aa8e8;
+  --board:#060c15; --board-ink:#f5f1e3; --board-dim:#7f8da3; --ok:#3cc177; --bad:#ef7a62;
+  --shadow:0 2px 0 rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Lexend", ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size:18px; line-height:1.4; -webkit-text-size-adjust:100%;
+  overflow-x:hidden; min-height:100vh;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding-block:16px 48px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.plays{display:grid;gap:10px}
+.play{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--field);display:grid;gap:6px}
+.play .head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.play .rule{font-weight:600}
+.play .ex{font-size:15px}
+.play .ex s{color:var(--muted)}
+.chip{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700}
+.chip.focus{background:color-mix(in srgb,var(--gold) 30%,var(--panel));color:var(--ink)}
+.chip.building{background:color-mix(in srgb,var(--sky) 22%,var(--panel));color:var(--ink)}
+.chip.solid{background:color-mix(in srgb,var(--ok) 25%,var(--panel));color:var(--ink)}
+.cloud{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.cloud i{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--muted)}
+.cloud.on i{background:var(--ok)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.brand{font-weight:800;letter-spacing:.02em;font-size:20px;display:flex;align-items:center;gap:8px}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:var(--turf);display:inline-block}
+.iconbtn{min-width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:18px;display:inline-flex;align-items:center;justify-content:center;padding:0 10px}
+.iconbtn:focus-visible,.btn:focus-visible,.tile:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.board{background:var(--board);color:var(--board-ink);border-radius:20px;padding:18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.board::after{content:"";position:absolute;inset:auto -40px -60px auto;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(245,241,227,.12)}
+.board .lab{color:var(--board-dim);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.money{font-variant-numeric:tabular-nums;font-weight:800}
+.bankrow{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;align-items:end}
+.bank-total{font-size:44px;line-height:1;color:var(--gold)}
+.bank-sub{font-size:22px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.stat{background:rgba(245,241,227,.07);border-radius:12px;padding:10px}
+.stat .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-top:14px}
+.card h2{margin:0 0 10px;font-size:20px}
+.card h3{margin:14px 0 8px;font-size:17px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:56px;padding:0 22px;border-radius:14px;border:0;cursor:pointer;font-weight:700;font-size:19px;background:var(--turf);color:var(--turf-ink);box-shadow:0 3px 0 rgba(0,0,0,.18);touch-action:manipulation}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+.btn.gold{background:var(--gold);color:var(--gold-ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn.sky{background:var(--sky);color:#fff}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:44px;font-size:16px;padding:0 14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row > .btn{flex:1 1 160px}
+.drills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.badge{border-radius:12px;padding:8px;border:1px solid var(--line);background:var(--field);display:flex;flex-direction:column;gap:2px;min-width:0}
+.badge .ic{font-weight:800;font-size:15px;border-radius:8px;padding:2px 6px;align-self:flex-start;color:#fff}
+.badge .nm{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge .rk{font-size:12px;color:var(--muted)}
+.pick{cursor:pointer;text-align:left;font:inherit}
+.beat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.beat div{background:var(--field);border-radius:12px;padding:10px;text-align:center}
+.beat .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.beat .t{font-size:13px;color:var(--muted)}
+.banner{border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--gold) 22%,var(--panel));border:1px solid color-mix(in srgb,var(--gold) 55%,var(--line));margin-top:14px;font-weight:600}
+.rephead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:700;background:var(--field);border:1px solid var(--line)}
+.progress{height:10px;background:var(--field);border-radius:999px;overflow:hidden;margin:10px 0}
+.progress > i{display:block;height:100%;background:var(--turf);border-radius:999px;transition:width .3s}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-top:12px}
+.prompt{font-size:22px;font-weight:700;margin:0 0 12px}
+.sentence{font-size:22px;background:var(--field);border-radius:14px;padding:14px;margin:0 0 12px}
+.hearrow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.hearrow .btn{flex:1 1 140px}
+.answer{width:100%;font-size:34px;font-weight:600;letter-spacing:.04em;padding:14px 16px;border-radius:14px;border:3px solid var(--line);background:var(--bg);outline:none;min-height:70px}
+.answer:focus{border-color:var(--sky)}
+.bigword{font-size:40px;font-weight:700;letter-spacing:.06em;text-align:center;padding:14px;border-radius:14px;background:var(--field);margin:6px 0 12px;word-break:break-all}
+.coachline{font-weight:600;margin:6px 0 10px}
+.hint{background:color-mix(in srgb,var(--sky) 14%,var(--panel));border-radius:12px;padding:10px 12px;margin:10px 0;font-weight:600}
+.tiles{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.tile{min-height:58px;min-width:72px;padding:0 16px;border-radius:14px;border:2px solid var(--line);background:var(--field);font-size:26px;font-weight:700;cursor:pointer;touch-action:manipulation}
+.tile.used{opacity:.25;pointer-events:none}
+.built{min-height:64px;border:3px dashed var(--line);border-radius:14px;padding:10px;font-size:32px;font-weight:700;letter-spacing:.05em;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.built span{background:var(--turf);color:var(--turf-ink);border-radius:10px;padding:2px 10px}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.result{border-radius:16px;padding:14px;margin-bottom:12px}
+.result.good{background:color-mix(in srgb,var(--ok) 16%,var(--panel));border:2px solid color-mix(in srgb,var(--ok) 50%,var(--line))}
+.result.try{background:color-mix(in srgb,var(--gold) 16%,var(--panel));border:2px solid color-mix(in srgb,var(--gold) 50%,var(--line))}
+.result .big{font-size:26px;font-weight:800}
+.diff{display:grid;gap:6px;overflow-x:auto;padding-bottom:4px;margin:10px 0}
+.diff .lbl{font-size:13px;color:var(--muted);font-weight:600}
+.diff .cells{display:flex;gap:3px;flex-wrap:nowrap}
+.diff .c{min-width:28px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--field);font-size:24px;font-weight:700}
+.diff .c.x{background:var(--gold);color:var(--gold-ink)}
+.diff .c.gap{opacity:.5}
+.tipline{font-weight:600;margin-top:8px}
+.final .big{font-size:48px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.grid2 > div{background:var(--field);border-radius:12px;padding:12px}
+.grid2 .v{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.bars{display:grid;gap:8px}
+.barrow{display:grid;grid-template-columns:130px 1fr;gap:8px;align-items:center}
+.pips{display:flex;gap:6px}
+.pip{width:34px;height:22px;border-radius:6px;background:var(--field);border:1px solid var(--line)}
+.pip.on{background:var(--turf);border-color:var(--turf)}
+.welcome{text-align:center;padding:40px 8px}
+.welcome .huge{font-size:30px;font-weight:800;margin:20px 0}
+.welcome .step{font-size:14px;color:var(--muted)}
+.overlay{position:fixed;inset:0;background:rgba(6,12,21,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{background:var(--panel);border-radius:18px;padding:18px;max-width:420px;width:100%;box-shadow:var(--shadow)}
+.modal h2{margin:0 0 8px}
+.pin{font-size:32px;letter-spacing:.4em;text-align:center;width:100%;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--bg)}
+.err{color:var(--bad);font-weight:600;min-height:1.4em}
+.float{position:fixed;left:50%;top:38%;transform:translate(-50%,0);font-size:34px;font-weight:800;pointer-events:none;z-index:60;animation:floatup 1.1s ease-out forwards;font-variant-numeric:tabular-nums}
+.float.plus{color:var(--ok)} .float.minus{color:var(--coral)}
+@keyframes floatup{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-70px)}}
+.confetti{position:fixed;top:30%;left:50%;width:10px;height:14px;border-radius:2px;pointer-events:none;z-index:55;animation:conf 1.2s ease-out forwards}
+@keyframes conf{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+.status{min-height:1.6em;font-weight:700;color:var(--turf);margin-top:10px}
+/* coach */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px}
+.tab{min-height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--field);cursor:pointer;font-weight:600;font-size:15px}
+.tab.on{background:var(--board);color:var(--board-ink);border-color:var(--board)}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:6px 6px;text-align:left;vertical-align:top}
+.tbl th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.tblwrap{overflow-x:auto;max-width:100%}
+.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:600}
+.form input,.form select,.coach textarea,.coach input[type=text],.coach input[type=date],.coach input[type=number]{padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:16px;width:100%}
+.coach textarea{min-height:90px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+.chk{display:flex;align-items:center;gap:8px;font-size:15px}
+.ok{color:var(--ok);font-weight:700} .no{color:var(--bad);font-weight:700}
+details summary{cursor:pointer;font-weight:600}
+.reclist{display:grid;gap:8px;margin-top:8px}
+.recrow{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--field);display:grid;gap:8px}
+.recword{font-size:18px}
+.recbtns{display:flex;flex-wrap:wrap;gap:8px}
+.recctl{display:flex;gap:6px}
+svg text{fill:var(--muted);font-family:inherit}
+@media (max-width:520px){
+  body{font-size:17px}
+  .bank-total{font-size:36px}
+  .bankrow{grid-template-columns:1fr 1fr}
+  .bankrow > :first-child{grid-column:1 / -1}
+  .drills{grid-template-columns:repeat(2,1fr)}
+  .answer{font-size:28px}
+  .bigword{font-size:32px}
+  .barrow{grid-template-columns:96px 1fr}
+  .pip{width:26px}
+}
+@media (prefers-reduced-motion: reduce){ .float,.confetti,.shake{animation-duration:.01s} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app" aria-live="polite"></div>
+<script>
+'use strict';
+(function(){
+
+/* =========================================================
+   CONFIG + DATA
+   ========================================================= */
+const DATA_VERSION = 2;
+const IS_TEST = /[?&]test=1/.test(location.search);
+const STORE_KEY = IS_TEST ? 'gsg.test.save' : 'gsg.save';
+const IN_ONLINE = !!(window.claude && typeof window.claude.use === 'function');
+
+const RANKS = ['Rookie','JV','Varsity','All-Star','Captain'];
+
+const DRILLS = [
+  {id:'yi',  name:'Y to I',        icon:'y→i', color:'#2f6fb0', tip:'Consonant + y? Flip the y to i before -ed, -es, -er, -est. Keep it for -ing.', rule:'y to i'},
+  {id:'de',  name:'Drop the E',    icon:'−e',  color:'#1f7a45', tip:'Vowel suffix? Drop the silent e.', rule:'drop the e'},
+  {id:'du',  name:'Double Up',     icon:'2×',  color:'#7a4fb5', tip:'Short vowel + one consonant? Double it before -ing or -ed.', rule:'double up'},
+  {id:'la',  name:'Look-Alikes',   icon:'≈',   color:'#c8553d', tip:'Think about the meaning, then pick the word.', rule:'look-alike'},
+  {id:'se',  name:'Sneaky Endings',icon:'-ant',color:'#b07a12', tip:'Say it the silly way: dis-TANT, ab-SENT, ner-VOUS.', rule:'ending'},
+  {id:'le',  name:'-le Endings',   icon:'-le', color:'#0f8a8a', tip:'Hear the chunk at the end: sim-PLE, bot-TLE.', rule:'-le ending'},
+  {id:'tw',  name:'Tricky Words',  icon:'★',   color:'#a33a6b', tip:'Use the memory trick for this word.', rule:'tricky part'},
+  {id:'bw',  name:'Big Words',     icon:'XL',  color:'#3b5b8c', tip:'Break it into chunks. Spell one chunk at a time.', rule:'big word chunk'},
+  {id:'pp',  name:'Prefix Power',  icon:'im-', color:'#5d7f1e', tip:'Before p, b or m, use im-.', rule:'prefix'}
+];
+
+/* word|syllables|target chunk|sentence|trick (trick optional) */
+const RAW = [
+`carried|car-ried|ied|She carried the cones to the field.
+hurried|hur-ried|ied|We hurried to the bus stop.
+worried|wor-ried|ied|Mom worried about the storm.
+copied|cop-ied|ied|He copied the notes from the board.
+replied|re-plied|ied|She replied to the text fast.
+emptied|emp-tied|ied|We emptied the water bottles.
+cities|cit-ies|ies|Big cities have tall buildings.
+families|fam-i-lies|ies|Many families came to the game.
+babies|ba-bies|ies|The babies slept in the car.
+easier|eas-i-er|ier|Math feels easier with practice.
+happier|hap-pi-er|ier|The team was happier after the win.
+funniest|fun-ni-est|iest|That was the funniest movie ever.
+tiniest|ti-ni-est|iest|The tiniest frog sat on a rock.
+heaviest|heav-i-est|iest|This is the heaviest bag here.
+angrily|an-gri-ly|ily|The ref spoke angrily to the coach.
+busily|bus-i-ly|ily|The ants worked busily all day.
+emptiness|emp-ti-ness|iness|The emptiness of the gym felt strange.
+laziness|la-zi-ness|iness|Laziness will not win the game.
+played|played|ayed|We played two games on Saturday.
+enjoyed|en-joyed|oyed|I enjoyed the science fair.
+stayed|stayed|ayed|We stayed late after practice.
+carrying|car-ry-ing|rying|He is carrying three sticks.
+worrying|wor-ry-ing|rying|Stop worrying about the test.`,
+`hoping|hop-ing|oping|I am hoping for a sunny day.
+making|mak-ing|aking|We are making a poster for class.
+writing|writ-ing|iting|She is writing a story.
+smiling|smil-ing|iling|The goalie was smiling after the save.
+dancing|danc-ing|cing|They were dancing at the party.
+saving|sav-ing|aving|I am saving money for new cleats.
+giving|giv-ing|iving|Thanks for giving me a ride.
+closed|closed|osed|The store closed at nine.
+arrived|ar-rived|ived|The bus arrived at seven.
+noticed|no-ticed|iced|I noticed a bird on the fence.
+believing|be-liev-ing|ving|Keep believing in your team.
+amazing|a-maz-ing|azing|That goal was amazing!
+careful|care-ful|eful|Be careful on the wet field.
+hopeful|hope-ful|eful|The coach was hopeful about the season.
+movement|move-ment|ement|Footwork is all about movement.
+excitement|ex-cite-ment|ement|The crowd buzzed with excitement.
+lovely|love-ly|ely|What a lovely day for a hike.`,
+`running|run-ning|nning|He is running laps after practice.
+stopped|stopped|pped|The rain stopped at noon.
+planning|plan-ning|nning|We are planning a trip.
+winning|win-ning|nning|Our team is winning by two.
+swimming|swim-ming|mming|We went swimming at the lake.
+getting|get-ting|tting|It is getting cold outside.
+shopping|shop-ping|pping|Mom went shopping for food.
+dropped|dropped|pped|He dropped his phone on the grass.
+hopping|hop-ping|pping|The bunny was hopping in the yard.
+forgetting|for-get-ting|tting|I keep forgetting my water bottle.
+admitted|ad-mit-ted|tted|He admitted he was wrong.
+preferred|pre-ferred|rred|She preferred the blue jersey.
+occurred|oc-curred|rred|The mistake occurred in the first half.
+controlled|con-trolled|lled|He controlled the ball well.
+permitted|per-mit-ted|tted|Phones are not permitted in class.`,
+`their|their|their|The kids packed their own lunches.|their = belongs to them. It has "heir" in it.
+there|there|there|Put the cones over there.|there = a place, like here and where.
+they're|they're|they're|I think they're on the bus.|they're = they are.
+your|your|your|Is this your water bottle?|your = belongs to you.
+you're|you're|you're|Tell me when you're done.|you're = you are.
+its|its|its|The dog wagged its tail.|its = belongs to it. No apostrophe.
+it's|it's|it's|It's time for practice.|it's = it is.
+to|to|to|We walked to the park.|to = toward a place.
+too|too|too|I want to come too.|too = also, or more than enough. It has an extra o.
+two|two|two|I have two brothers.|two = the number 2. Think tw, like twin.
+threw|threw|threw|He threw the ball to me.|threw = the past of throw. grow, grew. throw, threw.
+through|through|through|We ran through the tunnel.|through = in one side and out the other.
+whose|whose|whose|Whose jacket is on the bench?|whose = belongs to who.
+who's|who's|who's|Who's ready for the game?|who's = who is.
+then|then|then|We ate, then we played.|then = next in time.
+than|than|than|He is taller than his dad.|than = compares two things.
+know|know|know|I know the answer.|know has a silent k, like knee.
+no|no|no|There is no school today.|no = the opposite of yes.
+hear|hear|hear|I can hear the crowd cheering.|You hear with your ear. hEAR.
+here|here|here|Come over here, please.|here = this place.
+piece|piece|piece|Can I have a piece of pizza?|A piece of pie. pIEce.
+peace|peace|peace|The lake was calm and full of peace.|peace = calm, no fighting.
+weather|weather|weather|The weather is cold today.|weather = rain, sun, snow.
+whether|whether|whether|I do not know whether to stay.|whether = if. It starts like when.
+accept|accept|accept|I accept your apology.|accept = take it.
+except|except|except|Everyone came except Sam.|except = leave out. ex means out.`,
+`distant|dis-tant|ant|We heard a distant train.
+distance|dis-tance|ance|Run the whole distance without stopping.
+instant|in-stant|ant|The goal came in an instant.
+elephant|el-e-phant|ant|The elephant sprayed water.
+balance|bal-ance|ance|Keep your balance on the beam.
+attendance|at-ten-dance|ance|The teacher took attendance.
+absent|ab-sent|ent|Two kids were absent today.
+absence|ab-sence|ence|His absence hurt the team.
+silent|si-lent|ent|The gym went silent.
+silence|si-lence|ence|We sat in silence.
+patient|pa-tient|ent|Be patient with your little sister.
+confident|con-fi-dent|ent|She felt confident before the test.
+confidence|con-fi-dence|ence|Practice builds confidence.
+excellent|ex-cel-lent|ent|That was an excellent pass.
+student|stu-dent|ent|Every student got a planner.
+different|dif-fer-ent|ent|We ran a different play.
+nervous|ner-vous|ous|I felt nervous before the game.
+famous|fa-mous|ous|He wants to be a famous player.
+enormous|e-nor-mous|ous|The whale was enormous.
+jealous|jeal-ous|ous|My brother was jealous of my bike.
+generous|gen-er-ous|ous|She was generous with her snacks.
+curious|cu-ri-ous|ous|The curious cat opened the box.
+various|var-i-ous|ous|We ran various drills.
+animal|an-i-mal|al|What is your favorite animal?
+natural|nat-u-ral|al|The park has a natural pond.
+final|fi-nal|al|The final score was five to four.`,
+`simple|sim-ple|ple|The plan is simple.
+sample|sam-ple|ple|Try a sample of the soup.
+purple|pur-ple|ple|She wore a purple jersey.
+table|ta-ble|ble|Set the table for dinner.
+middle|mid-dle|dle|Stand in the middle of the field.
+bottle|bot-tle|tle|Fill your water bottle.
+little|lit-tle|tle|My little sister plays soccer.
+puzzle|puz-zle|zle|We finished the puzzle together.
+gentle|gen-tle|tle|Be gentle with the puppy.
+single|sin-gle|gle|He scored a single goal.
+handle|han-dle|dle|Hold the stick by the handle.
+castle|cas-tle|tle|We built a sand castle.
+people|peo-ple|ple|Lots of people came to watch.
+terrible|ter-ri-ble|ble|The traffic was terrible.
+possible|pos-si-ble|ble|Anything is possible with practice.`,
+`brought|brought|ough|She brought snacks for the team.|The ough family: brought, bought, fought.
+bought|bought|ough|Dad bought new cleats.|The ough family: bought, brought, fought.
+fought|fought|ough|They fought hard to the end.|The ough family: fought, bought, brought.
+though|though|ough|It was cold, though sunny.|tho + ugh: th-OUGH.
+enough|e-nough|ough|Did you get enough sleep?|e + nough. Tough, rough, enough.
+because|be-cause|cause|We stayed in because of rain.|be + cause. Big Elephants Can Always Understand Small Elephants.
+said|said|ai|Coach said to run two laps.|said has ai in the middle: s-AI-d.
+again|a-gain|ain|Try it again.|a + gain.
+believe|be-lieve|lie|I believe we can win.|Never believe a LIE.
+minute|min-ute|ute|Wait one minute.|min + ute. A cute minute.
+answer|an-swer|sw|Write your answer on the line.|The w is silent: an-SWER.
+laugh|laugh|augh|His jokes make me laugh.|Laugh And U Get Happy: L-A-U-G-H.
+school|school|ch|School starts at eight.|s + ch + ool. There is a hidden h.
+beautiful|beau-ti-ful|eau|The sunset was beautiful.|beau starts with b-e-a-u: Big Elephants Are Useful.
+favorite|fa-vor-ite|ite|Pizza is my favorite food.|fa + vor + ite. Say it the silly way.
+separate|sep-a-rate|par|Separate the red and blue cones.|There is A RAT in separate.
+receive|re-ceive|ei|Did you receive my message?|i before e, except after c: re-CEIVE.
+science|sci-ence|sci|Science is my best class.|s-c-i, like scissors.
+Wednesday|Wednes-day|dnes|We have practice on Wednesday.|Say it the silly way: WED-NES-DAY.`,
+`accident|ac-ci-dent|cc|It was just an accident.
+attention|at-ten-tion|tten|Pay attention to the play.
+tomorrow|to-mor-row|rrow|We have a game tomorrow.
+opposite|op-po-site|pp|Up is the opposite of down.
+according|ac-cord-ing|cc|We played according to plan.
+recommend|rec-om-mend|mm|I recommend this book.
+successful|suc-cess-ful|cc|The bake sale was successful.
+communicate|com-mu-ni-cate|mm|Teammates must communicate on defense.
+commercial|com-mer-cial|mm|We saw a funny commercial.
+accomplish|ac-com-plish|cc|What do you want to accomplish?
+occasion|oc-ca-sion|cc|A birthday is a special occasion.
+opportunity|op-por-tu-ni-ty|pp|This is a great opportunity.
+environment|en-vi-ron-ment|ron|We help protect the environment.
+government|gov-ern-ment|ern|The government builds roads.
+temperature|tem-per-a-ture|per|The temperature dropped tonight.
+experiment|ex-per-i-ment|per|Our experiment used baking soda.
+vocabulary|vo-cab-u-lar-y|bu|We had a vocabulary quiz.
+comfortable|com-fort-a-ble|fort|These cleats are comfortable.`,
+`impossible|im-pos-si-ble|imp|Nothing is impossible.
+imperfect|im-per-fect|imp|The pass was imperfect but worked.
+impatient|im-pa-tient|imp|The crowd grew impatient.
+immature|im-ma-ture|imm|That joke was immature.
+imbalance|im-bal-ance|imb|The scale showed an imbalance.
+incomplete|in-com-plete|inc|The puzzle is still incomplete.
+independent|in-de-pend-ent|ind|She is an independent thinker.
+incorrect|in-cor-rect|inc|That answer is incorrect.
+invisible|in-vis-i-ble|inv|The ghost was invisible.
+illegal|il-le-gal|ill|That hit was illegal.
+irregular|ir-reg-u-lar|irr|The shape had irregular sides.
+irresponsible|ir-re-spon-si-ble|irr|Leaving the gate open was irresponsible.`
+];
+
+/* Scouting Combine forms: [drill index] -> lines */
+const FORM_RAW = {
+A: [
+`married|mar-ried|ied|They married in the summer.
+ladies|la-dies|ies|The ladies cheered from the stands.
+scariest|scar-i-est|iest|That was the scariest ride.`,
+`hiking|hik-ing|iking|We went hiking in the woods.
+shared|shared|ared|She shared her chips with me.
+using|us-ing|sing|I am using a new stick.`,
+`hitting|hit-ting|tting|He is hitting the ball far.
+clapped|clapped|pped|The fans clapped loudly.
+regretted|re-gret-ted|tted|He regretted skipping practice.`,
+`they're|they're|they're|They're waiting for us outside.
+its|its|its|The bird flapped its wings.
+too|too|too|This soup is too hot.`,
+`pleasant|pleas-ant|ant|We had a pleasant walk.
+talent|tal-ent|ent|She has a talent for drawing.
+poisonous|poi-son-ous|ous|Some snakes are poisonous.`,
+`apple|ap-ple|ple|I ate an apple at lunch.
+eagle|ea-gle|gle|An eagle flew over the lake.
+tumble|tum-ble|ble|Watch out or you will tumble.`,
+`caught|caught|augh|She caught the ball.
+does|does|oes|Does he play goalie?
+island|is-land|isl|We took a boat to the island.`,
+`dictionary|dic-tion-ar-y|ary|Look it up in the dictionary.
+celebration|cel-e-bra-tion|tion|The party was a big celebration.
+necessary|nec-es-sar-y|ss|Is a helmet necessary?`,
+`impolite|im-po-lite|imp|It is impolite to interrupt.
+inactive|in-ac-tive|ina|The volcano is inactive.
+illogical|il-log-i-cal|ill|That plan is illogical.`
+],
+B: [
+`tried|tried|ied|He tried his best.
+parties|par-ties|ies|We went to two parties.
+prettier|pret-ti-er|ier|The park is prettier in spring.`,
+`driving|driv-ing|iving|Dad is driving us home.
+chased|chased|ased|The dog chased the ball.
+skating|skat-ing|ating|We went skating on the pond.`,
+`sitting|sit-ting|tting|We are sitting on the bench.
+grabbed|grabbed|bbed|He grabbed his helmet.
+committed|com-mit-ted|tted|She committed to the team.`,
+`it's|it's|it's|It's raining outside.
+two|two|two|We need two more players.
+who's|who's|who's|Who's bringing the snacks?`,
+`assistant|as-sis-tant|ant|The assistant coach ran drills.
+moment|mo-ment|ent|Wait a moment, please.
+joyous|joy-ous|ous|It was a joyous day.`,
+`candle|can-dle|dle|Light the candle on the cake.
+circle|cir-cle|cle|Stand in a circle.
+wiggle|wig-gle|gle|Wiggle your toes.`,
+`daughter|daugh-ter|augh|Her daughter plays lacrosse.
+busy|bus-y|us|I am busy tonight.
+often|of-ten|ft|We often eat pizza on Friday.`,
+`electricity|e-lec-tric-i-ty|city|The storm cut off our electricity.
+transportation|trans-por-ta-tion|tion|The bus is our transportation.
+immediately|im-me-di-ate-ly|mm|Come inside immediately.`,
+`impure|im-pure|imp|The water was impure.
+insecure|in-se-cure|ins|He felt insecure at first.
+irrational|ir-ra-tion-al|irr|Her fear was irrational.`
+]};
+
+/* Saved for the paper retest. Never practiced, never in a sentence (Drill 4 may use their, you're, threw). */
+const BANNED = ['catch','dodge','voice','their','threw',"you're",'thought','friend','world','break','beginning','improving','excited','happiness','studied','example','important','difference','dangerous','community'];
+const DRILL4_ALLOWED = ['their',"you're",'threw'];
+
+function parseLines(block, d, src){
+  return block.trim().split('\n').map(line=>{
+    const [w,syl,chunk,s,trick] = line.split('|');
+    return {w:w.trim(), syl:syl.trim(), chunk:chunk.trim(), s:s.trim(), trick:(trick||'').trim(), d, src};
+  });
+}
+const WORDS = [];
+RAW.forEach((b,d)=>parseLines(b,d,'bank').forEach(x=>WORDS.push(x)));
+const FORMS = {A:[],B:[]};
+['A','B'].forEach(f=>FORM_RAW[f].forEach((b,d)=>parseLines(b,d,'form'+f).forEach(x=>FORMS[f].push(x))));
+/* Combine order: round-robin by drill, so no two in a row share a drill; fixed every time */
+function formOrder(f){ const out=[]; for(let r=0;r<3;r++) for(let d=0;d<9;d++){ out.push(FORMS[f].filter(x=>x.d===d)[r]); } return out; }
+
+const DEFAULT_MONEY = {
+  correct:0.10, fixed:0.12, hint:0.05, chunk:0.05, pattern:0.02,
+  wrong:0.05, sureRight:0.05, sureWrong:0.05, hintCost:0.02,
+  streak5:0.25, dailyGoal:0.25, dayStreak5:1.00, personalBest:0.50,
+  mastered:0.25, rankUp:1.00, combine:1.00, combineGain:0.25
+};
+const MONEY_LABELS = {
+  correct:'Correct, no hint (earn)', fixed:'Correct after fixing own mistake (earn)', hint:'Correct with a hint (earn)', chunk:'Chunk Builder correct (earn)', pattern:'Wrong but pattern right (earn)',
+  wrong:'Wrong final answer (lose)', sureRight:'"Sure" and right bonus (earn)', sureWrong:'"Sure" and wrong (lose)', hintCost:'JV hint cost (lose)',
+  streak5:'Every 5 in a row (earn)', dailyGoal:'Daily goal: full practice (earn)', dayStreak5:'5 days in a row (earn)', personalBest:'New personal best (earn)',
+  mastered:'Word mastered, to Vault (earn)', rankUp:'Drill rank up, to Vault (earn)', combine:'Finish a Combine, to Vault (earn)', combineGain:'Each drill up on a re-test, to Vault (earn)'
+};
+
+/* =========================================================
+   DATES
+   ========================================================= */
+function pad(n){return String(n).padStart(2,'0')}
+let _now = null; // test override
+function now(){ return _now ? new Date(_now) : new Date(); }
+function dstr(dt){ return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate()); }
+function today(){ return dstr(now()); }
+function parseD(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function addDays(s,n){ const dt=parseD(s); dt.setDate(dt.getDate()+n); return dstr(dt); }
+function daysBetween(a,b){ return Math.round((parseD(b)-parseD(a))/86400000); }
+function weekStart(s){ const dt=parseD(s); const wd=(dt.getDay()+6)%7; dt.setDate(dt.getDate()-wd); return dstr(dt); }
+function niceDate(s){ const dt=parseD(s); return dt.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }
+
+/* =========================================================
+   STORAGE (one module: load / save / migrate)
+   ========================================================= */
+function freshState(){
+  return {
+    version: DATA_VERSION,
+    createdAt: today(),
+    onboarded: false,
+    settings: { pinHash:'', recoveryHash:'', money:Object.assign({},DEFAULT_MONEY), weeklyCap:10, dailyLossCap:0.5, practiceReps:15, practiceMinutes:10, drillsOn:DRILLS.map(()=>true), muted:false, voiceName:'', voiceRate:0.9, useRecordings:true },
+    bank: { wallet:0, vault:0 },
+    ledger: [],     // {t, amt, v(0/1), r, p(payout 0/1)}
+    payouts: [],    // {t, amt}
+    words: {},      // word -> {b, due, days:[], m, seen, ok, miss}
+    drills: DRILLS.map(()=>({r:0, chunk:true, since:'', days:[]})),
+    reps: [],       // {t, w, d, ok, h, c, m:'p'|'b'}
+    sessions: [],   // {t, mode, mins, reps, correct, earned, lost, full}
+    boss: [],       // {t, score, items:[{w,d,ans,ok}]}
+    combines: [],   // {t, form, items:[...], byDrill:[{ok,pat}], score, patScore, fixes}
+    combineCur: null,
+    outside: [],    // {t, note}
+    custom: [],     // custom words
+    records: { bestAcc:0, bestStreak:0, bestBoss:0 },
+    streak: { days:0, last:'' },
+    dailyGoalDay: '',
+    lastBackup: ''
+  };
+}
+function isObj(x){ return x && typeof x==='object' && !Array.isArray(x); }
+function deepFill(base, saved){
+  if(!isObj(saved)) return base;
+  const out = Array.isArray(base) ? base.slice() : Object.assign({}, base);
+  Object.keys(saved).forEach(k=>{
+    if(isObj(base[k]) && isObj(saved[k])) out[k] = deepFill(base[k], saved[k]);
+    else if(saved[k] !== undefined) out[k] = saved[k];
+  });
+  return out;
+}
+const Store = {
+  key: STORE_KEY,
+  migrate(obj){
+    if(!isObj(obj)) return freshState();
+    let s = deepFill(freshState(), obj);
+    // v0/v1: bank stored as a single number, or missing fields
+    if(typeof obj.bank === 'number'){ s.bank = {wallet:obj.bank, vault:0}; }
+    if(!Array.isArray(s.drills) || s.drills.length!==DRILLS.length){
+      const d = DRILLS.map((_,i)=> Object.assign({r:0,chunk:true,since:'',days:[]}, (obj.drills||[])[i]||{}));
+      s.drills = d;
+    }
+    if(!Array.isArray(s.settings.drillsOn) || s.settings.drillsOn.length!==DRILLS.length) s.settings.drillsOn = DRILLS.map(()=>true);
+    s.settings.money = Object.assign({}, DEFAULT_MONEY, s.settings.money||{});
+    s.version = DATA_VERSION;
+    return s;
+  },
+  load(){
+    let raw = null;
+    try{ raw = localStorage.getItem(this.key); }catch(e){ raw = null; }
+    if(!raw) return freshState();
+    try{ return this.migrate(JSON.parse(raw)); }catch(e){ return freshState(); }
+  },
+  save(s){
+    try{ localStorage.setItem(this.key, JSON.stringify(s)); return true; }catch(e){ return false; }
+  },
+  exportCode(s){ return 'GSG1:' + btoa(unescape(encodeURIComponent(JSON.stringify(s)))); },
+  importCode(code){
+    code = (code||'').trim();
+    if(!code.startsWith('GSG1:')) throw new Error('That is not a backup code.');
+    const obj = JSON.parse(decodeURIComponent(escape(atob(code.slice(5)))));
+    return this.migrate(obj);
+  }
+};
+
+let S = Store.load();
+function save(){ S.savedAt = Date.now(); Store.save(S); Cloud.schedule(); GSync.schedule(); }
+
+/* ---------- Google Drive sync (website version): a small Apps Script web app in the parent's
+   Google account keeps one JSON file. Each device keeps the script address + family key. ---------- */
+const SYNC_KEY = IS_TEST ? 'gsg.test.sync' : 'gsg.sync';
+const GSync = {
+  status:'off', timer:null, busy:false, again:false,
+  cfg(){ try{ const c=JSON.parse(localStorage.getItem(SYNC_KEY)||'null'); return c && c.url && c.key ? c : null; }catch(e){ return null; } },
+  setCfg(c){ try{ if(c) localStorage.setItem(SYNC_KEY, JSON.stringify(c)); else localStorage.removeItem(SYNC_KEY); }catch(e){} },
+  async call(body, cfg){
+    const c = cfg || this.cfg(); if(!c) throw new Error('not set up');
+    const r = await fetch(c.url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(Object.assign({key:c.key}, body)), redirect:'follow'});
+    const j = await r.json();
+    if(!j || !j.ok) throw new Error((j && j.error) || 'failed');
+    return j;
+  },
+  busyPlaying(){ return !!(SES && (SES.mode==='practice'||SES.mode==='boss'||SES.mode==='combine')); },
+  async init(){
+    if(!this.cfg()) return;
+    this.status='connecting'; if(ui.coachOpen) render();
+    try{
+      const j = await this.call({action:'load'});
+      const remote = j.state;
+      if(remote && typeof remote==='object' && (remote.savedAt||0) > (S.savedAt||0) && !this.busyPlaying()){
+        S = Store.migrate(remote); Store.save(S);
+      }
+      if(!remote || (S.savedAt||0) > (remote.savedAt||0)) await this.push();
+      this.status='online';
+    }catch(e){ this.status='error'; }
+    if(!this.busyPlaying()) render();
+  },
+  schedule(){ if(!this.cfg()) return; clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(), 2500); },
+  async push(){
+    if(!this.cfg()) return;
+    if(this.busy){ this.again=true; return; }
+    this.busy=true;
+    try{
+      const j = await this.call({action:'save', state:S});
+      // the other device saved newer play: take it instead of overwriting (never mid-practice)
+      if(j.stale && j.state && !this.busyPlaying()){ S = Store.migrate(j.state); Store.save(S); render(); }
+      this.status='online';
+    }catch(e){ this.status='error'; }
+    this.busy=false;
+    if(this.again){ this.again=false; this.push(); }
+  },
+  linkFor(){ const c=this.cfg(); if(!c) return ''; const code=btoa(JSON.stringify({u:c.url,k:c.key})); return location.origin+location.pathname+'?sync='+encodeURIComponent(code); },
+  takeLink(){
+    const m = /[?&]sync=([^&]+)/.exec(location.search); if(!m) return false;
+    try{ const o=JSON.parse(atob(decodeURIComponent(m[1]))); if(o.u && o.k){ this.setCfg({url:o.u, key:o.k}); } }catch(e){}
+    try{ history.replaceState(null,'',location.pathname); }catch(e){}
+    return true;
+  }
+};
+
+/* ---------- Cloud save (online version only): the claude.ai artifact database ----------
+   game/core          everything except the growing logs
+   logs/<YYYY-MM>.<k> one month of reps, ledger or sessions (k = reps | ledger | sessions)
+   Falls back to this device's storage when the online database is not available. */
+const LOG_KEYS = ['reps','ledger','sessions'];
+const Cloud = {
+  db:null, on:false, status:'device', last:{}, known:new Set(), saving:false, again:false, timer:null, unsub:null,
+  split(s){
+    const core = {}; Object.keys(s).forEach(k=>{ if(LOG_KEYS.indexOf(k)<0) core[k]=s[k]; });
+    const docs = {'core':core};
+    LOG_KEYS.forEach(k=>{ (s[k]||[]).forEach(e=>{ const m=(e.t||'0000-00').slice(0,7); const id=m+'.'+k; (docs[id]=docs[id]||{k, m, items:[]}).items.push(e); }); });
+    return docs;
+  },
+  compose(core, logDocs){
+    const s = Object.assign({}, core); LOG_KEYS.forEach(k=>s[k]=[]);
+    logDocs.sort((a,b)=>a.id.localeCompare(b.id)).forEach(d=>{ const b=d.body; if(b && LOG_KEYS.indexOf(b.k)>=0 && Array.isArray(b.items)) s[b.k]=s[b.k].concat(b.items); });
+    return s;
+  },
+  async pull(){
+    const core = await this.db.doc('game/core').get();
+    if(!core.exists) return null;
+    const logs = await this.db.collection('logs').get();
+    const docs = logs.docs.map(d=>({id:d.id, body:d.data()}));
+    this.known = new Set(docs.map(d=>d.id));
+    const s = this.compose(core.data(), docs);
+    // remember what is already stored so unchanged docs are not rewritten
+    const parts = this.split(s); this.last = {}; Object.keys(parts).forEach(id=>this.last[id]=JSON.stringify(parts[id]));
+    return s;
+  },
+  async init(){
+    try{
+      if(!(window.claude && typeof window.claude.use==='function')) return;
+      const db = await window.claude.use('db'); if(!db) return;
+      this.db = db;
+      let remote = null;
+      try{ remote = await this.pull(); }catch(e){ this.status='error'; return; }
+      if(remote && (!S.savedAt || (remote.savedAt||0) >= S.savedAt)){
+        S = Store.migrate(remote); Store.save(S);
+      }
+      this.on = true; this.status='online';
+      if(!remote || (S.savedAt||0) > (remote.savedAt||0)) await this.flush();   // first time online, or newer offline play
+      this.unsub = db.doc('game/core').onSnapshot(snap=>{
+        if(!snap.exists || snap.metadata.hasPendingWrites) return;
+        const b = snap.data(); if(!b || !b.savedAt || b.savedAt <= (S.savedAt||0)) return;
+        if(SES && (SES.mode==='practice'||SES.mode==='boss'||SES.mode==='combine')) return;   // never swap data mid-practice
+        this.pull().then(r=>{ if(r){ S=Store.migrate(r); Store.save(S); render(); } }).catch(()=>{});
+      }, ()=>{});
+      render();
+    }catch(e){ this.status='error'; }
+  },
+  schedule(){ if(!this.on) return; clearTimeout(this.timer); this.timer=setTimeout(()=>this.flush(), 1200); },
+  async flush(){
+    if(!this.on) return;
+    if(this.saving){ this.again=true; return; }
+    this.saving=true;
+    try{
+      const parts = this.split(S);
+      for(const id of Object.keys(parts)){
+        const body = parts[id], json = JSON.stringify(body);
+        if(this.last[id]===json) continue;
+        const ref = id==='core' ? this.db.doc('game/core') : this.db.doc('logs/'+id);
+        await ref.set(body);
+        this.last[id]=json; if(id!=='core') this.known.add(id);
+      }
+      for(const id of Array.from(this.known)){ if(!parts[id]){ await this.db.doc('logs/'+id).delete(); this.known.delete(id); delete this.last[id]; } }
+      this.status='online';
+    }catch(e){ this.status = (e && e.code==='quota_exceeded') ? 'full' : 'error'; }
+    this.saving=false;
+    if(this.again){ this.again=false; this.flush(); }
+  },
+  label(){
+    if(GSync.cfg()){
+      if(GSync.status==='online') return 'Synced to your Google Drive. Same bank and results on his iPhone and computer.';
+      if(GSync.status==='connecting') return 'Connecting to your Google Drive…';
+      if(GSync.status==='error') return 'Could not reach Google Drive. Saved on this device; it syncs when the connection is back.';
+      return 'Google Drive sync is set up on this device.';
+    }
+    if(this.status==='online') return 'Saved to your Claude account. Opens with the same data on any computer.';
+    if(this.status==='error') return 'Could not reach online saving. Saved on this device for now; it will try again.';
+    if(this.status==='full') return 'Online storage is full. Saved on this device. Ask Claude to trim old records.';
+    return 'Saved on this device only (file version).';
+  }
+};
+
+/* =========================================================
+   MONEY
+   ========================================================= */
+function cents(x){ return Math.round(x*100)/100; }
+function fmt$(x){ const n=cents(x); return (n<0?'-':'')+'$'+Math.abs(n).toFixed(2); }
+function weekEarned(s){ const ws=weekStart(today()); return cents(s.ledger.filter(e=>!e.p && e.amt>0 && e.t>=ws).reduce((a,e)=>a+e.amt,0)); }
+function weekLost(s){ const ws=weekStart(today()); return cents(s.ledger.filter(e=>!e.p && e.amt<0 && e.t>=ws).reduce((a,e)=>a-e.amt,0)); }
+function todayLost(s){ const t=today(); return cents(s.ledger.filter(e=>!e.p && e.amt<0 && e.t===t).reduce((a,e)=>a-e.amt,0)); }
+/* amount: positive earns, negative loses. opts.vault: earn into the Vault. opts.boss: doubled. Returns the amount actually applied. */
+function addMoney(s, amount, reason, opts){
+  opts = opts||{};
+  let amt = cents(amount * (opts.boss?2:1));
+  if(amt===0) return 0;
+  if(amt>0){
+    const room = cents(s.settings.weeklyCap - weekEarned(s));
+    if(room<=0) return 0;
+    amt = cents(Math.min(amt, room));
+    if(opts.vault) s.bank.vault = cents(s.bank.vault+amt); else s.bank.wallet = cents(s.bank.wallet+amt);
+  } else {
+    const lossRoom = cents(s.settings.dailyLossCap - todayLost(s));
+    const loss = cents(Math.max(0, Math.min(-amt, lossRoom, s.bank.wallet)));   // Vault never loses; wallet never below $0
+    if(loss<=0) return 0;
+    amt = -loss;
+    s.bank.wallet = cents(s.bank.wallet - loss);
+  }
+  s.ledger.push({t:today(), amt, v:opts.vault?1:0, r:reason, p:0});
+  return amt;
+}
+function recordPayout(s, amount, date){
+  let amt = cents(Math.max(0, Number(amount)||0));
+  const total = cents(s.bank.wallet + s.bank.vault);
+  amt = Math.min(amt, total);
+  if(amt<=0) return 0;
+  const fromWallet = Math.min(amt, s.bank.wallet);
+  const fromVault = cents(amt - fromWallet);
+  s.bank.wallet = cents(s.bank.wallet - fromWallet);
+  s.bank.vault = cents(s.bank.vault - fromVault);
+  s.payouts.push({t:date||today(), amt});
+  s.ledger.push({t:date||today(), amt:-amt, v:0, r:'Payout', p:1});
+  return amt;
+}
+function weeklyCapHit(s){ return weekEarned(s) >= s.settings.weeklyCap; }
+
+/* =========================================================
+   SOUND (Web Audio, no files)
+   ========================================================= */
+let actx = null;
+function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ actx=null; } } return actx; }
+function tone(freq, dur, type, vol, when){
+  if(S.settings.muted) return; const c=ac(); if(!c) return;
+  try{
+    const t = c.currentTime + (when||0);
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.15,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+0.05);
+  }catch(e){}
+}
+const Sound = {
+  coin(){ tone(988,0.09,'square',0.08); tone(1319,0.16,'square',0.08,0.08); },
+  horn(){ [196,247,294].forEach(f=>tone(f,0.55,'sawtooth',0.06)); tone(392,0.45,'triangle',0.05,0.05); },
+  soft(){ tone(330,0.18,'sine',0.08); tone(262,0.22,'sine',0.07,0.12); },
+  tap(){ tone(660,0.05,'triangle',0.05); }
+};
+
+/* =========================================================
+   SPEECH (Web Speech API)
+   ========================================================= */
+/* ---------- Coach voice recordings (IndexedDB, this device only) ---------- */
+const Clips = {
+  db:null, keys:new Set(), ready:false,
+  key(w, part){ return norm(w)+'|'+part; },
+  open(){
+    return new Promise(res=>{
+      try{
+        if(!window.indexedDB){ this.ready=true; return res(false); }
+        const rq = indexedDB.open(IS_TEST?'gsg-test-audio':'gsg-audio', 1);
+        rq.onupgradeneeded = ()=>{ rq.result.createObjectStore('clips'); };
+        rq.onsuccess = ()=>{ this.db=rq.result;
+          try{ const tx=this.db.transaction('clips','readonly').objectStore('clips').getAllKeys();
+            tx.onsuccess=()=>{ (tx.result||[]).forEach(k=>this.keys.add(k)); this.ready=true; res(true); };
+            tx.onerror=()=>{ this.ready=true; res(true); };
+          }catch(e){ this.ready=true; res(true); } };
+        rq.onerror = ()=>{ this.ready=true; res(false); };
+      }catch(e){ this.ready=true; res(false); }
+    });
+  },
+  has(w, part){ return this.keys.has(this.key(w,part)); },
+  put(w, part, blob){
+    return new Promise(res=>{ try{ const tx=this.db.transaction('clips','readwrite'); tx.objectStore('clips').put(blob, this.key(w,part)); tx.oncomplete=()=>{ this.keys.add(this.key(w,part)); res(true); }; tx.onerror=()=>res(false); }catch(e){ res(false); } });
+  },
+  get(w, part){
+    return new Promise(res=>{ try{ const rq=this.db.transaction('clips','readonly').objectStore('clips').get(this.key(w,part)); rq.onsuccess=()=>res(rq.result||null); rq.onerror=()=>res(null); }catch(e){ res(null); } });
+  },
+  del(w, part){
+    return new Promise(res=>{ try{ const tx=this.db.transaction('clips','readwrite'); tx.objectStore('clips').delete(this.key(w,part)); tx.oncomplete=()=>{ this.keys.delete(this.key(w,part)); res(true); }; tx.onerror=()=>res(false); }catch(e){ res(false); } });
+  }
+};
+
+/* ---------- Speech: coach recording if there is one, else the best computer voice ---------- */
+/* Robotic or novelty voices that ship with Macs; never chosen automatically */
+const BAD_VOICES = /\b(Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Deranged|Good News|Hysterical|Jester|Organ|Pipe Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Fred|Junior|Ralph|Kathy|Princess|Grandma|Grandpa|Eddy|Flo|Reed|Rocko|Sandy|Shelley)\b/i;
+function voiceScore(v){
+  if(!/^en/i.test(v.lang)) return -1;
+  if(BAD_VOICES.test(v.name)) return 0;
+  let s = 10;
+  if(/en[-_]US/i.test(v.lang)) s += 20;
+  if(/Premium/i.test(v.name)) s += 60;
+  else if(/Enhanced/i.test(v.name)) s += 50;
+  else if(/Neural|Natural|Online/i.test(v.name)) s += 45;
+  else if(/Google US English/i.test(v.name)) s += 40;
+  else if(/\b(Ava|Zoe|Evan|Nathan|Noelle|Joelle|Allison|Susan|Samantha|Tom|Aaron|Nicky|Jenny|Aria|Guy)\b/i.test(v.name)) s += 25;
+  else if(/Google/i.test(v.name)) s += 15;
+  if(v.localService === false) s += 2;
+  return s;
+}
+const Speech = {
+  ok: ('speechSynthesis' in window) && typeof window.SpeechSynthesisUtterance === 'function',
+  voice: null, token: 0, audio: null,
+  voices(){ if(!this.ok) return []; try{ return (speechSynthesis.getVoices()||[]).filter(v=>voiceScore(v)>=0).sort((a,b)=>voiceScore(b)-voiceScore(a) || a.name.localeCompare(b.name)); }catch(e){ return []; } },
+  pickVoice(){
+    if(!this.ok) return;
+    const vs = this.voices();
+    const want = S.settings.voiceName;
+    this.voice = (want && vs.find(v=>v.name===want)) || vs.find(v=>voiceScore(v)>0) || vs[0] || null;
+  },
+  textsFor(item, part){
+    if(part==='word') return [item.w];
+    if(part==='sentence') return [item.s];
+    return [item.w, item.s, item.w];   // word, sentence, word
+  },
+  /* the plan: for each step, use the coach recording when it exists, else the computer voice */
+  planFor(item, part){
+    const parts = part==='word' ? ['w'] : part==='sentence' ? ['s'] : ['w','s','w'];
+    const useRec = S.settings.useRecordings !== false;
+    return parts.map(p=>({part:p, text: p==='w'?item.w:item.s, clip: useRec && Clips.has(item.w,p)}));
+  },
+  stop(){ this.token++; try{ if(this.ok) speechSynthesis.cancel(); }catch(e){} try{ if(this.audio){ this.audio.pause(); this.audio=null; } }catch(e){} },
+  speakOne(text, rate){
+    return new Promise(res=>{
+      if(!this.ok) return res();
+      try{
+        if(!this.voice) this.pickVoice();
+        const u=new SpeechSynthesisUtterance(text);
+        u.lang = this.voice ? this.voice.lang : 'en-US'; u.rate = rate; u.pitch = 1; u.volume = 1;
+        if(this.voice) u.voice=this.voice;
+        let done=false; const fin=()=>{ if(!done){ done=true; res(); } };
+        u.onend=fin; u.onerror=fin;
+        setTimeout(fin, 1500 + text.length*180/rate);   // never hang if onend does not fire
+        speechSynthesis.speak(u);
+      }catch(e){ res(); }
+    });
+  },
+  playClip(w, part){
+    return Clips.get(w, part).then(blob=>new Promise(res=>{
+      if(!blob) return res(false);
+      try{
+        const url=URL.createObjectURL(blob); const a=new Audio(url); a.volume=1; this.audio=a;
+        const fin=()=>{ URL.revokeObjectURL(url); res(true); };
+        a.onended=fin; a.onerror=fin; a.play().catch(fin);
+      }catch(e){ res(false); }
+    }));
+  },
+  say(item, part, slow){
+    const texts = this.textsFor(item, part);
+    if(!item) return texts;
+    this.stop(); const my = this.token;
+    const rate = (Number(S.settings.voiceRate)||0.9) * (slow?0.75:1);
+    const plan = this.planFor(item, part);
+    (async ()=>{
+      for(let i=0;i<plan.length;i++){
+        if(my!==this.token) return;
+        const st = plan[i];
+        let played = false;
+        if(st.clip) played = await this.playClip(item.w, st.part);
+        if(!played) await this.speakOne(st.text, rate);
+        if(i<plan.length-1) await new Promise(r=>setTimeout(r, 650));   // a clear pause between word and sentence
+      }
+    })();
+    return texts;
+  },
+  test(text){ this.stop(); this.speakOne(text||'Separate. The team packed their own lunches. Separate.', Number(S.settings.voiceRate)||0.9); }
+};
+if(Speech.ok){ try{ Speech.pickVoice(); speechSynthesis.onvoiceschanged = ()=>{ Speech.pickVoice(); if(ui && ui.coachOpen && ui.coachTab==='voice') render(); }; }catch(e){} }
+
+/* ---------- Recorder for coach clips ---------- */
+const Rec = {
+  ok: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder),
+  stream:null, mr:null, chunks:[], target:null, timer:null,
+  async start(w, part){
+    if(this.mr) return this.stop();
+    try{
+      if(!this.stream) this.stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}});
+      const types=['audio/mp4','audio/webm;codecs=opus','audio/webm'];
+      const mt = types.find(t=>{ try{ return MediaRecorder.isTypeSupported(t); }catch(e){ return false; } });
+      this.mr = mt ? new MediaRecorder(this.stream,{mimeType:mt}) : new MediaRecorder(this.stream);
+      this.chunks=[]; this.target={w,part};
+      this.mr.ondataavailable = e=>{ if(e.data && e.data.size) this.chunks.push(e.data); };
+      this.mr.onstop = async ()=>{
+        const blob = new Blob(this.chunks, {type:this.mr.mimeType||'audio/webm'});
+        const t=this.target; this.mr=null; this.target=null; clearTimeout(this.timer);
+        if(blob.size>800) await Clips.put(t.w, t.part, blob);
+        ui.recMsg = blob.size>800 ? 'Saved: '+t.w+(t.part==='s'?' (sentence)':' (word)') : 'That was too short. Try again.';
+        render();
+        if(blob.size>800) Speech.playClip(t.w, t.part);
+      };
+      this.mr.start();
+      this.timer = setTimeout(()=>this.stop(), t_part_limit(part));
+      ui.recMsg='Recording… tap Stop when you finish.'; render();
+    }catch(e){ ui.recMsg='The microphone is not available. Allow microphone access for this page and try again.'; this.mr=null; render(); }
+  },
+  stop(){ try{ if(this.mr && this.mr.state!=='inactive') this.mr.stop(); }catch(e){} },
+  isOn(w, part){ return !!(this.target && this.target.w===w && this.target.part===part); }
+};
+function t_part_limit(part){ return part==='s' ? 9000 : 4000; }
+
+/* =========================================================
+   WORD HELPERS
+   ========================================================= */
+function norm(x){ return (x||'').replace(/[\u2018\u2019\u02BC`´]/g,"'").trim().toLowerCase(); }
+function allPractice(){ return WORDS.concat(S.custom.map(c=>Object.assign({src:'custom'},c))); }
+function ws(w){ const k=norm(w); if(!S.words[k]) S.words[k]={b:0,due:'',days:[],m:0,seen:0,ok:0,miss:0}; return S.words[k]; }
+function sylCount(item){ return item.syl.split('-').length; }
+const BOX_DAYS = [0,1,3,7,14];
+function hasChunk(ans, item){ if(item.d===3) return false; return norm(ans).indexOf(item.chunk.toLowerCase())>=0; }
+function drillAcc(d, n){
+  const r = S.reps.filter(x=>x.d===d).slice(-(n||30));
+  if(!r.length) return null; return r.filter(x=>x.ok).length / r.length;
+}
+function lowestDrillsFromCombine(){
+  const c = S.combines[S.combines.length-1]; if(!c) return [];
+  return c.byDrill.map((x,i)=>({i, ok:x.ok, pat:x.pat})).filter(x=>S.settings.drillsOn[x.i])
+    .sort((a,b)=>a.ok-b.ok || a.pat-b.pat || a.i-b.i).slice(0,3).map(x=>x.i);
+}
+/* =========================================================
+   SCOUTING REPORT: reads the latest Combine + recent practice and builds the practice plan
+   ========================================================= */
+const GOAL_LINK = ['School goal 7.3: change y to i','School goal 7.2: drop the e','School goal 7.1: doubling rule','School goal 2.2: homophones','Not in a school goal yet (schwa endings)','School goal 7.4: consonant-le','School goal 2.2: irregular words','School goal 6.3: syllable division','Not in a school goal yet (prefixes)'];
+const LOOKALIKE_SET = new Set(WORDS.filter(x=>x.d===3).map(x=>norm(x.w)).concat(FORMS.A.concat(FORMS.B).filter(x=>x.d===3).map(x=>norm(x.w)), ["their","there","they're"]));
+function missingLetters(ans, word){ return align(norm(ans).split(''), word.toLowerCase().split('')).filter(p=>p[0]===null).map(p=>p[1]).join(''); }
+function hasDouble(s){ return /([a-z])\1/.test(s); }
+/* One plain-language read of a miss: what went wrong, in rule terms */
+function readMiss(item, ans){
+  const a=norm(ans), w=item.w.toLowerCase(), d=item.d;
+  if(a===w) return '';
+  if(d===0){ if(a.indexOf('y')>=0 && w.indexOf('y')<0) return 'kept the y instead of changing it to i';
+    if(hasDouble(w) && !hasDouble(a)) return 'missed a double letter in the base word'; return 'y-to-i ending not spelled right'; }
+  if(d===1){ if(/e(ing|ed|able|ous)$/.test(a) && !/e(ing|ed|able|ous)$/.test(w)) return 'kept the silent e before the ending';
+    return 'base word spelled by sound'; }
+  if(d===2){ if(hasDouble(w) && !hasDouble(a)) return 'did not double the last consonant';
+    if(/ied$/.test(a) && !/ied$/.test(w)) return 'used -ied where the word just adds -ed'; return 'doubling ending not right'; }
+  if(d===3){ if(LOOKALIKE_SET.has(a)) return 'picked the look-alike "'+a+'"'; return 'look-alike word not spelled right'; }
+  if(d===4){ const end=(w.match(/(ance|ence|ant|ent|ous|al)$/)||[''])[0];
+    if(end && !a.endsWith(end)) return 'spelled the quiet ending by sound (-'+end+' is the right ending)';
+    if(hasDouble(a) && !hasDouble(w)) return 'added a double letter that is not there'; return 'quiet vowel in the middle guessed'; }
+  if(d===5){ if(/(al|el|ale|il)$/.test(a)) return 'flipped the -le ending (wrote -'+(a.match(/(ale|al|el|il)$/)[0])+')';
+    if(hasDouble(w) && !hasDouble(a)) return 'missed the double letter before -le'; return '-le syllable not spelled right'; }
+  if(d===6){ const m=missingLetters(ans,item.w); if(m) return 'left out the silent or tricky letters "'+m+'"'; return 'tricky part not spelled right'; }
+  if(d===7){ return 'spelled the middle chunks by sound'; }
+  if(d===8){ if(/^il[^l]/.test(a) && /^ill/.test(w)) return 'il + logical keeps both l\'s'; if(/^in[pbm]/.test(a) && /^im/.test(w)) return 'used in- where im- comes before p, b or m'; return 'prefix right, rest of word by sound'; }
+  return '';
+}
+function analyze(){
+  const L = S.combines[S.combines.length-1];
+  if(!L) return null;
+  const since = L.t;
+  const recent = S.reps.filter(r=>r.t>=since);
+  const drills = DRILLS.map((dr,d)=>{
+    const c = L.byDrill[d];
+    const pr = recent.filter(r=>r.d===d);
+    const prOk = pr.filter(r=>r.ok && !r.h && !r.c).length;
+    const acc = pr.length>=4 ? prOk/pr.length : null;
+    const comb = c.ok/3;
+    const score = acc===null ? comb : comb*0.5 + acc*0.5;
+    const status = score>=0.8 ? 'solid' : score>=0.5 ? 'building' : 'focus';
+    const misses = L.items.filter(x=>x.d===d && !x.ok).map(x=>({w:x.w, ans:x.ans, why:readMiss(Object.assign({},x,{d}), x.ans), src:'Combine'}))
+      .concat(pr.filter(r=>!r.ok).slice(-4).map(r=>({w:r.w, ans:r.a||'', why:readMiss({w:r.w,d}, r.a||''), src:'Practice'})));
+    const whys = {}; misses.forEach(m=>{ if(m.why) whys[m.why]=(whys[m.why]||0)+1; });
+    const mainWhy = Object.keys(whys).sort((a,b)=>whys[b]-whys[a])[0] || '';
+    return {d, name:dr.name, comb:c.ok, pat:c.pat, prN:pr.length, acc, score, status, misses, mainWhy, rank:S.drills[d].r, on:S.settings.drillsOn[d]};
+  });
+  const focus = drills.filter(x=>x.on).slice().sort((a,b)=>a.score-b.score || a.pat-b.pat || a.d-b.d).slice(0,3);
+  const strong = drills.filter(x=>x.status==='solid').map(x=>x.name);
+  const missedAll = L.items.filter(x=>!x.ok);
+  const close = missedAll.filter(x=>{ const p=align(norm(x.ans).split(''), x.w.toLowerCase().split('')); return p.filter(q=>q[0]!==q[1]).length<=2; }).length;
+  const insights = [];
+  if(missedAll.length) insights.push(close+' of his '+missedAll.length+' Combine misses were 1 or 2 letters off. He hears the sounds; the gap is the spelling rule or the letter pattern.');
+  if(L.patScore>L.score) insights.push('The target pattern was right inside '+(L.patScore-L.score)+' word'+(L.patScore-L.score===1?'':'s')+' he still missed. Those are close to clicking.');
+  insights.push('He changed '+L.fixes+' of 27 answers during the Pre-Game Check. '+(L.fixes<=2?'Coach cue: ask "Which chunk are you least sure of?" before he locks it in.':'Good self-checking habit.'));
+  if(recent.length){ const helped=recent.filter(r=>r.c||r.h).length; if(helped/recent.length>0.5) insights.push('Most practice reps so far used Chunk Builder or a hint. That support fades as his rank goes up.'); }
+  const t=today(); const due=addDays(L.t,28);
+  const week = [
+    ['Mon', focus[0]], ['Tue', focus[1]], ['Wed', null], ['Thu', focus[2]], ['Fri', 'off'], ['Sat', focus[0]], ['Sun', 'boss']
+  ].map(([day,f])=>({day, what: f==='off'?'Off':f==='boss'?'Boss Battle':f?f.name+' drill':'Mixed practice', d: f && f.d!==undefined ? f.d : null}));
+  return {L, drills, focus, strong, insights, week, nextCombine:due, total:L.score, patTotal:L.patScore};
+}
+function focusDrills(){ const a=analyze(); return a ? a.focus.map(x=>x.d) : []; }
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pickWeighted(list, k, wfn){
+  const pool=list.slice(), out=[];
+  while(out.length<k && pool.length){
+    const ws_=pool.map(wfn); const tot=ws_.reduce((a,b)=>a+b,0); let r=Math.random()*tot, idx=0;
+    for(;idx<pool.length;idx++){ r-=ws_[idx]; if(r<=0) break; }
+    out.push(pool.splice(Math.min(idx,pool.length-1),1)[0]);
+  }
+  return out;
+}
+function drillWeight(d){ const a=drillAcc(d,30); return 1 + (1-(a===null?0.5:a))*2; }
+
+function buildPracticeQueue(drillFilter){
+  const n = Math.max(5, Number(S.settings.practiceReps)||15);
+  const t = today();
+  let pool = allPractice().filter(x=>S.settings.drillsOn[x.d] && (drillFilter==null || x.d===drillFilter));
+  const st = x=>ws(x.w);
+  const due = pool.filter(x=>st(x).b>0 && !st(x).m && st(x).due<=t);
+  const later = pool.filter(x=>st(x).b>0 && !st(x).m && st(x).due>t);
+  const fresh = pool.filter(x=>st(x).b===0);
+  const mast = pool.filter(x=>st(x).m);
+  const nDue=Math.round(n*0.6), nNew=Math.round(n*0.25), nM=n-nDue-nNew;
+  const low = focusDrills();
+  let q = pickWeighted(due, nDue, x=>drillWeight(x.d) + (low.indexOf(x.d)>=0?1:0));
+  // new words: about half from the 3 lowest Combine drills
+  const lowFresh = fresh.filter(x=>low.indexOf(x.d)>=0), otherFresh = fresh.filter(x=>low.indexOf(x.d)<0);
+  let newPick = pickWeighted(lowFresh, Math.ceil(nNew/2), x=>drillWeight(x.d));
+  newPick = newPick.concat(pickWeighted(otherFresh, nNew-newPick.length, x=>drillWeight(x.d)));
+  q = q.concat(newPick);
+  q = q.concat(pickWeighted(mast.slice().sort((a,b)=>(st(a).due||'').localeCompare(st(b).due||'')).slice(0,12), nM, ()=>1));
+  // fill any shortfall
+  const fillers = [later.sort((a,b)=>st(a).due.localeCompare(st(b).due)), shuffle(fresh.slice()), shuffle(due.slice()), shuffle(mast.slice())];
+  for(const f of fillers){ for(const x of f){ if(q.length>=n) break; if(q.indexOf(x)<0) q.push(x); } }
+  q = shuffle(q.slice(0,n));
+  // contrast pair: hoping / hopping
+  const has = w=>q.findIndex(x=>x.w===w);
+  [['hoping','hopping'],['hopping','hoping']].forEach(([a,b])=>{
+    if(has(a)>=0 && has(b)<0){
+      const other = pool.find(x=>x.w===b);
+      if(other && ws(b).b>0 && q.length>2){ const j = q.length-1===has(a) ? q.length-2 : q.length-1; q[j] = other; }
+    }
+  });
+  return q;
+}
+function buildBossQueue(){
+  const pool = allPractice().filter(x=>S.settings.drillsOn[x.d]);
+  const seen = shuffle(pool.filter(x=>ws(x.w).b>0));
+  const out = [];
+  // spread across drills
+  for(let d=0; d<9 && out.length<10; d++){ const x=seen.find(y=>y.d===d && out.indexOf(y)<0); if(x) out.push(x); }
+  for(const x of seen){ if(out.length>=10) break; if(out.indexOf(x)<0) out.push(x); }
+  for(const x of shuffle(pool.slice())){ if(out.length>=10) break; if(out.indexOf(x)<0) out.push(x); }
+  return shuffle(out);
+}
+
+/* =========================================================
+   GAME RULES
+   ========================================================= */
+function bossAvailable(){
+  if(!S.combines.length) return false;
+  const ws_=weekStart(today());
+  return !S.boss.some(b=>b.t>=ws_);
+}
+function nextBossDay(){ return addDays(weekStart(today()),7); }
+function combineStatus(){
+  if(!S.combines.length) return {need:true, locked:true, first:true};
+  const last = S.combines[S.combines.length-1].t;
+  const due = addDays(last,28);
+  const t = today();
+  if(t>=addDays(due,3)) return {need:true, locked:true, due};
+  if(t>=due) return {need:true, locked:false, due};
+  return {need:false, locked:false, due};
+}
+function nextForm(){ return S.combines.length % 2 === 0 ? 'A' : 'B'; }
+function practiceLocked(){ return !!S.combineCur || combineStatus().locked; }
+
+function updateDrillDay(d, ok, helped){
+  const dr = S.drills[d]; const t=today();
+  let e = dr.days[dr.days.length-1];
+  if(!e || e.t!==t){ e={t,n:0,c:0,h:0}; dr.days.push(e); if(dr.days.length>20) dr.days.shift(); }
+  e.n++; if(ok && !helped) e.c++; if(helped) e.h++;
+}
+/* Returns list of {d, dir:+1|-1} rank changes */
+function checkRanks(touched){
+  const out=[];
+  touched.forEach(d=>{
+    const dr=S.drills[d];
+    const after = dr.days.filter(e=>e.t>dr.since && e.n>=2);
+    const last3 = after.slice(-3), last2 = after.slice(-2);
+    if(dr.r<RANKS.length-1 && last3.length===3 && last3.every(e=>e.c/e.n>=0.8 && e.h===0)){
+      dr.r++; dr.since=today(); out.push({d,dir:1});
+      addMoney(S, S.settings.money.rankUp, 'Rank up: '+DRILLS[d].name, {vault:true});
+    } else if(dr.r>0 && last2.length===2 && last2.every(e=>e.c/e.n<0.5)){
+      dr.r--; dr.since=today(); if(dr.r===0) dr.chunk=true; out.push({d,dir:-1});
+    }
+  });
+  return out;
+}
+/* Leitner + mastery after a scored practice/boss rep. Returns true if newly mastered. */
+function updateWordAfterRep(item, ok, helped){
+  const st = ws(item.w); const t=today();
+  st.seen++;
+  if(ok){ st.ok++; } else { st.miss++; }
+  if(ok && !helped){
+    st.b = Math.min(4, Math.max(1, st.b)+ (st.b===0?0:1)); if(st.b<1) st.b=1;
+    st.due = addDays(t, BOX_DAYS[st.b]);
+    if(st.days.indexOf(t)<0) st.days.push(t);
+    if(!st.m && st.days.length>=3){ st.m=1; return true; }
+  } else if(ok){
+    st.b = Math.max(1, st.b); st.due = addDays(t,1);
+  } else {
+    st.b = 1; st.due = t;   // back to box 1, comes back next practice
+  }
+  return false;
+}
+
+/* =========================================================
+   SESSION (practice / boss / combine)
+   ========================================================= */
+let ui = { screen:'home', welcome:0, coachTab:'progress', coachOpen:false, pickDrill:false, modal:null };
+let SES = null;
+
+function startPractice(drillFilter){
+  if(practiceLocked()) return;
+  SES = {mode:'practice', queue:buildPracticeQueue(drillFilter), idx:0, start:Date.now(), log:[], earned:0, lost:0, streak:0, bestStreak:0, conf:{right:0,total:0}, touched:new Set(), reinserted:new Set(), drillFilter, rankMsgs:[]};
+  newRep(); ui.screen='rep'; render(); autoSpeak();
+}
+function startBoss(){
+  if(!bossAvailable() || practiceLocked()) return;
+  SES = {mode:'boss', queue:buildBossQueue(), idx:0, start:Date.now(), log:[], earned:0, lost:0, streak:0, bestStreak:0, conf:{right:0,total:0}, touched:new Set(), reinserted:new Set(), rankMsgs:[]};
+  newRep(); ui.screen='rep'; render(); autoSpeak();
+}
+function startCombine(){
+  if(!S.combineCur){ S.combineCur = {form:nextForm(), idx:0, items:[], started:today()}; save(); }
+  const order = formOrder(S.combineCur.form);
+  SES = {mode:'combine', queue:order, idx:S.combineCur.idx, start:Date.now(), log:[], earned:0, lost:0, streak:0, bestStreak:0, conf:{right:0,total:0}, touched:new Set(), reinserted:new Set()};
+  newRep(); ui.screen='rep'; render(); autoSpeak();
+}
+function curItem(){ return (SES && SES.queue) ? SES.queue[SES.idx] : null; }
+function rankOf(d){ return S.drills[d].r; }
+function useChunkBuilder(item){
+  return SES.mode==='practice' && rankOf(item.d)===0 && S.drills[item.d].chunk && sylCount(item)>=3 && item.d!==3;
+}
+function newRep(){
+  const item = curItem(); if(!item) return;
+  SES.rep = {phase: useChunkBuilder(item)?'chunk':'spell', ans:'', checkedAns:null, hint:false, hintText:'', chunkUsed:useChunkBuilder(item), built:[], tiles:null, fix:0, fixMsg:'', result:null, status:''};
+  if(SES.rep.chunkUsed){
+    const parts = item.syl.split('-');
+    const decoys = makeDecoys(parts);
+    SES.rep.tiles = shuffle(parts.map((p,i)=>({t:p, real:true, k:'r'+i})).concat(decoys.map((p,i)=>({t:p, real:false, k:'d'+i}))));
+    SES.rep.parts = parts;
+  }
+}
+function makeDecoys(parts){
+  const swaps={a:'i',e:'i',i:'e',o:'u',u:'o',y:'i'};
+  const out=[];
+  const cands = shuffle(parts.slice());
+  for(const p of cands){
+    if(out.length>=2) break;
+    let dcy = null;
+    if(/(.)\1/.test(p)) dcy = p.replace(/(.)\1/,'$1');
+    else { for(let i=p.length-1;i>=0;i--){ const ch=p[i].toLowerCase(); if(swaps[ch]){ dcy=p.slice(0,i)+swaps[ch]+p.slice(i+1); break; } } }
+    if(!dcy || dcy===p) dcy = p+'e';
+    if(parts.indexOf(dcy)<0 && out.indexOf(dcy)<0) out.push(dcy);
+  }
+  while(out.length<2) out.push(parts[0]+'h'.repeat(out.length+1));
+  return out;
+}
+function autoSpeak(){ const it=curItem(); if(it && Speech.ok && SES && (SES.rep.phase==='spell'||SES.rep.phase==='chunk')) setTimeout(()=>{ if(curItem()===it) Speech.say(it); }, 350); }
+
+function hintAllowed(item){
+  if(SES.mode!=='practice') return false;
+  const r=rankOf(item.d); return r<=1 && !SES.rep.chunkUsed;
+}
+function takeHint(){
+  const item=curItem(); if(!item || !hintAllowed(item) || SES.rep.hint) return;
+  const r = rankOf(item.d);
+  SES.rep.hint = true;
+  if(r===0) SES.rep.hintText = item.w.length+' letters. It starts with "'+item.w[0].toLowerCase()+'".';
+  else { SES.rep.hintText = sylCount(item)+' chunks. It starts with "'+item.w[0].toLowerCase()+'".'; const a=addMoney(S,-S.settings.money.hintCost,'Hint',{}); trackMoney(a); }
+  save(); render();
+}
+function trackMoney(a){ if(!a) return; if(a>0) SES.earned=cents(SES.earned+a); else SES.lost=cents(SES.lost-a); floatMoney(a); }
+
+function tapTile(k){
+  const rep=SES.rep; const tile=rep.tiles.find(x=>x.k===k); if(!tile||tile.used) return;
+  const need = rep.parts[rep.built.length];
+  if(tile.t===need){ tile.used=true; rep.built.push(tile.t); Sound.tap();
+    if(rep.built.length===rep.parts.length){ rep.status='Nice build. Now type the whole word.'; rep.phase='spell'; }
+    render();
+  } else {
+    rep.status='Not that chunk. Try another one.'; render();
+    const el=document.querySelector('[data-k="'+k+'"]'); if(el){ el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),400); }
+  }
+}
+
+function doCheck(){
+  const rep=SES.rep; if(rep.phase!=='spell') return;
+  const v = (document.getElementById('ans')||{}).value; if(v!==undefined) rep.ans=v;
+  if(!norm(rep.ans)){ rep.status='Type your best try first.'; render(); return; }
+  rep.checkedAns = rep.ans; rep.phase='check'; rep.status=''; render();
+}
+function doLock(sure){
+  const rep=SES.rep; if(rep.phase!=='check') return;   // Lock is only possible after Check
+  const v = (document.getElementById('ans')||{}).value; if(v!==undefined) rep.ans=v;
+  if(!norm(rep.ans)){ rep.status='Type your best try first.'; render(); return; }
+  const item=curItem();
+  if(SES.mode==='combine') return lockCombine(item, rep);
+  const ok = norm(rep.ans)===norm(item.w);
+  const edited = norm(rep.ans)!==norm(rep.checkedAns);
+  const fixed = ok && edited && norm(rep.checkedAns)!==norm(item.w);
+  const pattern = !ok && hasChunk(rep.ans,item);
+  const m=S.settings.money, boss=SES.mode==='boss';
+  const helped = rep.hint || rep.chunkUsed;
+  let applied=0, msgs=[];
+  // base
+  if(ok){
+    const base = rep.chunkUsed ? m.chunk : rep.hint ? m.hint : fixed ? m.fixed : m.correct;
+    applied += addMoney(S, base, ok&&fixed?'Great catch':'Correct', {boss});
+  } else if(pattern){
+    applied += addMoney(S, m.pattern, 'Pattern point', {boss});
+  } else {
+    applied += addMoney(S, -m.wrong, 'Wrong answer', {boss});
+  }
+  // confidence call
+  if(sure!==null && sure!==undefined){
+    SES.conf.total++;
+    if((sure&&ok)||(!sure&&!ok)) SES.conf.right++;
+    const half = rep.chunkUsed?0.5:1;
+    if(sure && ok) applied += addMoney(S, m.sureRight*half, 'Sure and right', {boss});
+    if(sure && !ok) applied += addMoney(S, -m.sureWrong*half, 'Sure and wrong', {boss});
+  }
+  // streak
+  if(ok){ SES.streak++; SES.bestStreak=Math.max(SES.bestStreak,SES.streak);
+    if(SES.streak%5===0){ applied += addMoney(S, m.streak5, '5 in a row', {boss}); msgs.push(SES.streak+' in a row!'); }
+  } else SES.streak=0;
+  // word + drill tracking
+  const newlyMastered = updateWordAfterRep(item, ok, helped);
+  if(newlyMastered){ applied += addMoney(S, m.mastered, 'Word mastered: '+item.w, {vault:true}); msgs.push('Word mastered! +'+fmt$(m.mastered)+' to your Vault.'); }
+  if(SES.mode==='practice'){ updateDrillDay(item.d, ok, helped); SES.touched.add(item.d); }
+  S.reps.push({t:today(), w:item.w, d:item.d, ok:ok?1:0, h:rep.hint?1:0, c:rep.chunkUsed?1:0, m:boss?'b':'p', a:rep.ans.trim().slice(0,40)});
+  if(S.reps.length>6000) S.reps.splice(0, S.reps.length-6000);
+  SES.log.push({w:item.w, d:item.d, ans:rep.ans.trim(), ok, pattern, fixed, sure});
+  if(applied>0) SES.earned=cents(SES.earned+applied); else if(applied<0) SES.lost=cents(SES.lost-applied);
+  // reinsert a missed word once later in this practice
+  if(!ok && SES.mode==='practice' && !SES.reinserted.has(item.w)){
+    SES.reinserted.add(item.w);
+    const pos = Math.min(SES.queue.length, SES.idx+3+Math.floor(Math.random()*2));
+    SES.queue.splice(pos,0,item);
+    const cap = Math.max(5, Number(S.settings.practiceReps)||15);
+    if(SES.queue.length>cap) SES.queue.length = cap;
+  }
+  rep.result = {ok, pattern, fixed, applied, msgs, sure};
+  rep.phase = 'result';
+  save();
+  if(ok){ Sound.horn(); confetti(); } else Sound.soft();
+  floatMoney(applied);
+  render();
+}
+function lockCombine(item, rep){
+  const ok = norm(rep.ans)===norm(item.w);
+  const pat = ok || hasChunk(rep.ans,item);
+  const ed = norm(rep.ans)!==norm(rep.checkedAns);
+  S.combineCur.items.push({w:item.w, d:item.d, ans:rep.ans.trim(), ok:ok?1:0, pat:pat?1:0, ed:ed?1:0});
+  S.combineCur.idx = SES.idx+1;
+  save();                                        // saved after every word
+  Sound.tap();
+  SES.idx++;
+  if(SES.idx>=SES.queue.length) return finishCombine();
+  newRep(); SES.rep.status='Got it. Next one.'; render(); autoSpeak();
+}
+function finishCombine(){
+  const cur = S.combineCur; const items=cur.items;
+  const byDrill = DRILLS.map((_,d)=>({ok:items.filter(x=>x.d===d&&x.ok).length, pat:items.filter(x=>x.d===d&&x.pat).length}));
+  const rec = {t:today(), form:cur.form, items, byDrill, score:items.filter(x=>x.ok).length, patScore:items.filter(x=>x.pat).length, fixes:items.filter(x=>x.ed).length};
+  const prev = S.combines[S.combines.length-1];
+  const first = !prev;
+  S.combines.push(rec); S.combineCur=null;
+  const m=S.settings.money;
+  let earned = addMoney(S, m.combine, 'Combine finished', {vault:true});
+  let ups = [];
+  if(first){
+    byDrill.forEach((x,d)=>{ const dr=S.drills[d]; if(x.ok===3){ dr.r=1; dr.chunk=false; } else if(x.ok===2){ dr.r=0; dr.chunk=false; } else { dr.r=0; dr.chunk=true; } dr.since=addDays(today(),-1); });
+  } else {
+    byDrill.forEach((x,d)=>{ if(x.ok>prev.byDrill[d].ok){ ups.push(d); earned += addMoney(S, m.combineGain, 'Combine gain: '+DRILLS[d].name, {vault:true}); } });
+  }
+  save();
+  SES = {mode:'combineDone', rec, first, ups, earned};
+  ui.screen='combineResults'; Sound.horn(); confetti(); render();
+}
+function fixRep(){
+  const rep=SES.rep, item=curItem();
+  const v=(document.getElementById('ans')||{}).value||'';
+  if(norm(v)===norm(item.w)){
+    if(rep.fix===1){ rep.fix=2; rep.fixMsg='Now cover it. Type it from memory.'; rep.ans=''; render(); }
+    else { rep.fixMsg=''; Sound.tap(); nextRep(); }
+  } else {
+    rep.fixTries=(rep.fixTries||0)+1;
+    if(rep.fix===2 && rep.fixTries>=3){ nextRep(); return; }
+    rep.fix=1; rep.fixMsg='Look closely and type it again.'; rep.ans=''; render();
+  }
+}
+function afterResult(){
+  const rep=SES.rep;
+  if(rep.result && !rep.result.ok){ rep.phase='fix'; rep.fix=1; rep.ans=''; rep.fixMsg='Type it while you look at it.'; render(); return; }
+  nextRep();
+}
+function nextRep(){
+  SES.idx++;
+  const timeUp = SES.mode==='practice' && (Date.now()-SES.start) >= (Number(S.settings.practiceMinutes)||10)*60000;
+  if(SES.idx>=SES.queue.length || timeUp) return endSession(true);
+  newRep(); render(); autoSpeak();
+}
+function endSession(full){
+  if(!SES || SES.mode==='combine'){ ui.screen='home'; SES=null; render(); return; }
+  const m=S.settings.money, t=today(), boss=SES.mode==='boss';
+  const reps=SES.log.length, correct=SES.log.filter(x=>x.ok).length;
+  const acc = reps? correct/reps : 0;
+  const extras=[];
+  let bonus=0;
+  if(reps>0){
+    if(!boss && full && S.dailyGoalDay!==t){ S.dailyGoalDay=t; bonus+=addMoney(S,m.dailyGoal,'Daily goal'); extras.push('Daily goal done: +'+fmt$(m.dailyGoal)); }
+    // day streak
+    if(S.streak.last!==t){ S.streak.days = (S.streak.last===addDays(t,-1)) ? S.streak.days+1 : 1; S.streak.last=t;
+      if(S.streak.days%5===0){ bonus+=addMoney(S,m.dayStreak5,'Day streak'); extras.push(S.streak.days+' days in a row: +'+fmt$(m.dayStreak5)); } }
+    if(boss){
+      const score=correct;
+      S.boss.push({t, score, items:SES.log.map(x=>({w:x.w,d:x.d,ans:x.ans,ok:x.ok?1:0}))});
+      if(score>S.records.bestBoss){ S.records.bestBoss=score; if(S.boss.length>1){ bonus+=addMoney(S,m.personalBest,'Best Boss score'); extras.push('New best Boss score: +'+fmt$(m.personalBest)); } }
+    } else {
+      if(reps>=10 && acc>S.records.bestAcc){ const had=S.records.bestAcc>0; S.records.bestAcc=acc; if(had){ bonus+=addMoney(S,m.personalBest,'Best accuracy'); extras.push('New best accuracy: +'+fmt$(m.personalBest)); } }
+      SES.rankMsgs = checkRanks(Array.from(SES.touched));
+    }
+    if(SES.bestStreak>S.records.bestStreak) S.records.bestStreak=SES.bestStreak;
+    if(bonus>0) SES.earned=cents(SES.earned+bonus);
+    S.sessions.push({t, mode:SES.mode, mins:Math.max(1,Math.round((Date.now()-SES.start)/60000)), reps, correct, earned:SES.earned, lost:SES.lost, full:full?1:0, bestStreak:SES.bestStreak});
+  }
+  save();
+  SES.final = {reps, correct, acc, extras};
+  ui.screen='final'; if(reps) Sound.horn(); render();
+}
+
+/* =========================================================
+   FX
+   ========================================================= */
+function floatMoney(a){
+  if(!a || IS_TEST) return;
+  const el=document.createElement('div'); el.className='float '+(a>0?'plus':'minus'); el.textContent=(a>0?'+':'-')+'$'+Math.abs(a).toFixed(2);
+  document.body.appendChild(el); setTimeout(()=>el.remove(),1200);
+  if(a>0) Sound.coin();
+}
+function confetti(){
+  if(IS_TEST) return;
+  const cols=['#e8a317','#1f7a45','#2f6fb0','#c8553d','#f5f1e3'];
+  for(let i=0;i<22;i++){ const c=document.createElement('div'); c.className='confetti'; c.style.background=cols[i%cols.length];
+    c.style.setProperty('--dx',(Math.random()*360-180)+'px'); c.style.setProperty('--dy',(Math.random()*260-60)+'px'); c.style.setProperty('--r',(Math.random()*540)+'deg');
+    document.body.appendChild(c); setTimeout(()=>c.remove(),1300); }
+}
+
+/* =========================================================
+   RENDER HELPERS
+   ========================================================= */
+function esc(x){ return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function align(a,b){
+  const n=a.length,m=b.length, dp=[];
+  for(let i=0;i<=n;i++){ dp.push(new Array(m+1).fill(0)); dp[i][0]=i; }
+  for(let j=0;j<=m;j++) dp[0][j]=j;
+  for(let i=1;i<=n;i++) for(let j=1;j<=m;j++) dp[i][j]=Math.min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  const out=[]; let i=n,j=m;
+  while(i>0||j>0){
+    if(i>0&&j>0&&dp[i][j]===dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1)){ out.push([a[i-1],b[j-1]]); i--; j--; }
+    else if(i>0&&dp[i][j]===dp[i-1][j]+1){ out.push([a[i-1],null]); i--; }
+    else { out.push([null,b[j-1]]); j--; }
+  }
+  return out.reverse();
+}
+function diffHTML(ans, word){
+  const pairs = align(norm(ans).split(''), word.toLowerCase().split(''));
+  const row = side => pairs.map(p=>{ const ch=p[side]; const x = p[0]!==p[1]; return '<span class="c'+(x?' x':'')+(ch===null?' gap':'')+'">'+(ch===null?'·':esc(ch))+'</span>'; }).join('');
+  return '<div class="diff"><div class="lbl">You wrote</div><div class="cells">'+row(0)+'</div><div class="lbl">The spelling</div><div class="cells">'+row(1)+'</div></div>';
+}
+function tipFor(item){ if(item.trick) return item.trick; return DRILLS[item.d].tip; }
+function wordIndex(s,w){
+  const re=new RegExp("(^|[^A-Za-z'])("+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+")(?=$|[^A-Za-z'])","i");
+  const m=re.exec(s.replace(/’/g,"'")); return m ? m.index+m[1].length : -1;
+}
+function maskSentence(item){ const i=wordIndex(item.s,item.w); if(i<0) return esc(item.s); return esc(item.s.slice(0,i))+'_____'+esc(item.s.slice(i+item.w.length)); }
+function drillBadge(d, clickable){
+  const dr=DRILLS[d]; const r=S.drills[d].r;
+  const tag = clickable?'button':'div';
+  return '<'+tag+' class="badge'+(clickable?' pick':'')+'" '+(clickable?'data-act="pickdrill" data-d="'+d+'"':'')+'><span class="ic" style="background:'+dr.color+'">'+esc(dr.icon)+'</span><span class="nm">'+esc(dr.name)+'</span><span class="rk">'+RANKS[r]+'</span></'+tag+'>';
+}
+function masteredCount(){ return Object.keys(S.words).filter(k=>S.words[k].m).length; }
+function todayStats(){
+  const t=today(); const ss=S.sessions.filter(x=>x.t===t && x.mode==='practice' && x.reps>0);
+  const best = ss.reduce((a,x)=>Math.max(a, x.correct/x.reps),0);
+  const st = ss.reduce((a,x)=>Math.max(a, x.bestStreak||0),0);
+  return {acc: ss.length? best : null, streak: ss.length? st : null};
+}
+function pct(x){ return x==null?'–':Math.round(x*100)+'%'; }
+
+/* =========================================================
+   SCREENS
+   ========================================================= */
+function topbar(title){
+  return '<div class="topbar"><div class="brand"><span class="dot"></span>'+esc(title||'Spelling Reps')+'</div><div class="row" style="gap:6px">'+
+    '<button class="iconbtn" data-act="mute" aria-label="'+(S.settings.muted?'Sound on':'Mute')+'">'+(S.settings.muted?'🔇':'🔊')+'</button>'+
+    '<button class="iconbtn" data-act="coach" aria-label="Coach Room">⚙︎</button></div></div>';
+}
+const WELCOME = [
+  'Every rep builds your bank.',
+  'Check your work before you lock it in. Catching your own mistake pays the most.',
+  'Beat your own records.'
+];
+function renderWelcome(){
+  const i=ui.welcome;
+  return topbar()+'<div class="welcome"><div class="step">'+(i+1)+' of 3</div><div class="huge">'+esc(WELCOME[i])+'</div>'+
+    (i<2?'<button class="btn block" data-act="welnext">Next</button>':'<p class="muted">First up: the Scouting Combine. It shows your starting stats.</p><button class="btn block gold" data-act="welgo">Start the Combine</button>')+'</div>';
+}
+function renderHome(){
+  const cs=combineStatus(); const ts=todayStats();
+  let h = topbar();
+  h += '<div class="board"><div class="bankrow"><div><div class="lab">Bank</div><div class="bank-total money" id="bank">'+fmt$(S.bank.wallet+S.bank.vault)+'</div></div>'+
+       '<div><div class="lab">Wallet</div><div class="bank-sub money">'+fmt$(S.bank.wallet)+'</div></div>'+
+       '<div><div class="lab">Vault 🔒</div><div class="bank-sub money">'+fmt$(S.bank.vault)+'</div></div></div>'+
+       '<div class="stats"><div class="stat"><div class="lab">This week</div><div class="v money">'+fmt$(weekEarned(S))+'</div><div class="lab">of '+fmt$(S.settings.weeklyCap)+'</div></div>'+
+       '<div class="stat"><div class="lab">Day streak</div><div class="v">'+(S.streak.last===today()||S.streak.last===addDays(today(),-1)?S.streak.days:0)+'</div><div class="lab">days</div></div>'+
+       '<div class="stat"><div class="lab">Mastered</div><div class="v">'+masteredCount()+'</div><div class="lab">words</div></div></div></div>';
+  if(weeklyCapHit(S)) h+='<div class="banner">Max paycheck reached this week. Keep stacking reps for your stats.</div>';
+  if(S.combineCur){
+    h+='<div class="card"><h2>Scouting Combine</h2><p>You are on word '+(S.combineCur.idx+1)+' of 27. Pick up where you left off.</p><button class="btn block gold" data-act="combine">Keep going</button></div>';
+  } else if(cs.need){
+    h+='<div class="card"><h2>'+(cs.first?'Scouting Combine':'Combine Day')+'</h2><p>'+(cs.first?'This shows your starting stats. Just do your best. No money lost.':'Time to check your stats. Just do your best. No money lost.')+'</p>'+
+       (cs.first?'':cs.locked?'<p class="muted small">Do the Combine to open practice again.</p>':'<p class="muted small">You can wait up to 3 days.</p>')+
+       '<button class="btn block gold" data-act="combine">Start the Combine</button></div>';
+  }
+  if(!practiceLocked()){
+    const A = analyze();
+    if(A){
+      const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][parseD(today()).getDay()];
+      const todayPlan = A.week.find(w=>w.day===dayName);
+      h+='<div class="card"><h2>Your next plays</h2><p class="muted small">From your Combine and your practice. Train these first.</p><div class="plays">'+
+        A.focus.map(f=>{ const ex=f.misses.find(m=>m.ans); return '<div class="play"><div class="head"><span style="background:'+DRILLS[f.d].color+';color:#fff;padding:2px 8px;border-radius:8px;font-weight:800">'+esc(DRILLS[f.d].icon)+'</span><b>'+esc(f.name)+'</b><span class="chip '+f.status+'">'+(f.status==='focus'?'Train this':f.status==='building'?'Getting there':'Solid')+'</span></div>'+
+          '<div class="rule">The play: '+esc(DRILLS[f.d].tip)+'</div>'+
+          (ex?'<div class="ex">Watch for it: you wrote <s>'+esc(ex.ans)+'</s>. It\'s <b>'+esc(ex.w)+'</b>.</div>':'')+
+          '<div><button class="btn sm" data-act="pickdrill" data-d="'+f.d+'">Practice '+esc(f.name)+'</button></div></div>'; }).join('')+'</div>';
+      if(todayPlan) h+='<p style="margin-top:12px"><b>Today\'s plan:</b> '+esc(todayPlan.what)+'.</p>';
+      h+='</div>';
+    }
+    h+='<div class="card"><h2>Today\'s practice</h2><p class="muted">'+(Number(S.settings.practiceReps)||15)+' reps · about '+(Number(S.settings.practiceMinutes)||10)+' minutes</p>'+
+       '<div class="row"><button class="btn" data-act="practice">Start Practice</button><button class="btn ghost" data-act="choosedrill">Pick a drill</button></div>';
+    if(ui.pickDrill){ h+='<h3>Pick a drill</h3><div class="drills">'+DRILLS.map((_,d)=>S.settings.drillsOn[d]?drillBadge(d,true):'').join('')+'</div>'; }
+    h+='</div>';
+    const ba=bossAvailable();
+    h+='<div class="card"><h2>Boss Battle</h2>'+(ba?'<p>10 words. No hints. Double pay. Best on Sunday.</p><button class="btn block sky" data-act="boss">Start Boss Battle</button>':'<p class="muted">Next Boss Battle opens '+niceDate(nextBossDay())+' ('+daysBetween(today(),nextBossDay())+' day'+(daysBetween(today(),nextBossDay())===1?'':'s')+').</p>')+'</div>';
+  }
+  h+='<div class="card"><h2>Beat yourself</h2><div class="beat">'+
+     '<div><div class="t">Best accuracy</div><div class="v">'+pct(S.records.bestAcc||null)+'</div><div class="t">Today: '+pct(ts.acc)+'</div></div>'+
+     '<div><div class="t">Best streak</div><div class="v">'+(S.records.bestStreak||0)+'</div><div class="t">Today: '+(ts.streak==null?'–':ts.streak)+'</div></div>'+
+     '<div><div class="t">Best Boss</div><div class="v">'+(S.records.bestBoss||0)+'/10</div><div class="t">'+(S.boss.length?'Last: '+S.boss[S.boss.length-1].score+'/10':'Not yet')+'</div></div></div></div>';
+  h+='<div class="card"><h2>Your drills</h2><div class="drills">'+DRILLS.map((_,d)=>drillBadge(d,false)).join('')+'</div></div>';
+  return h;
+}
+function renderRep(){
+  const item=curItem(), rep=SES.rep, mode=SES.mode;
+  const total=SES.queue.length;
+  let h = topbar(mode==='boss'?'Boss Battle':mode==='combine'?'Scouting Combine':'Practice');
+  h+='<div class="rephead"><span class="pill">Rep '+(SES.idx+1)+' of '+total+'</span>';
+  if(mode!=='combine') h+='<span class="pill">'+esc(DRILLS[item.d].name)+' · '+RANKS[rankOf(item.d)]+'</span><span class="pill money">'+fmt$(S.bank.wallet+S.bank.vault)+'</span>';
+  if(mode!=='combine' && SES.streak>=2) h+='<span class="pill">🔥 '+SES.streak+' in a row</span>';
+  h+='</div><div class="progress"><i style="width:'+Math.round(100*SES.idx/total)+'%"></i></div>';
+  h+='<div class="stage">';
+  if(rep.phase==='result') h+=renderResult(item, rep);
+  else if(rep.phase==='fix') h+=renderFix(item, rep);
+  else {
+    if(item.d===3) h+='<div class="sentence">'+maskSentence(item)+'</div>';
+    h+='<div class="hearrow"><button class="btn sky" data-act="hearword">🔈 Hear word</button><button class="btn ghost" data-act="hearsent">Hear sentence</button><button class="btn ghost" data-act="hearslow">🐢 Slow</button></div>';
+    if(!Speech.ok) h+='<div class="hint">Sound is not working here. Ask a grown-up to read the word. <button class="btn sm ghost" data-act="coachreads">Coach reads it</button></div>';
+    if(rep.phase==='chunk'){
+      h+='<p class="prompt">Build the word. Tap the chunks in order.</p><div class="built">'+(rep.built.length?rep.built.map(x=>'<span>'+esc(x)+'</span>').join(''):'<span class="muted" style="background:none;color:var(--muted)">tap a chunk</span>')+'</div>';
+      h+='<div class="tiles">'+rep.tiles.map(t=>'<button class="tile'+(t.used?' used':'')+'" data-act="tile" data-k="'+t.k+'">'+esc(t.t)+'</button>').join('')+'</div>';
+    } else if(rep.phase==='spell'){
+      h+='<p class="prompt">'+(item.d===3?'Type the missing word.':'Spell it.')+'</p>';
+      h+='<input id="ans" class="answer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-label="Your spelling" value="'+esc(rep.ans)+'">';
+      if(rep.hintText) h+='<div class="hint">Hint: '+esc(rep.hintText)+'</div>';
+      h+='<div class="row" style="margin-top:12px"><button class="btn" data-act="check">Check it</button>'+(hintAllowed(item)&&!rep.hint?'<button class="btn ghost" data-act="hint">Hint'+(rankOf(item.d)===1?' (-'+fmt$(S.settings.money.hintCost).slice(1)+')':'')+'</button>':'')+'</div>';
+    } else if(rep.phase==='check'){
+      h+='<p class="coachline">Pre-Game Check: Read it slow. Does every chunk look right?</p><div class="bigword" id="bigword">'+esc(rep.ans)+'</div>';
+      h+='<input id="ans" class="answer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Fix your spelling if you need to" value="'+esc(rep.ans)+'">';
+      if(rep.hintText) h+='<div class="hint">Hint: '+esc(rep.hintText)+'</div>';
+      if(mode==='combine') h+='<div class="row" style="margin-top:12px"><button class="btn gold" data-act="lock" data-sure="none">Lock it in</button></div>';
+      else h+='<p class="muted small" style="margin:12px 0 6px">Lock it in. How sure are you?</p><div class="row"><button class="btn gold" data-act="lock" data-sure="1">🔒 Sure</button><button class="btn ghost" data-act="lock" data-sure="0">🔒 Not sure</button></div>';
+    }
+    h+='<div class="status" id="status">'+esc(rep.status||'')+'</div>';
+  }
+  h+='</div>';
+  h+='<div class="row" style="margin-top:14px"><button class="btn ghost sm" data-act="'+(mode==='combine'?'pausecombine':'endearly')+'">'+(mode==='combine'?'Pause':'End practice')+'</button></div>';
+  return h;
+}
+function renderResult(item, rep){
+  const r=rep.result; let h='';
+  if(r.ok){
+    h+='<div class="result good"><div class="big">'+(r.fixed?'Great catch!':'Goal!')+' '+esc(item.w)+'</div><div class="money">'+(r.applied>=0?'+':'')+fmt$(r.applied)+'</div>';
+  } else {
+    h+='<div class="result try">';
+    if(r.pattern) h+='<div class="big">You got the '+esc(DRILLS[item.d].rule)+' part right!</div>';
+    else h+='<div class="big">Almost. Let\'s look.</div>';
+    h+=diffHTML(rep.ans, item.w);
+    h+='<div class="tipline">Tip: '+esc(tipFor(item))+'</div><div class="money small muted" style="margin-top:6px">'+(r.applied>=0?'+':'')+fmt$(r.applied)+'</div>';
+  }
+  r.msgs.forEach(m=>{ h+='<div class="tipline">'+esc(m)+'</div>'; });
+  h+='</div><button class="btn block" data-act="next">'+(r.ok?'Next rep':'Do the fix rep')+'</button>';
+  return h;
+}
+function renderFix(item, rep){
+  let h='<p class="prompt">Fix rep</p>';
+  if(rep.fix===1) h+='<div class="bigword">'+esc(item.w)+'</div>';
+  else h+='<div class="bigword muted">• • •</div>';
+  h+='<p class="coachline">'+esc(rep.fixMsg)+'</p><input id="ans" class="answer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Type the word" value="">';
+  h+='<div class="row" style="margin-top:12px"><button class="btn" data-act="fix">Done</button></div><p class="muted small">No money on fix reps. They lock in the right spelling.</p>';
+  return h;
+}
+function renderFinal(){
+  const f=SES.final; const boss=SES.mode==='boss';
+  let h=topbar('Final whistle');
+  if(!f.reps){ h+='<div class="card"><h2>No reps this time</h2><p>Come back soon.</p><button class="btn block" data-act="home">Home</button></div>'; return h; }
+  h+='<div class="board final"><div class="lab">'+(boss?'Boss score':'Accuracy')+'</div><div class="big">'+(boss?f.correct+'/10':pct(f.acc))+'</div></div>';
+  h+='<div class="card"><div class="grid2"><div><div class="muted small">Reps</div><div class="v">'+f.reps+'</div></div><div><div class="muted small">Best streak</div><div class="v">'+SES.bestStreak+'</div></div>'+
+     '<div><div class="muted small">Coins earned</div><div class="v ok">+'+fmt$(SES.earned)+'</div></div><div><div class="muted small">Coins lost</div><div class="v">-'+fmt$(SES.lost).replace('-','')+'</div></div></div>';
+  if(SES.conf.total) h+='<p style="margin-top:12px"><b>You called it right '+SES.conf.right+' of '+SES.conf.total+' times.</b></p>';
+  f.extras.forEach(x=>{ h+='<p class="ok">'+esc(x)+'</p>'; });
+  (SES.rankMsgs||[]).forEach(x=>{ h+= x.dir>0 ? '<p class="ok">Rank up! '+esc(DRILLS[x.d].name)+' is now '+RANKS[S.drills[x.d].r]+'. +'+fmt$(S.settings.money.rankUp)+' to your Vault.</p>' : '<p>Back to the practice field for a few reps in '+esc(DRILLS[x.d].name)+'.</p>'; });
+  if(weeklyCapHit(S)) h+='<p class="muted">Max paycheck reached this week. Keep stacking reps for your stats.</p>';
+  h+='<button class="btn block" data-act="home" style="margin-top:8px">Back to the scoreboard</button></div>';
+  return h;
+}
+function renderCombineResults(){
+  const R=SES.rec;
+  const order = R.byDrill.map((x,i)=>({i,ok:x.ok,pat:x.pat})).sort((a,b)=>b.ok-a.ok||b.pat-a.pat||a.i-b.i);
+  const strong = order.filter(x=>x.ok>=2).slice(0,3).map(x=>DRILLS[x.i].name);
+  const low = lowestDrillsFromCombine().map(i=>DRILLS[i].name);
+  let h=topbar('Your starting stats');
+  h+='<div class="card"><h2>'+(SES.first?'Your starting stats':'Your new stats')+'</h2>';
+  if(strong.length) h+='<p><b>Strongest:</b> '+esc(strong.join(', '))+'</p>';
+  h+='<div class="bars">'+order.map(x=>'<div class="barrow"><div class="small"><b>'+esc(DRILLS[x.i].name)+'</b></div><div class="pips">'+[0,1,2].map(k=>'<span class="pip'+(k<x.ok?' on':'')+'"></span>').join('')+(SES.ups.indexOf(x.i)>=0?' <span class="ok small">↑</span>':'')+'</div></div>').join('')+'</div>';
+  h+='<p style="margin-top:14px"><b>Your training plan starts with:</b> '+esc(low.join(', '))+'.</p>';
+  h+='<p class="ok">+'+fmt$(SES.earned)+' to your Vault for finishing.</p>';
+  h+='<details style="margin-top:8px"><summary>See the words</summary><div class="tblwrap"><table class="tbl"><tr><th>Word</th><th>You wrote</th></tr>'+R.items.map(x=>'<tr><td>'+esc(x.w)+'</td><td class="'+(x.ok?'ok':'')+'">'+esc(x.ans)+(x.ok?' ✓':'')+'</td></tr>').join('')+'</table></div></details>';
+  h+='<button class="btn block" data-act="home" style="margin-top:14px">Go to the scoreboard</button></div>';
+  return h;
+}
+
+/* =========================================================
+   COACH ROOM
+   ========================================================= */
+function simpleHash(s){ let h=5381; for(let i=0;i<s.length;i++){ h=((h<<5)+h+s.charCodeAt(i))|0; } return 'h'+(h>>>0).toString(36); }
+function requirePin(cb){
+  if(!S.settings.pinHash){ ui.modal={type:'setpin', cb}; render(); return; }
+  ui.modal={type:'pin', cb, err:''}; render();
+}
+function renderModal(){
+  const m=ui.modal; if(!m) return '';
+  let h='<div class="overlay" role="dialog" aria-modal="true"><div class="modal">';
+  if(m.type==='pin'){
+    h+='<h2>Coach Room</h2><p class="muted">Enter the 4-digit PIN.</p><input id="pin" class="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"><div class="err" id="pinerr">'+esc(m.err||'')+'</div>'+
+       '<div class="row"><button class="btn" data-act="pinok">Open</button><button class="btn ghost" data-act="modalclose">Cancel</button></div><p class="small"><button class="btn sm ghost" data-act="forgot" style="margin-top:8px">Forgot PIN?</button></p>';
+  } else if(m.type==='setpin'){
+    h+='<h2>Set a Coach PIN</h2><p class="muted">Pick 4 digits. Keep it private from the player.</p><input id="pin" class="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off"><input id="pin2" class="pin" style="margin-top:8px" type="password" inputmode="numeric" maxlength="4" placeholder="again" autocomplete="off"><div class="err">'+esc(m.err||'')+'</div>'+
+       '<div class="row"><button class="btn" data-act="setpinok">Save PIN</button><button class="btn ghost" data-act="modalclose">Cancel</button></div>';
+  } else if(m.type==='recovery'){
+    h+='<h2>Write this down</h2><p>Your recovery code, in case you forget the PIN:</p><div class="bigword">'+esc(m.code)+'</div><p class="muted small">It will not be shown again.</p><button class="btn block" data-act="recok">I wrote it down</button>';
+  } else if(m.type==='forgot'){
+    h+='<h2>Reset PIN</h2><p class="muted">Type the recovery code you wrote down.</p><input id="rec" class="pin" style="letter-spacing:.15em" type="text" autocomplete="off" autocapitalize="characters"><div class="err">'+esc(m.err||'')+'</div><div class="row"><button class="btn" data-act="forgotok">Reset</button><button class="btn ghost" data-act="modalclose">Cancel</button></div>';
+  } else if(m.type==='reads'){
+    const it=curItem();
+    h+='<h2>Coach reads it</h2><p class="muted">Read the word, the sentence, then the word again.</p><div class="bigword">'+esc(it?it.w:'')+'</div><p class="sentence">'+esc(it?it.s:'')+'</p><button class="btn block" data-act="modalclose">Done</button>';
+  } else if(m.type==='confirm'){
+    h+='<h2>'+esc(m.title)+'</h2><p>'+esc(m.text)+'</p><div class="row"><button class="btn" data-act="confirmok">'+esc(m.ok||'Yes')+'</button><button class="btn ghost" data-act="modalclose">Cancel</button></div>';
+  }
+  return h+'</div></div>';
+}
+function weeksBack(n){ const out=[]; let w=weekStart(today()); for(let i=0;i<n;i++){ out.unshift(w); w=addDays(w,-7); } return out; }
+function renderCoach(){
+  const tabs=[['plan','Plan'],['progress','Progress'],['benchmark','Benchmark'],['voice','Voice'],['money','Money'],['settings','Settings'],['words','Words'],['data','Data']];
+  let h='<div class="topbar"><div class="brand"><span class="dot" style="background:var(--gold)"></span>Coach Room</div><button class="btn sm ghost" data-act="coachclose">Back to game</button></div>';
+  h+='<div class="cloud'+(Cloud.status==='online'?' on':'')+'"><i></i>'+esc(Cloud.label())+'</div>';
+  if(!S.lastBackup && (S.reps.length||S.combines.length)) h+='<div class="banner">Tip: make your first backup code in the Data tab and email it to yourself.</div>';
+  else if(S.lastBackup && daysBetween(S.lastBackup,today())>=7) h+='<div class="banner">Reminder: no backup in 7 days. Open the Data tab and copy a backup code.</div>';
+  h+='<div class="tabs">'+tabs.map(t=>'<button class="tab'+(ui.coachTab===t[0]?' on':'')+'" data-act="ctab" data-tab="'+t[0]+'">'+t[1]+'</button>').join('')+'</div><div class="coach">';
+  const fn={plan:coachPlan, progress:coachProgress, benchmark:coachBenchmark, voice:coachVoice, money:coachMoney, settings:coachSettings, words:coachWords, data:coachData}[ui.coachTab] || coachProgress;
+  h+=fn()+'</div>';
+  return h;
+}
+function coachPlan(){
+  const A = analyze();
+  if(!A) return '<div class="card"><h2>Practice plan</h2><p class="muted">The plan appears after the first Scouting Combine.</p></div>';
+  const st = {focus:'Train first', building:'Building', solid:'Solid'};
+  let h='<div class="card"><h2>Practice plan</h2><p class="muted small">Built from the '+niceDate(A.L.t)+' Combine (Form '+A.L.form+') and every practice rep since. It updates on its own after each practice.</p>';
+  h+='<div class="grid2"><div><div class="muted small">Combine</div><div class="v">'+A.total+'/27</div><div class="muted small">spelled right</div></div><div><div class="muted small">Pattern right</div><div class="v">'+A.patTotal+'/27</div><div class="muted small">target chunk right</div></div></div>';
+  h+='<h3>Train first</h3><ol>'+A.focus.map(f=>'<li><b>'+esc(f.name)+'</b>: Combine '+f.comb+'/3'+(f.acc!==null?', practice '+pct(f.acc)+' on '+f.prN+' reps':'')+(f.mainWhy?'. Main error: '+esc(f.mainWhy):'')+'. <span class="muted small">'+esc(GOAL_LINK[f.d])+'</span></li>').join('')+'</ol>';
+  if(A.strong.length) h+='<p><b>Strengths:</b> '+esc(A.strong.join(', '))+'.</p>';
+  h+='<h3>What the answers show</h3><ul>'+A.insights.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
+  h+='<h3>This week (about 10 minutes a day)</h3><div class="tblwrap"><table class="tbl"><tr>'+A.week.map(w=>'<th>'+w.day+'</th>').join('')+'</tr><tr>'+A.week.map(w=>'<td>'+esc(w.what)+'</td>').join('')+'</tr></table></div>';
+  h+='<p class="muted small">Graham sees the top three as "Your next plays" on his home screen, with a button for each drill. Mixed practice also leans toward them.</p>';
+  h+='<p><b>Next Combine:</b> '+niceDate(A.nextCombine)+' (Form '+nextForm()+'), to measure growth.</p></div>';
+  h+='<div class="card"><h2>All drills</h2><div class="tblwrap"><table class="tbl"><tr><th>Drill</th><th>Status</th><th>Combine</th><th>Practice since</th><th>Main error</th><th>His misses</th><th>Matching goal</th></tr>'+
+    A.drills.map(f=>'<tr><td><b>'+esc(f.name)+'</b><div class="muted small">'+RANKS[f.rank]+'</div></td><td><span class="chip '+f.status+'">'+st[f.status]+'</span></td><td>'+f.comb+'/3<div class="muted small">pattern '+f.pat+'/3</div></td><td>'+(f.prN?(f.acc!==null?pct(f.acc):'–')+'<div class="muted small">'+f.prN+' reps</div>':'–')+'</td><td>'+esc(f.mainWhy||'–')+'</td><td>'+(f.misses.length?f.misses.slice(0,4).map(m=>esc(m.ans||'?')+' → <b>'+esc(m.w)+'</b>').join('<br>'):'–')+'</td><td class="small">'+esc(GOAL_LINK[f.d])+'</td></tr>').join('')+
+    '</table></div><p class="muted small">Status blends the Combine (out of 3) with no-hint practice accuracy once a drill has 4 or more practice reps. Train first under 50%, Building 50 to 79%, Solid 80% and up.</p></div>';
+  return h;
+}
+function coachProgress(){
+  const ws_=weekStart(today());
+  const wk=S.sessions.filter(x=>x.t>=ws_);
+  let h='<div class="card"><h2>This week</h2><p>'+wk.length+' sessions · '+wk.reduce((a,x)=>a+x.mins,0)+' minutes · '+wk.reduce((a,x)=>a+x.reps,0)+' reps</p></div>';
+  const weeks=weeksBack(6);
+  h+='<div class="card"><h2>Drills</h2><div class="tblwrap"><table class="tbl"><tr><th>Drill</th><th>Rank</th><th>Mastered</th>'+weeks.map(w=>'<th>'+parseD(w).toLocaleDateString(undefined,{month:'numeric',day:'numeric'})+'</th>').join('')+'<th>Most missed</th></tr>';
+  DRILLS.forEach((dr,d)=>{
+    const words=allPractice().filter(x=>x.d===d);
+    const mast=words.filter(x=>ws(x.w).m).length;
+    const cells=weeks.map((w,i)=>{ const end=i<weeks.length-1?weeks[i+1]:'9999'; const r=S.reps.filter(x=>x.d===d&&x.t>=w&&x.t<end); return '<td>'+(r.length?Math.round(100*r.filter(x=>x.ok).length/r.length)+'%<div class="muted small">'+r.length+'</div>':'–')+'</td>'; }).join('');
+    const missed=words.map(x=>({w:x.w,m:ws(x.w).miss})).filter(x=>x.m>0).sort((a,b)=>b.m-a.m).slice(0,3).map(x=>esc(x.w)+' ('+x.m+')').join(', ');
+    h+='<tr><td><b>'+esc(dr.name)+'</b>'+(S.settings.drillsOn[d]?'':' <span class="muted small">(off)</span>')+'</td><td>'+RANKS[S.drills[d].r]+'</td><td>'+mast+'/'+words.length+'</td>'+cells+'<td>'+(missed||'–')+'</td></tr>';
+  });
+  h+='</table></div><p class="muted small">Weekly columns: accuracy and number of reps, practice and Boss Battles.</p></div>';
+  h+='<div class="card"><h2>Boss Battle history</h2>'+(S.boss.length?'<div class="tblwrap"><table class="tbl"><tr><th>Date</th><th>Score</th><th>Words</th></tr>'+S.boss.slice().reverse().map(b=>'<tr><td>'+niceDate(b.t)+'</td><td><b>'+b.score+'/10</b></td><td><details><summary>show</summary>'+b.items.map(x=>esc(x.w)+': <span class="'+(x.ok?'ok':'no')+'">'+esc(x.ans)+'</span>').join('<br>')+'</details></td></tr>').join('')+'</table></div>':'<p class="muted">No Boss Battles yet.</p>')+'</div>';
+  const days={}; S.sessions.forEach(x=>{ const d=days[x.t]||(days[x.t]={mins:0,reps:0,correct:0,earned:0,lost:0}); d.mins+=x.mins; d.reps+=x.reps; d.correct+=x.correct; d.earned+=x.earned; d.lost+=x.lost; });
+  const keys=Object.keys(days).sort().reverse().slice(0,30);
+  h+='<div class="card"><h2>Daily log</h2>'+(keys.length?'<div class="tblwrap"><table class="tbl"><tr><th>Date</th><th>Min</th><th>Reps</th><th>Accuracy</th><th>Earned</th><th>Lost</th></tr>'+keys.map(k=>{const d=days[k]; return '<tr><td>'+niceDate(k)+'</td><td>'+d.mins+'</td><td>'+d.reps+'</td><td>'+pct(d.reps?d.correct/d.reps:null)+'</td><td>'+fmt$(d.earned)+'</td><td>'+fmt$(d.lost)+'</td></tr>';}).join('')+'</table></div>':'<p class="muted">No practice yet.</p>')+'</div>';
+  return h;
+}
+function growthSVG(){
+  const cs=S.combines.slice(-4); if(!cs.length) return '';
+  const W=620, rowH=26, top=24, H=top+rowH*9+30, left=120, bw=Math.max(8,Math.floor((W-left-20)/(cs.length*3+cs.length))*1);
+  const cols=['#93a0b4','#2f6fb0','#1f7a45','#e8a317'];
+  let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Combine scores by drill">';
+  cs.forEach((c,k)=>{ s+='<rect x="'+(left+k*120)+'" y="4" width="12" height="12" fill="'+cols[k+(4-cs.length)]+'"></rect><text x="'+(left+k*120+16)+'" y="15" font-size="12">'+esc(niceDate(c.t))+' ('+c.form+')</text>'; });
+  DRILLS.forEach((dr,d)=>{
+    const y=top+d*rowH+6;
+    s+='<text x="0" y="'+(y+12)+'" font-size="12">'+esc(dr.name)+'</text>';
+    cs.forEach((c,k)=>{ const w=(c.byDrill[d].ok/3)*((W-left-20)/cs.length-8); s+='<rect x="'+(left+k*((W-left-20)/cs.length))+'" y="'+y+'" width="'+Math.max(2,w)+'" height="14" rx="3" fill="'+cols[k+(4-cs.length)]+'"></rect><text x="'+(left+k*((W-left-20)/cs.length)+Math.max(2,w)+4)+'" y="'+(y+12)+'" font-size="11">'+c.byDrill[d].ok+'</text>'; });
+  });
+  s+='</svg>';
+  return s;
+}
+function ansMarked(ans, word){
+  const pairs = align(norm(ans).split(''), word.toLowerCase().split(''));
+  return pairs.map(p=> p[0]===null ? '' : (p[0]!==p[1] ? '<mark style="background:var(--gold);color:var(--gold-ink);border-radius:3px;padding:0 1px">'+esc(p[0])+'</mark>' : esc(p[0]))).join('') + (pairs.some(p=>p[0]===null)?' <span class="muted small">(letters missing)</span>':'');
+}
+function coachBenchmark(){
+  let h='';
+  const cs=combineStatus();
+  if(S.combines.length){
+    const L=S.combines[S.combines.length-1];
+    const missed=L.items.filter(x=>!x.ok);
+    h+='<div class="card"><h2>Latest Combine: every word</h2><p class="muted small">'+niceDate(L.t)+' · Form '+L.form+' · <b>'+L.score+'/27</b> spelled right · pattern right '+L.patScore+'/27</p>';
+    if(missed.length) h+='<p><b>Missed ('+missed.length+'):</b> '+missed.map(x=>esc(x.w)).join(', ')+'</p>';
+    h+='<div class="tblwrap"><table class="tbl"><tr><th>Drill</th><th>Word</th><th>He wrote</th><th>Result</th><th>Pattern</th><th>Changed in check</th></tr>'+
+      L.items.map(x=>'<tr'+(x.ok?'':' style="background:color-mix(in srgb,var(--gold) 14%,transparent)"')+'><td>'+esc(DRILLS[x.d].name)+'</td><td><b>'+esc(x.w)+'</b></td><td>'+(x.ok?esc(x.ans):ansMarked(x.ans,x.w))+'</td><td class="'+(x.ok?'ok':'no')+'">'+(x.ok?'✓ right':'✗ missed')+'</td><td class="'+(x.pat?'ok':'no')+'">'+(x.pat?'right':'missed')+'</td><td>'+(x.ed?'yes':'')+'</td></tr>').join('')+'</table></div>';
+    h+='<p class="muted small">Highlighted letters in "He wrote" are where his spelling differs. Pattern = the drill\'s target chunk was right, even inside a wrong word.</p></div>';
+  }
+  h+='<div class="card"><h2>Scouting Combine results by drill</h2>';
+  if(S.combines.length){
+    h+='<div class="tblwrap"><table class="tbl"><tr><th>Drill</th>'+S.combines.map(c=>'<th>'+niceDate(c.t)+'<br>Form '+c.form+'</th>').join('')+'</tr>';
+    DRILLS.forEach((dr,d)=>{ h+='<tr><td>'+esc(dr.name)+'</td>'+S.combines.map(c=>'<td><b>'+c.byDrill[d].ok+'/3</b> <span class="muted small">pattern '+c.byDrill[d].pat+'/3</span></td>').join('')+'</tr>'; });
+    h+='<tr><td><b>Overall</b></td>'+S.combines.map(c=>'<td><b>'+c.score+'/27</b> <span class="muted small">pattern '+c.patScore+'/27</span></td>').join('')+'</tr>';
+    h+='<tr><td>Fixed during check</td>'+S.combines.map(c=>'<td>'+c.fixes+'</td>').join('')+'</tr></table></div>';
+    h+='<p class="muted small">Whole word = spelled exactly right. Pattern = the target chunk was right, even inside a wrong word.</p>';
+    h+='<h3>Growth by drill (whole words, out of 3)</h3>'+growthSVG();
+    h+='<h3>Overall over time</h3><p>'+S.combines.map(c=>niceDate(c.t)+': <b>'+c.score+'/27</b>').join(' → ')+'</p>';
+    S.combines.slice(0,-1).reverse().forEach(c=>{ h+='<details style="margin-top:8px"><summary>Earlier Combine words: '+niceDate(c.t)+' (Form '+c.form+')</summary><div class="tblwrap"><table class="tbl"><tr><th>Drill</th><th>Word</th><th>Answer</th><th>Word</th><th>Pattern</th><th>Changed in check</th></tr>'+c.items.map(x=>'<tr><td>'+esc(DRILLS[x.d].name)+'</td><td>'+esc(x.w)+'</td><td>'+esc(x.ans)+'</td><td class="'+(x.ok?'ok':'no')+'">'+(x.ok?'right':'wrong')+'</td><td class="'+(x.pat?'ok':'no')+'">'+(x.pat?'right':'wrong')+'</td><td>'+(x.ed?'yes':'')+'</td></tr>').join('')+'</table></div></details>'; });
+    h+='<p class="muted small" style="margin-top:10px">Next Combine: '+niceDate(cs.due||today())+' (Form '+nextForm()+').</p>';
+  } else h+='<p class="muted">No Combine yet. The first one runs when the player starts.</p>';
+  h+='<div class="row" style="margin-top:10px"><button class="btn sm" data-act="startcombine">Start a Combine now</button></div></div>';
+  h+='<div class="card"><h2>Outside results</h2><p class="muted small">Paper tests or school results. Saved only on this device.</p><div class="form"><label>Date<input type="date" id="odate" value="'+today()+'"></label><label style="grid-column:1/-1">Note<input type="text" id="onote" placeholder="e.g. home paper quiz: 5/20"></label></div><button class="btn sm" data-act="addoutside" style="margin-top:10px">Add result</button>';
+  if(S.outside.length) h+='<div class="tblwrap"><table class="tbl" style="margin-top:10px"><tr><th>Date</th><th>Result</th><th></th></tr>'+S.outside.map((o,i)=>'<tr><td>'+niceDate(o.t)+'</td><td>'+esc(o.note)+'</td><td><button class="btn sm ghost" data-act="deloutside" data-i="'+i+'">Remove</button></td></tr>').join('')+'</table></div>';
+  h+='</div>';
+  return h;
+}
+function recordList(filter){
+  const nf = S.combineCur ? S.combineCur.form : nextForm();
+  if(filter==='combine') return formOrder(nf).map(x=>Object.assign({grp:'Next Combine (Form '+nf+')'},x));
+  if(filter==='combineAll') return formOrder('A').map(x=>Object.assign({grp:'Combine Form A'},x)).concat(formOrder('B').map(x=>Object.assign({grp:'Combine Form B'},x)));
+  if(filter==='missing') return allPractice().filter(x=>!(Clips.has(x.w,'w')&&Clips.has(x.w,'s')));
+  const d = Number(filter);
+  return allPractice().filter(x=>x.d===d);
+}
+function coachVoice(){
+  let h='<div class="card"><h2>Computer voice</h2>';
+  if(!Speech.ok){ h+='<p>This browser has no computer voice. Use your own recordings below, or read the words aloud.</p>'; }
+  else {
+    const vs=Speech.voices(); const cur=Speech.voice?Speech.voice.name:'';
+    h+='<p class="muted small">The game picks the clearest English voice on this device. Pick another and it plays a test right away.</p>';
+    h+='<div class="form"><label>Voice<select data-act-change="setvoice">'+vs.map(v=>'<option value="'+esc(v.name)+'" '+(v.name===cur?'selected':'')+'>'+esc(v.name)+' ('+esc(v.lang)+')'+(voiceScore(v)>=80?' ★ best':voiceScore(v)===0?' (robot)':'')+'</option>').join('')+'</select></label>'+
+       '<label>Speed: '+(Number(S.settings.voiceRate)||0.9).toFixed(2)+'<input type="range" min="0.6" max="1.1" step="0.05" value="'+(Number(S.settings.voiceRate)||0.9)+'" data-act-change="setrate"></label></div>';
+    h+='<div class="row" style="margin-top:10px"><button class="btn sm sky" data-act="testvoice">🔈 Test voice</button></div>';
+    h+='<details style="margin-top:12px"><summary>Get a much better voice (free, 2 minutes)</summary><div class="small" style="margin-top:8px">'+
+       '<p><b>Mac:</b> Apple menu → System Settings → Accessibility → Spoken Content → System voice → Manage Voices. Under English (US), download <b>Ava (Premium)</b> or <b>Zoe (Premium)</b>. Then reopen the game; it picks the Premium voice by itself. Works best in Safari.</p>'+
+       '<p><b>iPad:</b> Settings → Accessibility → Spoken Content → Voices → English → pick <b>Ava</b> or <b>Zoe</b> and download the <b>Enhanced</b> or <b>Premium</b> version. Then reopen the game in Safari.</p>'+
+       '<p><b>Chrome:</b> the voice called <b>Google US English</b> is clear but needs internet.</p>'+
+       '<p>Also turn the device volume all the way up. Headphones help most.</p></div></details>';
+  }
+  h+='</div>';
+  if(IN_ONLINE){
+    h+='<div class="card"><h2>Record your own voice</h2><p>Recording is not available in the online version, because the page cannot use the microphone here. The best fix online is a Premium voice: open <b>Get a much better voice</b> above, download Ava or Zoe (Premium), then reopen the game. The <b>🐢 Slow</b> button and free replays help too.</p></div>';
+    return h;
+  }
+  const f = ui.recFilter || 'combine';
+  const list = recordList(f);
+  const done = list.filter(x=>Clips.has(x.w,'w') && Clips.has(x.w,'s')).length;
+  const totalRec = allPractice().concat(FORMS.A,FORMS.B).filter(x=>Clips.has(x.w,'w')).length;
+  h+='<div class="card"><h2>Record your own voice</h2><p class="muted small">Your voice is the clearest. Record a word and its sentence once; the game plays your recording from then on and uses the computer voice for anything not recorded. Recordings stay on this device only (they are not in the backup code).</p>';
+  h+='<label class="chk"><input type="checkbox" data-act="userec" '+(S.settings.useRecordings!==false?'checked':'')+'> Use my recordings when I have them</label>';
+  if(!Rec.ok) h+='<p class="no">This browser cannot record. Try Safari or Chrome.</p>';
+  h+='<p class="small" style="margin-top:10px"><b>How:</b> tap 🎙 Word, say the word clearly, tap Stop. Then tap 🎙 Sentence and read the sentence. Start with the next Combine words.</p>';
+  h+='<div class="form"><label>Show<select data-act-change="recfilter"><option value="combine" '+(f==='combine'?'selected':'')+'>Next Combine words (27)</option><option value="combineAll" '+(f==='combineAll'?'selected':'')+'>Both Combine forms (54)</option><option value="missing" '+(f==='missing'?'selected':'')+'>Practice words not recorded yet</option>'+DRILLS.map((dr,d)=>'<option value="'+d+'" '+(f===String(d)?'selected':'')+'>Drill: '+esc(dr.name)+'</option>').join('')+'</select></label></div>';
+  h+='<p class="small"><b>'+done+' of '+list.length+'</b> done in this list · '+totalRec+' word'+(totalRec===1?'':'s')+' recorded in all.</p>';
+  if(ui.recMsg) h+='<div class="hint">'+esc(ui.recMsg)+'</div>';
+  h+='<div class="reclist">'+list.slice(0,200).map(x=>{
+    const cell=(p)=>{ const has=Clips.has(x.w,p), on=Rec.isOn(x.w,p);
+      return '<div class="recctl"><button class="btn sm '+(on?'gold':'ghost')+'" data-act="rec" data-w="'+esc(x.w)+'" data-part="'+p+'">'+(on?'■ Stop':(has?'✓ ':'🎙 ')+(p==='w'?'Word':'Sentence'))+'</button>'+
+        (has?'<button class="btn sm ghost" data-act="playclip" data-w="'+esc(x.w)+'" data-part="'+p+'" aria-label="Play '+(p==='w'?'word':'sentence')+'">▶</button><button class="btn sm ghost" data-act="delclip" data-w="'+esc(x.w)+'" data-part="'+p+'" aria-label="Delete '+(p==='w'?'word':'sentence')+'">✕</button>':'')+'</div>'; };
+    return '<div class="recrow"><div><b class="recword">'+esc(x.w)+'</b> <span class="muted small">'+esc(x.s)+'</span></div><div class="recbtns">'+cell('w')+cell('s')+'</div></div>';
+  }).join('')+'</div></div>';
+  return h;
+}
+function coachMoney(){
+  let h='<div class="card"><h2>Bank</h2><div class="grid2"><div><div class="muted small">Wallet</div><div class="v">'+fmt$(S.bank.wallet)+'</div></div><div><div class="muted small">Vault</div><div class="v">'+fmt$(S.bank.vault)+'</div></div><div><div class="muted small">Earned this week</div><div class="v">'+fmt$(weekEarned(S))+'</div></div><div><div class="muted small">Lost this week</div><div class="v">'+fmt$(weekLost(S))+'</div></div></div>';
+  h+='<h3>Record a payout</h3><p class="muted small">Takes money from the Wallet first, then the Vault.</p><div class="form"><label>Amount ($)<input type="number" id="payamt" min="0" step="0.01" value="'+cents(S.bank.wallet+S.bank.vault).toFixed(2)+'"></label><label>Date<input type="date" id="paydate" value="'+today()+'"></label></div><button class="btn sm gold" data-act="payout" style="margin-top:10px">Record payout</button></div>';
+  h+='<div class="card"><h2>Payouts</h2>'+(S.payouts.length?'<table class="tbl"><tr><th>Date</th><th>Amount</th></tr>'+S.payouts.slice().reverse().map(p=>'<tr><td>'+niceDate(p.t)+'</td><td>'+fmt$(p.amt)+'</td></tr>').join('')+'</table>':'<p class="muted">None yet.</p>')+'</div>';
+  h+='<div class="card"><h2>Recent money</h2>'+(S.ledger.length?'<div class="tblwrap"><table class="tbl"><tr><th>Date</th><th>Change</th><th>Where</th><th>Why</th></tr>'+S.ledger.slice(-40).reverse().map(e=>'<tr><td>'+niceDate(e.t)+'</td><td class="'+(e.amt>=0?'ok':'no')+'">'+(e.amt>=0?'+':'')+fmt$(e.amt)+'</td><td>'+(e.p?'Payout':e.v?'Vault':'Wallet')+'</td><td>'+esc(e.r)+'</td></tr>').join('')+'</table></div>':'<p class="muted">None yet.</p>')+'</div>';
+  return h;
+}
+function coachSettings(){
+  const m=S.settings.money;
+  let h='<div class="card"><h2>Money amounts</h2><div class="form">'+Object.keys(DEFAULT_MONEY).map(k=>'<label>'+esc(MONEY_LABELS[k])+'<input type="number" min="0" step="0.01" data-money="'+k+'" value="'+Number(m[k]).toFixed(2)+'"></label>').join('')+'</div></div>';
+  h+='<div class="card"><h2>Limits and length</h2><div class="form"><label>Weekly earnings cap ($)<input type="number" min="0" step="0.5" id="set-cap" value="'+S.settings.weeklyCap+'"></label><label>Most he can lose in a day ($)<input type="number" min="0" step="0.05" id="set-loss" value="'+S.settings.dailyLossCap+'"></label><label>Reps per practice<input type="number" min="5" max="40" step="1" id="set-reps" value="'+S.settings.practiceReps+'"></label><label>Practice minutes<input type="number" min="3" max="30" step="1" id="set-min" value="'+S.settings.practiceMinutes+'"></label></div></div>';
+  h+='<div class="card"><h2>Drills on or off</h2>'+DRILLS.map((dr,d)=>'<label class="chk"><input type="checkbox" data-drill="'+d+'" '+(S.settings.drillsOn[d]?'checked':'')+'> '+esc(dr.name)+'</label>').join('')+'</div>';
+  h+='<div class="row" style="margin-top:14px"><button class="btn" data-act="savesettings">Save settings</button><button class="btn ghost" data-act="resetmoney">Reset money to defaults</button><button class="btn ghost" data-act="changepin">Change PIN</button></div><div class="status" id="setstatus"></div>';
+  return h;
+}
+function coachWords(){
+  let h='<div class="card"><h2>Add a word</h2><p class="muted small">For words from school spelling lists. The sentence must use the word and be 8 words or fewer.</p><div class="form">'+
+    '<label>Word<input type="text" id="cw-w" autocapitalize="off"></label>'+
+    '<label>Drill<select id="cw-d">'+DRILLS.map((dr,d)=>'<option value="'+d+'">'+esc(dr.name)+'</option>').join('')+'</select></label>'+
+    '<label>Syllables (with hyphens)<input type="text" id="cw-syl" placeholder="e.g. hap-pi-er" autocapitalize="off"></label>'+
+    '<label>Target chunk<input type="text" id="cw-chunk" placeholder="e.g. ier" autocapitalize="off"></label>'+
+    '<label style="grid-column:1/-1">Sentence<input type="text" id="cw-s"></label>'+
+    '<label style="grid-column:1/-1">Memory trick (optional)<input type="text" id="cw-trick"></label></div>'+
+    '<button class="btn sm" data-act="addword" style="margin-top:10px">Add word</button><div class="err" id="cwerr"></div></div>';
+  h+='<div class="card"><h2>Custom words</h2>'+(S.custom.length?'<table class="tbl"><tr><th>Word</th><th>Drill</th><th>Sentence</th><th></th></tr>'+S.custom.map((c,i)=>'<tr><td>'+esc(c.w)+'</td><td>'+esc(DRILLS[c.d].name)+'</td><td>'+esc(c.s)+'</td><td><button class="btn sm ghost" data-act="delword" data-i="'+i+'">Remove</button></td></tr>').join('')+'</table>':'<p class="muted">None yet.</p>')+'</div>';
+  h+='<div class="card"><h2>Word bank</h2><p class="muted small">'+WORDS.length+' practice words across 9 drills. Combine words (Form A and B) are kept out of practice.</p></div>';
+  return h;
+}
+function coachSync(){
+  const c=GSync.cfg();
+  let h='<div class="card"><h2>Sync between devices</h2>';
+  if(IN_ONLINE && !c){ h+='<p class="muted small">This copy already saves to your Claude account.</p></div>'; return h; }
+  if(c){
+    h+='<p>'+esc(Cloud.label())+'</p><div class="row"><button class="btn sm" data-act="syncnow">Sync now</button><button class="btn sm gold" data-act="synclink">Make a link for another device</button><button class="btn sm ghost" data-act="syncoff">Turn off on this device</button></div>';
+    if(ui.syncLink) h+='<p class="small" style="margin-top:10px">Open this link once on the other device (text or AirDrop it). It sets up sync there. Keep it private; it contains the family key.</p><textarea id="synclinkbox" readonly>'+esc(ui.syncLink)+'</textarea><button class="btn sm" data-act="copy" data-target="synclinkbox" style="margin-top:8px">Copy link</button>';
+  } else {
+    h+='<p class="muted small">Keeps the bank and results the same on his iPhone and computer, using a file in your Google Drive. One-time setup: follow the Sync setup steps, then paste the two values here.</p>'+
+      '<div class="form"><label style="grid-column:1/-1">Web app address (starts with https://script.google.com/)<input type="text" id="sync-url" autocapitalize="off" autocomplete="off" spellcheck="false"></label><label>Family key<input type="text" id="sync-key" autocapitalize="off" autocomplete="off" spellcheck="false"></label></div>'+
+      '<button class="btn sm" data-act="syncconnect" style="margin-top:10px">Connect</button>';
+  }
+  if(ui.syncMsg) h+='<div class="hint">'+esc(ui.syncMsg)+'</div>';
+  return h+'</div>';
+}
+function coachData(){
+  let h=coachSync()+'<div class="card"><h2>Weekly summary</h2><p class="muted small">Paste into an email.</p><textarea id="summary" readonly>'+esc(weeklySummary())+'</textarea><button class="btn sm" data-act="copy" data-target="summary" style="margin-top:8px">Copy</button></div>';
+  h+='<div class="card"><h2>Download CSV</h2><p class="muted small">All reps, sessions, Boss Battles, Combines and payouts.</p><button class="btn sm" data-act="csv">Download CSV</button></div>';
+  h+='<div class="card"><h2>Backup code</h2><p class="muted small">Data lives only in this browser on this device. Copy this code somewhere safe (email it to yourself). Last backup: '+(S.lastBackup?niceDate(S.lastBackup):'never')+'.</p><button class="btn sm gold" data-act="makebackup">Make backup code</button><textarea id="backup" readonly style="margin-top:8px">'+(ui.backupCode?esc(ui.backupCode):'')+'</textarea>'+(ui.backupCode?'<button class="btn sm" data-act="copy" data-target="backup" style="margin-top:8px">Copy</button>':'')+'</div>';
+  h+='<div class="card"><h2>Restore from a backup code</h2><p class="muted small">This replaces everything on this device.</p><textarea id="restore" placeholder="GSG1:..."></textarea><button class="btn sm ghost" data-act="restore" style="margin-top:8px">Restore</button><div class="err" id="reserr"></div></div>';
+  return h;
+}
+function weeklySummary(){
+  const ws_=weekStart(today());
+  const ss=S.sessions.filter(x=>x.t>=ws_);
+  const r=S.reps.filter(x=>x.t>=ws_);
+  const acc=r.length? r.filter(x=>x.ok).length/r.length : null;
+  const dstats=DRILLS.map((dr,d)=>{ const x=r.filter(y=>y.d===d); return {d, n:x.length, a:x.length? x.filter(y=>y.ok).length/x.length:null}; }).filter(x=>x.n>=3);
+  dstats.sort((a,b)=>b.a-a.a);
+  const best=dstats[0], low=dstats[dstats.length-1];
+  const lc=S.combines[S.combines.length-1];
+  return [
+    'Practices played this week: '+ss.filter(x=>x.mode==='practice').length+' practice'+(ss.filter(x=>x.mode==='boss').length?' + 1 Boss Battle':'')+' ('+ss.reduce((a,x)=>a+x.mins,0)+' minutes, '+r.length+' reps).',
+    'Overall accuracy: '+pct(acc)+'.',
+    'Best drill: '+(best?DRILLS[best.d].name+' ('+pct(best.a)+')':'–')+'; lowest drill: '+(low&&low!==best?DRILLS[low.d].name+' ('+pct(low.a)+')':'–')+'.',
+    'Money earned this week: '+fmt$(weekEarned(S))+'. Last Combine: '+(lc? niceDate(lc.t)+', '+lc.score+'/27, lowest drills '+lowestDrillsFromCombine().map(i=>DRILLS[i].name).join(', ') : 'not yet')+'.'
+  ].join('\n');
+}
+function csvCell(x){ x=String(x==null?'':x); return /[",\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x; }
+function buildCSV(){
+  const rows=[['record','date','mode','drill','word','answer','correct','pattern_or_hint','extra']];
+  S.reps.forEach(x=>rows.push(['rep',x.t,x.m==='b'?'boss':'practice',DRILLS[x.d].name,x.w,x.a||'',x.ok,x.h?'hint':'',x.c?'chunk builder':'']));
+  S.sessions.forEach(x=>rows.push(['session',x.t,x.mode,'','','',x.correct+'/'+x.reps,'',x.mins+' min; earned '+x.earned+'; lost '+x.lost]));
+  S.boss.forEach(b=>b.items.forEach(x=>rows.push(['boss',b.t,'boss',DRILLS[x.d].name,x.w,x.ans,x.ok,'','score '+b.score+'/10'])));
+  S.combines.forEach(c=>c.items.forEach(x=>rows.push(['combine',c.t,'Form '+c.form,DRILLS[x.d].name,x.w,x.ans,x.ok,x.pat?'pattern right':'pattern wrong',x.ed?'changed in check':''])));
+  S.payouts.forEach(p=>rows.push(['payout',p.t,'','','','','','',p.amt]));
+  S.outside.forEach(o=>rows.push(['outside',o.t,'','','','','','',o.note]));
+  return rows.map(r=>r.map(csvCell).join(',')).join('\n');
+}
+function download(name, text){
+  if(window.claude && typeof window.claude.use==='function'){
+    window.claude.use('downloads').then(dl=>{ if(dl) return dl.save({filename:name, data:text}).catch(()=>{}); return localDownload(name,text); }).catch(()=>localDownload(name,text));
+    return true;
+  }
+  return localDownload(name, text);
+}
+function localDownload(name, text){
+  try{ const b=new Blob([text],{type:'text/csv'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(u); a.remove();},500); return true; }catch(e){ return false; }
+}
+function copyText(id){
+  const el=document.getElementById(id); if(!el) return;
+  const done=()=>{ const s=document.createElement('div'); s.className='float plus'; s.textContent='Copied'; document.body.appendChild(s); setTimeout(()=>s.remove(),1000); };
+  try{ navigator.clipboard.writeText(el.value).then(done, ()=>{ el.select(); document.execCommand('copy'); done(); }); }catch(e){ el.select(); try{document.execCommand('copy');}catch(_){} done(); }
+}
+function validateCustom(c){
+  if(!c.w || !/^[a-zA-Z' -]+$/.test(c.w)) return 'Type a word using letters only.';
+  if(BANNED.indexOf(norm(c.w))>=0) return 'That word is saved for a retest. Pick another.';
+  if(FORMS.A.concat(FORMS.B).some(x=>norm(x.w)===norm(c.w) && x.d!==3)) return 'That word is saved for the Combine. Pick another.';
+  if(allPractice().some(x=>norm(x.w)===norm(c.w))) return 'That word is already in the game.';
+  if(c.syl.replace(/-/g,'').toLowerCase()!==c.w.toLowerCase()) return 'Syllables must spell the word, split with hyphens.';
+  if(!c.chunk || c.w.toLowerCase().indexOf(c.chunk.toLowerCase())<0) return 'The target chunk must be part of the word.';
+  if(!sentenceUses(c.s, c.w)) return 'The sentence must use the word.';
+  if(c.s.split(/\s+/).filter(Boolean).length>8) return 'Keep the sentence to 8 words or fewer.';
+  return '';
+}
+function sentenceUses(s,w){ return wordIndex(s,w)>=0; }
+
+/* =========================================================
+   RENDER + EVENTS
+   ========================================================= */
+const app = document.getElementById('app');
+function render(){
+  let h='';
+  if(ui.coachOpen) h=renderCoach();
+  else if(!S.onboarded) h=renderWelcome();
+  else if(ui.screen==='rep' && SES) h=renderRep();
+  else if(ui.screen==='final' && SES) h=renderFinal();
+  else if(ui.screen==='combineResults' && SES) h=renderCombineResults();
+  else { ui.screen='home'; h=renderHome(); }
+  h+=renderModal();
+  app.innerHTML=h;
+  const a=document.getElementById('ans'); if(a && !ui.modal){ a.focus({preventScroll:true}); const v=a.value; a.value=''; a.value=v; }
+  const p=document.getElementById('pin'); if(p) p.focus();
+}
+app.addEventListener('input', e=>{ if(e.target.id==='ans' && SES && SES.rep && (SES.rep.phase==='spell'||SES.rep.phase==='check')){ SES.rep.ans=e.target.value; if(SES.rep.phase==='check'){ const b=document.getElementById('bigword'); if(b) b.textContent=e.target.value; } } });
+app.addEventListener('keydown', e=>{
+  if(e.key!=='Enter') return;
+  if(e.target.id==='ans' && SES){ e.preventDefault(); const ph=SES.rep.phase; if(ph==='spell') doCheck(); else if(ph==='check' && SES.mode==='combine') doLock(null); else if(ph==='fix') fixRep(); }
+  else if(e.target.id==='pin'||e.target.id==='pin2'){ e.preventDefault(); act(ui.modal.type==='pin'?'pinok':'setpinok'); }
+});
+app.addEventListener('change', e=>{ const el=e.target.closest('[data-act-change]'); if(el) act(el.getAttribute('data-act-change'), el); });
+app.addEventListener('click', e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  act(b.getAttribute('data-act'), b);
+});
+function act(a, el){
+  const ds = el ? el.dataset : {};
+  switch(a){
+    case 'welnext': ui.welcome++; render(); break;
+    case 'welgo': S.onboarded=true; save(); startCombine(); break;
+    case 'mute': S.settings.muted=!S.settings.muted; save(); render(); break;
+    case 'coach': requirePin(()=>{ ui.coachOpen=true; ui.coachTab='plan'; render(); }); break;
+    case 'coachclose': ui.coachOpen=false; ui.backupCode=''; render(); break;
+    case 'ctab': ui.coachTab=ds.tab; render(); break;
+    case 'practice': startPractice(null); break;
+    case 'choosedrill': ui.pickDrill=!ui.pickDrill; render(); break;
+    case 'pickdrill': ui.pickDrill=false; startPractice(Number(ds.d)); break;
+    case 'boss': startBoss(); break;
+    case 'combine': startCombine(); break;
+    case 'hearword': Speech.say(curItem(),'word'); break;
+    case 'hearsent': Speech.say(curItem(),'sentence'); break;
+    case 'hearslow': Speech.say(curItem(),'word',true); break;
+    case 'setvoice': S.settings.voiceName = el.value; Speech.pickVoice(); save(); Speech.test(); break;
+    case 'setrate': S.settings.voiceRate = Math.min(1.1, Math.max(0.6, Number(el.value)||0.9)); save(); Speech.test(); render(); break;
+    case 'testvoice': Speech.test(); break;
+    case 'userec': S.settings.useRecordings = !S.settings.useRecordings; save(); render(); break;
+    case 'recfilter': ui.recFilter = el.value; render(); break;
+    case 'rec': Rec.start(ds.w, ds.part); break;
+    case 'playclip': Speech.stop(); Speech.playClip(ds.w, ds.part); break;
+    case 'delclip': Clips.del(ds.w, ds.part).then(()=>render()); break;
+    case 'tile': tapTile(ds.k); break;
+    case 'hint': takeHint(); break;
+    case 'check': doCheck(); break;
+    case 'lock': doLock(ds.sure==='none'?null:ds.sure==='1'); break;
+    case 'next': afterResult(); break;
+    case 'fix': fixRep(); break;
+    case 'endearly': ui.modal={type:'confirm', title:'End practice?', text:'Your reps so far still count.', ok:'End it', cb:()=>endSession(false)}; render(); break;
+    case 'pausecombine': SES=null; ui.screen='home'; render(); break;
+    case 'home': SES=null; ui.screen='home'; render(); break;
+    case 'coachreads': requirePin(()=>{ ui.modal={type:'reads'}; render(); }); break;
+    case 'modalclose': ui.modal=null; render(); break;
+    case 'confirmok': { const cb=ui.modal.cb; ui.modal=null; cb&&cb(); if(!ui.modal) render(); break; }
+    case 'pinok': { const v=(document.getElementById('pin')||{}).value||''; if(simpleHash(v)===S.settings.pinHash){ const cb=ui.modal.cb; ui.modal=null; cb&&cb(); if(!cb) render(); } else { ui.modal.err='Wrong PIN.'; render(); } break; }
+    case 'setpinok': { const v=(document.getElementById('pin')||{}).value||'', v2=(document.getElementById('pin2')||{}).value||'';
+      if(!/^\d{4}$/.test(v)){ ui.modal.err='Use exactly 4 digits.'; render(); break; }
+      if(v!==v2){ ui.modal.err='The two PINs do not match.'; render(); break; }
+      const code = Array.from({length:6},()=> 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*32)]).join('');
+      S.settings.pinHash=simpleHash(v); S.settings.recoveryHash=simpleHash(code); save();
+      const cb=ui.modal.cb; ui.modal={type:'recovery', code, cb}; render(); break; }
+    case 'recok': { const cb=ui.modal.cb; ui.modal=null; cb?cb():render(); break; }
+    case 'forgot': ui.modal={type:'forgot', cb:ui.modal.cb, err:''}; render(); break;
+    case 'forgotok': { const v=((document.getElementById('rec')||{}).value||'').trim().toUpperCase(); if(simpleHash(v)===S.settings.recoveryHash){ S.settings.pinHash=''; save(); requirePin(ui.modal.cb); } else { ui.modal.err='That code does not match.'; render(); } break; }
+    case 'changepin': ui.modal={type:'setpin', cb:()=>{ render(); }}; render(); break;
+    case 'savesettings': {
+      document.querySelectorAll('[data-money]').forEach(i=>{ const v=Number(i.value); if(isFinite(v)&&v>=0) S.settings.money[i.dataset.money]=cents(v); });
+      const num=(id,min,max,def)=>{ const v=Number((document.getElementById(id)||{}).value); return isFinite(v)? Math.min(max,Math.max(min,v)) : def; };
+      S.settings.weeklyCap=num('set-cap',0,1000,10); S.settings.dailyLossCap=num('set-loss',0,100,0.5);
+      S.settings.practiceReps=Math.round(num('set-reps',5,40,15)); S.settings.practiceMinutes=Math.round(num('set-min',3,30,10));
+      const on=[]; document.querySelectorAll('[data-drill]').forEach(i=>on[Number(i.dataset.drill)]=i.checked);
+      if(on.some(Boolean)) S.settings.drillsOn=on;
+      save(); render(); const st=document.getElementById('setstatus'); if(st) st.textContent='Saved.'; break; }
+    case 'resetmoney': S.settings.money=Object.assign({},DEFAULT_MONEY); save(); render(); break;
+    case 'payout': { const amt=Number((document.getElementById('payamt')||{}).value), dt=(document.getElementById('paydate')||{}).value||today(); recordPayout(S,amt,dt); save(); render(); break; }
+    case 'startcombine': ui.modal={type:'confirm', title:'Start a Combine?', text:'The player will do 27 words (Form '+nextForm()+'). Practice is paused until it is done.', ok:'Start', cb:()=>{ ui.coachOpen=false; startCombine(); }}; render(); break;
+    case 'addoutside': { const t=(document.getElementById('odate')||{}).value||today(), n=((document.getElementById('onote')||{}).value||'').trim(); if(n){ S.outside.push({t,note:n}); S.outside.sort((a,b)=>a.t.localeCompare(b.t)); save(); render(); } break; }
+    case 'deloutside': S.outside.splice(Number(ds.i),1); save(); render(); break;
+    case 'addword': { const g=id=>((document.getElementById(id)||{}).value||'').trim();
+      const c={w:g('cw-w'), d:Number(g('cw-d')), syl:g('cw-syl')||g('cw-w'), chunk:g('cw-chunk'), s:g('cw-s'), trick:g('cw-trick')};
+      if(c.d===3) c.chunk=c.chunk||c.w;
+      const err=validateCustom(c); if(err){ const e=document.getElementById('cwerr'); if(e) e.textContent=err; break; }
+      S.custom.push(c); save(); render(); break; }
+    case 'delword': S.custom.splice(Number(ds.i),1); save(); render(); break;
+    case 'copy': copyText(ds.target); break;
+    case 'syncconnect': { const url=((document.getElementById('sync-url')||{}).value||'').trim(), key=((document.getElementById('sync-key')||{}).value||'').trim();
+      if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url) || !key){ ui.syncMsg='Paste the web app address (it starts with https://script.google.com/) and your family key.'; render(); break; }
+      ui.syncMsg='Connecting…'; render();
+      GSync.call({action:'load'}, {url,key}).then(()=>{ GSync.setCfg({url,key}); ui.syncMsg='Connected. This device now syncs.'; return GSync.init(); })
+        .catch(err=>{ ui.syncMsg = /bad_key/.test(String(err&&err.message)) ? 'The family key does not match the one in the script.' : 'Could not reach the script. Check the address, and that it is deployed with access set to Anyone.'; render(); });
+      break; }
+    case 'syncnow': ui.syncMsg=''; GSync.init().then(()=>{ ui.syncMsg = GSync.status==='online' ? 'Synced.' : 'Could not sync right now.'; render(); }); break;
+    case 'synclink': ui.syncLink=GSync.linkFor(); render(); break;
+    case 'syncoff': GSync.setCfg(null); GSync.status='off'; ui.syncLink=''; ui.syncMsg='Sync is off on this device. Data stays here.'; render(); break;
+    case 'csv': download('spelling-reps-'+today()+'.csv', buildCSV()); break;
+    case 'makebackup': ui.backupCode=Store.exportCode(S); S.lastBackup=today(); save(); ui.backupCode=Store.exportCode(S); render(); break;
+    case 'restore': { const code=(document.getElementById('restore')||{}).value; try{ const ns=Store.importCode(code); ui.modal={type:'confirm', title:'Replace all data?', text:'This replaces everything on this device with the backup.', ok:'Replace', cb:()=>{ S=ns; save(); render(); }}; render(); }catch(err){ const e=document.getElementById('reserr'); if(e) e.textContent='That code did not work. Copy the whole code, starting with GSG1:'; } break; }
+  }
+}
+window.addEventListener('beforeunload', save);
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){ Store.save(S); if(GSync.cfg()){ clearTimeout(GSync.timer); GSync.push(); } }
+  else if(GSync.cfg() && !GSync.busyPlaying()) GSync.init();     // pick up play from the other device
+});
+
+/* Test hooks (used by tests.html) */
+window.GSG = {
+  DRILLS, WORDS, FORMS, BANNED, DRILL4_ALLOWED, RANKS, DEFAULT_MONEY, DATA_VERSION, IS_TEST,
+  Store, Speech, formOrder, norm, sentenceUses, addMoney, recordPayout, weekEarned, todayLost, freshState,
+  buildPracticeQueue, buildBossQueue, combineStatus, practiceLocked, nextForm, buildCSV, weeklySummary, validateCustom, simpleHash,
+  get S(){ return S; }, set S(v){ S=v; },
+  get SES(){ return SES; }, get ui(){ return ui; },
+  setNow(d){ _now = d; }, render, act, startPractice, startBoss, startCombine, doCheck, doLock, endSession, save,
+  reload(){ S = Store.load(); render(); },
+  Clips, voiceScore, Rec, Cloud, analyze, focusDrills, GSync
+};
+
+render();
+Clips.open().then(()=>{ if(ui.coachOpen) render(); });
+Cloud.init();
+GSync.takeLink();
+GSync.init();
+})();
+</script>
+</body>
+</html>

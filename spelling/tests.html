@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spelling Reps: Quality Checks</title>
+<style>
+:root{--bg:#f6f7f4;--ink:#122033;--ok:#1f7a45;--bad:#c8553d;--line:#d5dccf}
+@media (prefers-color-scheme: dark){:root{--bg:#0b131f;--ink:#eef2f7;--ok:#3cc177;--bad:#ef7a62;--line:#24354d}}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:16px;max-width:900px}
+h1{font-size:22px} li{margin:6px 0;padding:6px 8px;border-bottom:1px solid var(--line);list-style:none}
+.pass{color:var(--ok);font-weight:700}.fail{color:var(--bad);font-weight:700}
+.detail{font-size:13px;opacity:.85;white-space:pre-wrap}
+iframe{border:1px solid var(--line);width:100%;height:420px;margin-top:10px}
+#phone{width:360px;height:640px}
+</style>
+</head>
+<body>
+<h1>Spelling Reps: Quality Checks</h1>
+<p>These checks run in a separate test save, so the player's real data is never touched.</p>
+<div id="summary" data-done="0">Running…</div>
+<ul id="out"></ul>
+<iframe id="game" src="index.html?test=1" title="game under test"></iframe>
+<iframe id="phone" src="index.html?test=1" title="phone-size game"></iframe>
+<script>
+'use strict';
+const out = document.getElementById('out');
+const results = [];
+function report(name, ok, detail){
+  results.push({name, ok, detail});
+  const li=document.createElement('li');
+  li.innerHTML='<span class="'+(ok?'pass':'fail')+'">'+(ok?'PASS':'FAIL')+'</span> '+name+(detail?'<div class="detail">'+String(detail).replace(/</g,'&lt;')+'</div>':'');
+  out.appendChild(li);
+}
+function waitLoad(fr){ return new Promise(r=>{ if(fr.contentWindow && fr.contentWindow.GSG) return r(); fr.addEventListener('load',()=>r(),{once:true}); }); }
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+
+/* The word lists from the master prompt (Drill 7 has no "piece": it lives in Look-Alikes) */
+const EXPECTED = [
+ 'carried hurried worried copied replied emptied cities families babies easier happier funniest tiniest heaviest angrily busily emptiness laziness played enjoyed stayed carrying worrying',
+ 'hoping making writing smiling dancing saving giving closed arrived noticed believing amazing careful hopeful movement excitement lovely',
+ 'running stopped planning winning swimming getting shopping dropped hopping forgetting admitted preferred occurred controlled permitted',
+ "their there they're your you're its it's to too two threw through whose who's then than know no hear here piece peace weather whether accept except",
+ 'distant distance instant elephant balance attendance absent absence silent silence patient confident confidence excellent student different nervous famous enormous jealous generous curious various animal natural final',
+ 'simple sample purple table middle bottle little puzzle gentle single handle castle people terrible possible',
+ 'brought bought fought though enough because said again believe minute answer laugh school beautiful favorite separate receive science Wednesday',
+ 'accident attention tomorrow opposite according recommend successful communicate commercial accomplish occasion opportunity environment government temperature experiment vocabulary comfortable',
+ 'impossible imperfect impatient immature imbalance incomplete independent incorrect invisible illegal irregular irresponsible'
+];
+const FORBIDDEN = [/\bIEP\b/, /\bdisabilit/i, /\bdeficit/i, /\bbehind\b/i, /\bstruggl/i, /\bweak/i, /special education/i];
+
+async function main(){
+  const fr = document.getElementById('game'), ph = document.getElementById('phone');
+  await waitLoad(fr); await waitLoad(ph);
+  const W = fr.contentWindow, G = W.GSG, D = fr.contentDocument;
+  const reset = (opts)=>{ G.setNow(null); const s=G.freshState(); if(opts&&opts.onboarded) s.onboarded=true; G.S=s; G.save(); G.act('home'); W.document.querySelectorAll('.overlay').forEach(x=>x.remove()); G.ui.modal=null; G.ui.coachOpen=false; G.render(); return s; };
+  const q = sel=>D.querySelector(sel);
+  function answerCurrent(text){ const a=D.getElementById('ans'); a.value=text; a.dispatchEvent(new W.Event('input',{bubbles:true})); }
+  function finishCombineWith(fn){ G.startCombine(); let guard=0; while(G.SES && G.SES.mode==='combine' && guard++<40){ const it=G.SES.queue[G.SES.idx]; answerCurrent(fn(it)); G.doCheck(); G.doLock(null); } }
+  const allSentences = ()=>G.WORDS.map(x=>({s:x.s,own:x.w,d:x.d,src:'bank'})).concat(G.FORMS.A.concat(G.FORMS.B).map(x=>({s:x.s,own:x.w,d:x.d,src:'form'})));
+  const wordsIn = s=>s.toLowerCase().replace(/’/g,"'").match(/[a-z']+/g)||[];
+
+  // 1. Word bank
+  try{
+    const errs=[];
+    G.WORDS.concat(G.FORMS.A, G.FORMS.B).forEach(x=>{
+      if(x.syl.replace(/-/g,'').toLowerCase()!==x.w.toLowerCase()) errs.push(x.w+': syllables "'+x.syl+'"');
+      if(x.w.toLowerCase().indexOf(x.chunk.toLowerCase())<0) errs.push(x.w+': chunk "'+x.chunk+'" not in word');
+      if(x.s.split(/\s+/).filter(Boolean).length>8) errs.push(x.w+': sentence over 8 words');
+      if(!G.sentenceUses(x.s,x.w)) errs.push(x.w+': sentence does not use the word');
+    });
+    EXPECTED.forEach((line,d)=>{
+      const exp=line.split(' ').map(w=>w.toLowerCase()).sort().join(','), got=G.WORDS.filter(x=>x.d===d).map(x=>x.w.toLowerCase()).sort().join(',');
+      if(exp!==got) errs.push('Drill '+(d+1)+' list differs from the prompt');
+    });
+    if(G.FORMS.A.length!==27||G.FORMS.B.length!==27) errs.push('Forms must have 27 words each');
+    report('1. Every word has a matching sentence (8 words or fewer), a correct syllable split, a target chunk inside the word, and matches the prompt lists ('+G.WORDS.length+' practice words, 54 Combine words)', !errs.length, errs.join('\n'));
+  }catch(e){ report('1. Word bank', false, e.stack); }
+
+  // 2 + 10b. Banned words and Combine words
+  try{
+    const errs=[];
+    const banned=G.BANNED.map(w=>w.toLowerCase());
+    G.WORDS.forEach(x=>{ const w=x.w.toLowerCase(); if(banned.includes(w) && !(x.d===3 && G.DRILL4_ALLOWED.includes(w))) errs.push('banned practice word: '+x.w); });
+    allSentences().forEach(o=>{ wordsIn(o.s).forEach(t=>{ if(banned.includes(t) && !(o.d===3 && o.own.toLowerCase()===t && G.DRILL4_ALLOWED.includes(t))) errs.push('banned word "'+t+'" in sentence: '+o.s); }); });
+    const formWords=G.FORMS.A.concat(G.FORMS.B).filter(x=>x.d!==3).map(x=>x.w.toLowerCase());
+    G.WORDS.forEach(x=>{ if(formWords.includes(x.w.toLowerCase())) errs.push('Combine word used in practice: '+x.w); wordsIn(x.s).forEach(t=>{ if(formWords.includes(t)) errs.push('Combine word "'+t+'" in practice sentence: '+x.s); }); });
+    // Combine sentences must not reuse other Combine words either (Drill 4 excepted)
+    G.FORMS.A.concat(G.FORMS.B).forEach(x=>{ wordsIn(x.s).forEach(t=>{ if(formWords.includes(t) && t!==x.w.toLowerCase()) errs.push('Combine word "'+t+'" inside another Combine sentence: '+x.s); }); });
+    // Drill 4 sentences for their/you're/threw are not reused anywhere else
+    const d4 = G.WORDS.filter(x=>x.d===3 && G.DRILL4_ALLOWED.includes(x.w.toLowerCase())).map(x=>x.s);
+    G.WORDS.concat(G.FORMS.A,G.FORMS.B).filter(x=>!(x.d===3 && G.DRILL4_ALLOWED.includes(x.w.toLowerCase()))).forEach(x=>{ if(d4.includes(x.s)) errs.push('reused sentence: '+x.s); });
+    reset({onboarded:true}); finishCombineWith(it=>it.w);
+    for(let i=0;i<20;i++){ G.buildBossQueue().concat(G.buildPracticeQueue(null)).forEach(x=>{ if(formWords.includes(x.w.toLowerCase())) errs.push('Combine word in a queue: '+x.w); if(banned.includes(x.w.toLowerCase()) && x.d!==3) errs.push('banned word in a queue: '+x.w); }); }
+    report('2 / 10b. No retest word outside Drill 4, no retest word in any sentence, and no Combine word in practice, Boss Battles or any sentence', !errs.length, errs.slice(0,20).join('\n'));
+  }catch(e){ report('2. Banned words', false, e.stack); }
+
+  // 3. Speech order and free replays
+  try{
+    const it=G.WORDS[0];
+    const seq=G.Speech.textsFor(it);
+    const okSeq = seq.length===3 && seq[0]===it.w && seq[1]===it.s && seq[2]===it.w;
+    reset({onboarded:true}); finishCombineWith(i=>i.w);
+    G.S.bank.wallet=1; G.save();
+    G.startPractice(null);
+    const before=JSON.stringify([G.S.bank, G.S.ledger.length]);
+    for(let i=0;i<5;i++){ G.act('hearword'); G.act('hearsent'); }
+    const after=JSON.stringify([G.S.bank, G.S.ledger.length]);
+    report('3. Speech reads word, sentence, word; replays cost nothing', okSeq && before===after, 'sequence: '+seq.join(' | ')+(before!==after?'\nmoney changed on replay':''));
+  }catch(e){ report('3. Speech', false, e.stack); }
+
+  // 4. Lock only after Check
+  try{
+    reset({onboarded:true}); finishCombineWith(i=>i.w); G.startPractice(null);
+    // skip chunk builder if present
+    if(G.SES.rep.phase==='chunk'){ G.SES.rep.phase='spell'; G.render(); }
+    const noLockBefore = !q('[data-act="lock"]');
+    G.doLock(true);                                   // must be ignored
+    const stillSpell = G.SES.rep.phase==='spell';
+    answerCurrent('test'); G.doCheck();
+    const lockAfter = !!q('[data-act="lock"]');
+    report('4. "Lock it in" cannot be pressed until "Check it" has been pressed', noLockBefore && stillSpell && lockAfter, 'no lock before: '+noLockBefore+', ignored early lock: '+stillSpell+', lock after check: '+lockAfter);
+  }catch(e){ report('4. Lock after check', false, e.stack); }
+
+  // 5. Money rules
+  try{
+    const errs=[]; const s=reset({onboarded:true});
+    const A=(amt,o)=>G.addMoney(G.S,amt,'test',o||{});
+    A(0.10); if(G.S.bank.wallet!==0.10) errs.push('earn failed');
+    A(0.10,{boss:true}); if(G.S.bank.wallet!==0.30) errs.push('boss double failed: '+G.S.bank.wallet);
+    G.S.bank.wallet=0.03; A(-0.05); if(G.S.bank.wallet!==0) errs.push('$0 floor failed: '+G.S.bank.wallet);
+    reset({onboarded:true}); G.S.bank.wallet=5; G.S.bank.vault=2;
+    for(let i=0;i<10;i++) A(-0.10);
+    if(G.todayLost(G.S)!==0.5) errs.push('daily loss cap failed: '+G.todayLost(G.S));
+    if(G.S.bank.vault!==2) errs.push('vault changed on loss');
+    reset({onboarded:true}); G.S.settings.weeklyCap=1;
+    A(0.75); A(0.75); A(0.75,{vault:true});
+    if(G.weekEarned(G.S)!==1) errs.push('weekly cap failed: '+G.weekEarned(G.S));
+    reset({onboarded:true}); G.S.bank.wallet=3; G.S.bank.vault=4;
+    G.recordPayout(G.S,5); if(G.S.bank.wallet!==0||G.S.bank.vault!==2) errs.push('payout order failed: '+JSON.stringify(G.S.bank));
+    // play-through: the Vault never goes down during play, and the wallet never below 0
+    reset({onboarded:true}); finishCombineWith(i=>'zzz'); const v0=G.S.bank.vault;
+    G.startPractice(null); let guard=0, minWallet=99, vaultDropped=false;
+    while(G.SES && G.SES.mode==='practice' && G.ui.screen==='rep' && guard++<80){
+      const rep=G.SES.rep;
+      if(rep.phase==='chunk'){ rep.phase='spell'; G.render(); }
+      if(rep.phase==='spell'){ answerCurrent('qqq'); G.doCheck(); G.doLock(true); }
+      else if(rep.phase==='result'){ G.act('next'); }
+      else if(rep.phase==='fix'){ const w=G.SES.queue[G.SES.idx].w; answerCurrent(w); G.act('fix'); if(G.SES && G.SES.rep && G.SES.rep.phase==='fix'){ answerCurrent(w); G.act('fix'); } }
+      minWallet=Math.min(minWallet,G.S.bank.wallet); if(G.S.bank.vault<v0) vaultDropped=true;
+    }
+    if(minWallet<0) errs.push('wallet below 0'); if(vaultDropped) errs.push('vault went down in play');
+    if(G.todayLost(G.S)>G.S.settings.dailyLossCap+1e-9) errs.push('lost more than daily cap in play');
+    report('5. Money rules: earn, Boss double, $0 floor, $0.50 daily loss cap, weekly cap, Vault never lost, payouts take Wallet first', !errs.length, errs.join('\n'));
+  }catch(e){ report('5. Money', false, e.stack); }
+
+  // 6. Persistence and migration
+  try{
+    const errs=[];
+    reset({onboarded:true}); G.S.bank={wallet:4.2,vault:1.5}; G.S.records.bestBoss=7; G.save();
+    G.S=G.freshState(); G.reload();
+    if(G.S.bank.wallet!==4.2||G.S.bank.vault!==1.5||G.S.records.bestBoss!==7) errs.push('reload lost data');
+    const m0=G.Store.migrate({bank:7.5});
+    if(m0.bank.wallet!==7.5||m0.version!==G.DATA_VERSION) errs.push('v0 migrate lost bank');
+    const m1=G.Store.migrate({version:1,bank:{wallet:2,vault:3},settings:{weeklyCap:5},drills:[{r:2}]});
+    if(m1.bank.vault!==3||m1.settings.weeklyCap!==5||m1.drills.length!==9||m1.drills[0].r!==2||!m1.settings.money.correct) errs.push('v1 migrate failed');
+    const code=G.Store.exportCode(G.S), back=G.Store.importCode(code);
+    if(back.bank.wallet!==4.2) errs.push('backup code roundtrip failed');
+    report('6. Data survives a reload and browser restart; old saves migrate without losing the bank', !errs.length, errs.join('\n'));
+  }catch(e){ report('6. Persistence', false, e.stack); }
+
+  // 7. Coach Room
+  try{
+    const errs=[];
+    reset({onboarded:true}); G.S.settings.pinHash=G.simpleHash('1234'); G.save(); G.render();
+    G.act('coach'); if(!q('#pin')) errs.push('no PIN prompt');
+    q('#pin').value='0000'; G.act('pinok'); if(G.ui.coachOpen) errs.push('wrong PIN opened the Coach Room');
+    q('#pin').value='1234'; G.act('pinok'); if(!G.ui.coachOpen) errs.push('right PIN did not open');
+    G.ui.coachTab='settings'; G.render(); q('#set-cap').value='7'; q('[data-money="correct"]').value='0.20'; G.act('savesettings');
+    if(G.S.settings.weeklyCap!==7||G.S.settings.money.correct!==0.2) errs.push('settings edit did not save');
+    G.addMoney(G.S,0.1,'x'); G.S.reps.push({t:'2026-10-19',w:'carried',d:0,ok:1,h:0,c:0,m:'p',a:'carried'});
+    const csv=G.buildCSV(); if(csv.split('\n').length<2||csv.indexOf('carried')<0) errs.push('CSV empty');
+    G.ui.coachTab='data'; G.render(); G.act('makebackup'); const code=q('#backup').value;
+    q('#restore').value=code; G.act('restore'); if(!q('.overlay')) errs.push('restore did not ask to confirm');
+    G.act('confirmok'); if(G.S.settings.weeklyCap!==7) errs.push('restore failed');
+    if(G.weeklySummary().split('\n').length!==4) errs.push('weekly summary is not 4 lines');
+    G.act('coachclose');
+    report('7. Coach Room needs the PIN; edits take effect; CSV builds; backup code restores; weekly summary has 4 lines', !errs.length, errs.join('\n'));
+  }catch(e){ report('7. Coach Room', false, e.stack); }
+
+  // 8. No forbidden words in the game
+  try{
+    const src = await (await fetch('index.html',{cache:'no-store'})).text();
+    const hits = FORBIDDEN.filter(re=>re.test(src)).map(String);
+    // also check rendered player screens
+    reset(); const texts=[]; texts.push(D.body.innerText);
+    G.act('welnext'); texts.push(D.body.innerText); G.act('welnext'); texts.push(D.body.innerText);
+    G.act('welgo'); texts.push(D.body.innerText);
+    finishCombineWith(i=>i.w); texts.push(D.body.innerText); G.act('home'); texts.push(D.body.innerText);
+    G.startPractice(null); texts.push(D.body.innerText);
+    const hits2 = FORBIDDEN.filter(re=>texts.some(t=>re.test(t))).map(String);
+    report('8. No forbidden words (IEP, disability, deficit, behind, struggle, weak, special education) anywhere in the game', !hits.length && !hits2.length, hits.concat(hits2).join(', '));
+  }catch(e){ report('8. Forbidden words', false, e.stack); }
+
+  // 9. Phone size
+  try{
+    const PW=ph.contentWindow, PG=PW.GSG, PD=ph.contentDocument;
+    const errs=[];
+    const chk=(label)=>{ const sw=PD.documentElement.scrollWidth, cw=PD.documentElement.clientWidth; if(sw>cw+1) errs.push(label+': '+sw+' > '+cw); };
+    PG.setNow(null); let s=PG.freshState(); PG.S=s; PG.save(); PG.render(); chk('welcome');
+    s.onboarded=true; PG.render(); chk('home before Combine');
+    PG.startCombine(); chk('Combine word');
+    let guard=0; while(PG.SES && PG.SES.mode==='combine' && guard++<40){ const it=PG.SES.queue[PG.SES.idx]; const a=PD.getElementById('ans'); a.value=it.w; a.dispatchEvent(new PW.Event('input',{bubbles:true})); PG.doCheck(); if(guard===2) chk('Pre-Game Check'); PG.doLock(null); }
+    chk('Combine results'); PG.act('home'); chk('home');
+    PG.startPractice(null); chk('practice rep');
+    const a=PD.getElementById('ans'); if(a){ a.value='wrongspelling'; PG.doCheck(); PG.doLock(false); chk('result with letter compare'); }
+    PG.S.settings.pinHash=PG.simpleHash('1111'); PG.ui.coachOpen=true; ['progress','benchmark','voice','money','settings','words','data'].forEach(t=>{ PG.ui.coachTab=t; PG.render(); chk('Coach '+t); });
+    PG.ui.coachOpen=false; PG.render();
+    report('9. Works on a phone-size screen (360px) with no sideways scrolling', !errs.length, errs.join('\n'));
+  }catch(e){ report('9. Phone size', false, e.stack); }
+
+  // 10a. Combine rules
+  try{
+    const errs=[];
+    reset({onboarded:true});
+    if(!G.practiceLocked()) errs.push('practice not locked before first Combine');
+    G.startPractice(null); if(G.SES && G.SES.mode==='practice') errs.push('practice started before Combine');
+    G.S.bank.wallet=2; G.save();
+    G.startCombine();
+    const first=G.SES.queue.map(x=>x.w);
+    for(let i=1;i<first.length;i++){ if(G.SES.queue[i].d===G.SES.queue[i-1].d) errs.push('two words in a row from one drill'); }
+    if(q('[data-act="hint"]')) errs.push('hint button in Combine');
+    if(q('.tiles')) errs.push('Chunk Builder in Combine');
+    answerCurrent('wrongword'); G.doCheck();
+    if(q('[data-sure="1"]')) errs.push('confidence call in Combine');
+    G.doLock(null);
+    if(G.SES.rep.phase==='result'||q('.result')) errs.push('feedback shown in Combine');
+    if(G.S.bank.wallet!==2) errs.push('money changed on a wrong Combine answer');
+    const saved=JSON.parse(W.localStorage.getItem('gsg.test.save'));
+    if(!saved.combineCur||saved.combineCur.idx!==1||saved.combineCur.items.length!==1) errs.push('not saved after the word');
+    // pause and resume
+    G.act('pausecombine'); G.startCombine(); if(G.SES.idx!==1) errs.push('resume did not continue at word 2');
+    let guard=0; while(G.SES && G.SES.mode==='combine' && guard++<40){ answerCurrent('zz'); G.doCheck(); G.doLock(null); }
+    if(G.S.bank.wallet!==2) errs.push('money lost during Combine');
+    if(G.S.bank.vault!==1) errs.push('finish bonus not in Vault: '+G.S.bank.vault);
+    if(G.practiceLocked()) errs.push('practice still locked after Combine');
+    report('10a. Practice is locked until the first Combine; the Combine gives no hints, feedback or confidence call, never takes money, and saves after every word', !errs.length, errs.join('\n'));
+  }catch(e){ report('10a. Combine', false, e.stack); }
+
+  // 10c. Re-tests alternate forms every 28 days, Benchmark shows each one
+  try{
+    const errs=[];
+    reset({onboarded:true});
+    const day0='2026-10-19';
+    G.setNow(new Date(2026,9,19,16,0));
+    finishCombineWith(it=>it.d<3?it.w:'x');
+    if(G.S.combines[0].form!=='A') errs.push('first form not A');
+    if(G.S.drills[0].r!==1) errs.push('3/3 drill did not start at JV');
+    if(G.S.drills[5].r!==0||!G.S.drills[5].chunk) errs.push('0/3 drill did not start at Rookie with Chunk Builder');
+    G.setNow(new Date(2026,10,10,16,0)); if(G.combineStatus().need) errs.push('Combine due too early');
+    G.setNow(new Date(2026,10,16,16,0)); const st=G.combineStatus(); if(!st.need||st.locked) errs.push('day 28 should show Combine Day but not lock');
+    G.setNow(new Date(2026,10,19,16,0)); if(!G.combineStatus().locked) errs.push('day 31 should lock practice');
+    const v=G.S.bank.vault;
+    finishCombineWith(it=>it.d<5?it.w:'x');
+    if(G.S.combines[1].form!=='B') errs.push('second form not B');
+    if(Math.abs(G.S.bank.vault-(v+1+0.25*2))>1e-9) errs.push('re-test pay wrong: '+(G.S.bank.vault-v));
+    if(G.nextForm()!=='A') errs.push('third form not A');
+    G.S.settings.pinHash=G.simpleHash('1234'); G.ui.coachOpen=true; G.ui.coachTab='benchmark'; G.render();
+    const txt=D.body.innerText;
+    if(!(txt.indexOf('Form A')>=0 && txt.indexOf('Form B')>=0 && txt.indexOf('He wrote')>=0 && txt.indexOf('/27')>=0 && q('svg'))) errs.push('Benchmark Report missing baseline, re-test or chart');
+    G.ui.coachOpen=false; G.setNow(null); G.render();
+    report('10c. Re-tests alternate Form A and B every 28 days (locks after 3 more days); Benchmark Report shows baseline vs every re-test', !errs.length, errs.join('\n'));
+  }catch(e){ report('10c. Re-tests', false, e.stack); }
+
+  // Voice: never auto-picks a robot voice; prefers Premium/Enhanced; uses coach recordings when present
+  try{
+    const errs=[];
+    const sc=n=>G.voiceScore({name:n, lang:'en-US', localService:true});
+    if(sc('Albert')!==0||sc('Eddy (English (US))')!==0||sc('Zarvox')!==0) errs.push('robot voices not ranked out');
+    if(!(sc('Ava (Premium)')>sc('Samantha (Enhanced)') && sc('Samantha (Enhanced)')>sc('Google US English') && sc('Google US English')>sc('Samantha') && sc('Samantha')>sc('Albert'))) errs.push('voice ranking order wrong');
+    if(G.voiceScore({name:'Thomas',lang:'fr-FR'})>=0) errs.push('non-English voice allowed');
+    reset({onboarded:true});
+    let tries=0; while(!G.Clips.ready && tries++<50) await sleep(50);
+    const it=G.WORDS[0];
+    await G.Clips.put(it.w,'w', new Blob([new Uint8Array(2000)],{type:'audio/webm'}));
+    const plan=G.Speech.planFor(it);
+    if(!(plan.length===3 && plan[0].clip && !plan[1].clip && plan[2].clip)) errs.push('recording not used in the plan: '+JSON.stringify(plan));
+    G.S.settings.useRecordings=false; if(G.Speech.planFor(it)[0].clip) errs.push('recordings used while turned off');
+    G.S.settings.useRecordings=true;
+    const back=await G.Clips.get(it.w,'w'); if(!back||back.size!==2000) errs.push('recording not stored');
+    await G.Clips.del(it.w,'w'); if(G.Clips.has(it.w,'w')) errs.push('recording not deleted');
+    G.S.settings.pinHash=G.simpleHash('1234'); G.ui.coachOpen=true; G.ui.coachTab='voice'; G.render();
+    if(D.body.innerText.indexOf('Record your own voice')<0) errs.push('Voice tab missing');
+    G.ui.coachOpen=false; G.render();
+    report('Voice. Never picks a robot voice; prefers Premium and Enhanced voices; plays the coach recording when one exists', !errs.length, errs.join('\n'));
+  }catch(e){ report('Voice', false, e.stack); }
+
+  // Plan: a sample set of Combine answers produces the right reads and focus drills
+  try{
+    const errs=[];
+    reset({onboarded:true}); G.setNow(new Date(2026,9,19,16,0));
+    const real = {married:'maired',hiking:'hiking',hitting:'hitting',"they're":'there',pleasant:'plesent',apple:'aple',caught:'caut',dictionary:'dicshinary',impolite:'impolite',ladies:'layides',shared:'shaerd',clapped:'claped',its:"it's",talent:'tallent',eagle:'egale',does:'does',celebration:'sellibraytion',inactive:'inactive',scariest:'scaryest',using:'useing',regretted:'regretied',too:'too',poisonous:'poysinis',tumble:'tumble',island:'iland',necessary:'nessisary',illogical:'ilawgicle'};
+    finishCombineWith(it=>real[it.w]);
+    if(G.S.combines[0].score!==7) errs.push('expected 7/27, got '+G.S.combines[0].score);
+    const A=G.analyze();
+    const why = w => (A.drills.flatMap(d=>d.misses).find(m=>m.w===w)||{}).why||'';
+    const expect = {scariest:'kept the y', using:'kept the silent e', clapped:'did not double', "they're":'picked the look-alike', pleasant:'-ant', apple:'double letter before -le', eagle:'flipped the -le', caught:'"gh"', island:'"s"', illogical:"both l"};
+    Object.keys(expect).forEach(w=>{ if(why(w).indexOf(expect[w])<0) errs.push(w+': got "'+why(w)+'"'); });
+    const fnames=A.focus.map(f=>f.name);
+    ['Sneaky Endings','Big Words','Y to I'].forEach(n=>{ if(fnames.indexOf(n)<0) errs.push('focus missing '+n+' ('+fnames.join(', ')+')'); });
+    G.act('home'); if(D.body.innerText.indexOf('Your next plays')<0) errs.push('home has no Your next plays card');
+    G.S.settings.pinHash=G.simpleHash('1234'); G.ui.coachOpen=true; G.ui.coachTab='plan'; G.render();
+    if(D.body.innerText.indexOf('Train first')<0) errs.push('Plan tab missing');
+    G.ui.coachOpen=false; G.setNow(null); G.render();
+    report('Plan. Sample Combine answers give the right error reads and the right three drills to train first', !errs.length, errs.join('\n')+(errs.length?'':'Focus: '+fnames.join(', ')));
+  }catch(e){ report('Plan', false, e.stack); }
+
+  // Cloud: save splits into a core doc + monthly log docs, loads back the same, removes stale months
+  try{
+    const errs=[];
+    const store={};
+    const snap=(p)=>({id:p.split('/').pop(), exists: p in store, data:()=>store[p], metadata:{fromCache:false,hasPendingWrites:false}});
+    const mock={ doc:(p)=>({ get:async()=>snap(p), set:async(b)=>{ const j=JSON.stringify(b); if(j.length>256*1024) throw {code:'invalid_argument'}; store[p]=JSON.parse(j); }, delete:async()=>{ delete store[p]; }, onSnapshot:()=>()=>{} }),
+      collection:(c)=>({ get:async()=>{ const docs=Object.keys(store).filter(k=>k.startsWith(c+'/')&&k.split('/').length===2).map(snap); return {docs,size:docs.length,empty:!docs.length}; } }) };
+    reset({onboarded:true});
+    G.S.bank={wallet:3.21,vault:4}; G.S.reps=[{t:'2026-10-19',w:'carried',d:0,ok:1},{t:'2026-11-02',w:'cities',d:0,ok:0}]; G.S.ledger=[{t:'2026-10-19',amt:0.1,v:0,r:'x',p:0}]; G.S.sessions=[];
+    G.Cloud.db=mock; G.Cloud.on=true; G.Cloud.last={}; G.Cloud.known=new Set();
+    await G.Cloud.flush();
+    if(!store['game/core']||!store['logs/2026-10.reps']||!store['logs/2026-11.reps']||!store['logs/2026-10.ledger']) errs.push('docs not written: '+Object.keys(store).join(', '));
+    if(store['game/core'].reps) errs.push('reps leaked into core');
+    const back=await G.Cloud.pull();
+    if(back.bank.wallet!==3.21||back.reps.length!==2||back.ledger.length!==1) errs.push('round trip failed');
+    const writesBefore=JSON.stringify(store); await G.Cloud.flush(); if(JSON.stringify(store)!==writesBefore) errs.push('unchanged data rewritten');
+    G.S.reps=G.S.reps.slice(0,1); await G.Cloud.flush();
+    if(store['logs/2026-11.reps']) errs.push('stale month not removed');
+    // big month stays under the 256 KiB document limit
+    G.S.reps=[]; for(let i=0;i<620;i++) G.S.reps.push({t:'2026-12-'+String(1+i%28).padStart(2,'0'),w:'irresponsible',d:8,ok:1,h:0,c:0,m:'p',a:'irresponsible'});
+    G.S.ledger=[]; for(let i=0;i<2000;i++) G.S.ledger.push({t:'2026-12-15',amt:0.1,v:0,r:'Correct',p:0});
+    await G.Cloud.flush(); if(G.Cloud.status!=='online') errs.push('busy month failed to save: '+G.Cloud.status);
+    G.Cloud.on=false; G.Cloud.db=null; G.Cloud.status='device';
+    report('Cloud save. Splits into a core record plus monthly logs, loads back the same data, skips unchanged writes, removes stale months', !errs.length, errs.join('\n'));
+  }catch(e){ report('Cloud save', false, e.stack||JSON.stringify(e)); }
+
+  // Google Drive sync: connect, push, pull newer play from the other device, refuse stale overwrites, set up from a link
+  try{
+    const errs=[];
+    let file=null; const KEY='fam-key';
+    const realFetch=W.fetch;
+    W.fetch = async (url, opts)=>{               // same logic as sync-Code.gs
+      const req=JSON.parse(opts.body);
+      const res = (o)=>({ json: async()=>JSON.parse(JSON.stringify(o)) });
+      if(req.key!==KEY) return res({ok:false,error:'bad_key'});
+      if(req.action==='save'){ if(file && (file.savedAt||0)>(req.state.savedAt||0)) return res({ok:true,stale:true,state:file}); file=JSON.parse(JSON.stringify(req.state)); return res({ok:true}); }
+      return res({ok:true,state:file});
+    };
+    reset({onboarded:true});
+    const url='https://script.google.com/macros/s/TEST/exec';
+    // wrong key is refused
+    let refused=false; try{ await G.GSync.call({action:'load'},{url,key:'nope'}); }catch(e){ refused=/bad_key/.test(e.message); }
+    if(!refused) errs.push('wrong key not refused');
+    G.GSync.setCfg({url,key:KEY});
+    G.S.bank={wallet:2.5,vault:1}; G.save(); await G.GSync.push();
+    if(!file||file.bank.wallet!==2.5) errs.push('push did not save to Drive');
+    // the other device (phone) plays and saves newer data
+    file=JSON.parse(JSON.stringify(file)); file.bank.wallet=3.75; file.savedAt=Date.now()+5000;
+    await G.GSync.init();
+    if(G.S.bank.wallet!==3.75) errs.push('newer play from the other device not loaded');
+    // a stale device cannot overwrite
+    const before=file.bank.wallet; const stale=JSON.parse(JSON.stringify(G.S)); stale.bank.wallet=0.01; stale.savedAt=1;
+    const j=await G.GSync.call({action:'save',state:stale}); if(!j.stale||file.bank.wallet!==before) errs.push('stale overwrite allowed');
+    // setup link round trip
+    const link=G.GSync.linkFor(); if(link.indexOf('?sync=')<0) errs.push('no setup link');
+    G.GSync.setCfg(null); W.history.replaceState(null,'',W.location.pathname+'?test=1&sync='+link.split('?sync=')[1]);
+    G.GSync.takeLink(); const c=G.GSync.cfg(); if(!c||c.url!==url||c.key!==KEY) errs.push('setup link did not configure the device');
+    G.GSync.setCfg(null); G.GSync.status='off'; W.history.replaceState(null,'',W.location.pathname+'?test=1'); W.fetch=realFetch;
+    report('Google Drive sync. Wrong key refused; saves to Drive; picks up newer play from the other device; refuses stale overwrites; one link sets up a new device', !errs.length, errs.join('\n'));
+  }catch(e){ report('Google Drive sync', false, e.stack); }
+
+  // Extra: Drill 4 shows the sentence with a blank; feedback order; fix rep
+  try{
+    const errs=[];
+    reset({onboarded:true}); finishCombineWith(i=>i.w); G.startPractice(3);
+    if(G.SES.rep.phase==='chunk'){ G.SES.rep.phase='spell'; G.render(); }
+    const it=G.SES.queue[G.SES.idx]; const sent=q('.sentence');
+    if(!sent||sent.textContent.indexOf('_____')<0) errs.push('Look-Alike sentence not shown with a blank');
+    answerCurrent(it.w+'x'); G.doCheck(); G.doLock(false);
+    if(!q('.diff')) errs.push('no letter-by-letter compare after a miss');
+    G.act('next'); if(G.SES.rep.phase!=='fix') errs.push('no fix rep after a miss');
+    report('Extra. Look-Alikes show the sentence with a blank; a miss shows the letter compare, then a fix rep', !errs.length, errs.join('\n'));
+  }catch(e){ report('Extra. Look-Alikes', false, e.stack); }
+
+  reset();
+  const pass=results.filter(r=>r.ok).length, fail=results.length-pass;
+  const sum=document.getElementById('summary');
+  sum.textContent = pass+' passed, '+fail+' failed';
+  sum.className = fail? 'fail':'pass';
+  sum.dataset.done='1'; sum.dataset.pass=pass; sum.dataset.fail=fail;
+}
+main().catch(e=>{ report('Test runner crashed', false, e.stack); const s=document.getElementById('summary'); s.dataset.done='1'; s.dataset.fail='1'; s.textContent='Runner crashed'; });
+</script>
+</body>
+</html>
