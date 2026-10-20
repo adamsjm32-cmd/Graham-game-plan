@@ -586,9 +586,14 @@ const GSync = {
     return j;
   },
   busyPlaying(){ return !!(SES && (SES.mode==='practice'||SES.mode==='boss'||SES.mode==='combine')); },
+  watch(){ const c=this.cfg(); return !!(c && c.watch); },
   async init(){
     if(!this.cfg()) return;
     this.status='connecting'; if(ui.coachOpen) render();
+    if(this.watch()){            // parent phone: read only, never writes to Drive
+      try{ const j=await this.call({action:'load'}); if(j.state && typeof j.state==='object'){ S=Store.migrate(j.state); Store.save(S); } this.status='online'; this.pulledAt=Date.now(); }catch(e){ this.status='error'; }
+      render(); return;
+    }
     try{
       const j = await this.call({action:'load'});
       const remote = j.state;
@@ -603,9 +608,9 @@ const GSync = {
     }catch(e){ this.status='error'; }
     if(!this.busyPlaying()) render();
   },
-  schedule(){ if(!this.cfg()) return; clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(), 2500); },
+  schedule(){ if(!this.cfg() || this.watch()) return; clearTimeout(this.timer); this.timer=setTimeout(()=>this.push(), 2500); },
   async push(){
-    if(!this.cfg()) return;
+    if(!this.cfg() || this.watch()) return;
     if(this.busy){ this.again=true; return; }
     this.busy=true;
     try{
@@ -617,10 +622,10 @@ const GSync = {
     this.busy=false;
     if(this.again){ this.again=false; this.push(); }
   },
-  linkFor(){ const c=this.cfg(); if(!c) return ''; const code=btoa(JSON.stringify({u:c.url,k:c.key})); return location.origin+location.pathname+'?sync='+encodeURIComponent(code); },
+  linkFor(watch){ const c=this.cfg(); if(!c) return ''; const p={u:c.url,k:c.key}; if(watch) p.w=1; const code=btoa(JSON.stringify(p)); return location.origin+location.pathname+'?sync='+encodeURIComponent(code); },
   takeLink(){
     const m = /[?&]sync=([^&]+)/.exec(location.search); if(!m) return false;
-    try{ const o=JSON.parse(atob(decodeURIComponent(m[1]))); if(o.u && o.k){ this.setCfg({url:o.u, key:o.k}); } }catch(e){}
+    try{ const o=JSON.parse(atob(decodeURIComponent(m[1]))); if(o.u && o.k){ this.setCfg({url:o.u, key:o.k, watch:!!o.w}); } }catch(e){}
     // The link stays in the address bar on purpose: an iPhone Home Screen app has its own storage,
     // and keeping the code means "Add to Home Screen" connects that app too.
     return true;
@@ -699,6 +704,7 @@ const Cloud = {
   },
   label(){
     if(GSync.cfg()){
+      if(GSync.watch()) return GSync.status==='error' ? 'Parent view: could not reach Google Drive just now.' : 'Parent view: reads Graham\'s progress from Google Drive and never changes it.';
       if(GSync.status==='online') return 'Synced to your Google Drive. Same bank and results on his iPhone and computer.';
       if(GSync.status==='connecting') return 'Connecting to your Google Drive…';
       if(GSync.status==='error') return 'Could not reach Google Drive. Saved on this device; it syncs when the connection is back.';
@@ -1249,7 +1255,7 @@ function doLock(sure){
   const newlyMastered = updateWordAfterRep(item, ok, helped);
   if(newlyMastered){ applied += addMoney(S, m.mastered, 'Word mastered: '+item.w, {vault:true}); msgs.push('Word mastered! +'+fmt$(m.mastered)+' to your Vault.'); }
   if(SES.mode==='practice'){ updateDrillDay(item.d, ok, helped); SES.touched.add(item.d); }
-  S.reps.push({t:today(), w:item.w, d:item.d, ok:ok?1:0, h:rep.hint?1:0, c:rep.chunkUsed?1:0, m:boss?'b':'p', a:rep.ans.trim().slice(0,40)});
+  S.reps.push({t:today(), w:item.w, d:item.d, ok:ok?1:0, h:rep.hint?1:0, c:rep.chunkUsed?1:0, f:fixed?1:0, m:boss?'b':'p', a:rep.ans.trim().slice(0,40)});
   if(S.reps.length>6000) S.reps.splice(0, S.reps.length-6000);
   SES.log.push({w:item.w, d:item.d, ans:rep.ans.trim(), ok, pattern, fixed, sure});
   if(applied>0) SES.earned=cents(SES.earned+applied); else if(applied<0) SES.lost=cents(SES.lost-applied);
@@ -1429,6 +1435,58 @@ function renderWelcome(){
     (i<2?'<button class="btn block" data-act="welnext">Next</button>':'<p class="muted">First up: the Scouting Combine. It shows your starting stats.</p><button class="btn block gold" data-act="welgo">Start the Combine</button>')+
     (GSync.cfg()?'':'<p style="margin-top:28px"><button class="btn ghost" data-act="join">Already playing on another device? Enter your family key</button></p>')+'</div>';
 }
+/* ---------- Parent progress snapshot: the signals that show learning, this week vs last ---------- */
+function weekStats(ws_, we){
+  const r = S.reps.filter(x=>x.t>=ws_ && x.t<we);
+  const ss = S.sessions.filter(x=>x.t>=ws_ && x.t<we);
+  const solo = r.filter(x=>!x.h && !x.c);
+  return {
+    days: new Set(ss.map(x=>x.t)).size, mins: ss.reduce((a,x)=>a+(x.mins||0),0), reps: r.length,
+    acc: solo.length ? solo.filter(x=>x.ok).length/solo.length : null, soloN: solo.length,
+    helped: r.length ? r.filter(x=>x.h||x.c).length/r.length : null,
+    catches: r.filter(x=>x.f).length,
+    earned: cents(S.ledger.filter(e=>!e.p && e.amt>0 && e.t>=ws_ && e.t<we).reduce((a,e)=>a+e.amt,0))
+  };
+}
+function progressCard(){
+  const thisW = weekStart(today()), lastW = addDays(thisW,-7), nextW = addDays(thisW,7);
+  const a = weekStats(thisW, nextW), b = weekStats(lastW, thisW);
+  const A = analyze();
+  const solid = A ? A.drills.filter(x=>x.status==='solid').length : 0;
+  const building = A ? A.drills.filter(x=>x.status==='building').length : 0;
+  const upRanks = S.drills.filter(d=>d.r>0).length;
+  const last = S.sessions.length ? S.sessions[S.sessions.length-1] : null;
+  const L = S.combines[S.combines.length-1], F = S.combines[0];
+  const arrow = (x,y,fmt)=> (x==null) ? '–' : fmt(x) + (y==null ? '' : x>y ? ' <span class="ok">↑</span>' : x<y ? ' <span class="no">↓</span>' : '');
+  const p = v=>pct(v), n = v=>String(v);
+  let h = '<div class="card"><h2>Graham\'s progress</h2>';
+  h += '<p class="muted small">Last practice: '+(last?niceDate(last.t)+' · '+last.reps+' reps, '+last.correct+' right':'none yet')+'.</p>';
+  h += '<div class="tblwrap"><table class="tbl"><tr><th>Signal</th><th>This week</th><th>Last week</th></tr>'+
+    '<tr><td><b>Days practiced</b><div class="muted small">Goal: 4 or 5</div></td><td>'+arrow(a.days,b.days,n)+'</td><td>'+b.days+'</td></tr>'+
+    '<tr><td><b>Right with no help</b><div class="muted small">No hint, no Chunk Builder. The main skill signal.</div></td><td>'+arrow(a.acc,b.acc,p)+(a.soloN?' <span class="muted small">('+a.soloN+')</span>':'')+'</td><td>'+p(b.acc)+'</td></tr>'+
+    '<tr><td><b>Reps that used help</b><div class="muted small">Should drop over time</div></td><td>'+(a.helped==null?'–':p(a.helped))+'</td><td>'+p(b.helped)+'</td></tr>'+
+    '<tr><td><b>Great catches</b><div class="muted small">Fixed his own mistake in the reread</div></td><td>'+arrow(a.catches,b.catches,n)+'</td><td>'+b.catches+'</td></tr>'+
+    '<tr><td><b>Reps / minutes</b></td><td>'+a.reps+' / '+a.mins+'</td><td>'+b.reps+' / '+b.mins+'</td></tr>'+
+    '<tr><td><b>Money earned</b></td><td>'+fmt$(a.earned)+'</td><td>'+fmt$(b.earned)+'</td></tr></table></div>';
+  h += '<div class="grid2" style="margin-top:10px"><div><div class="muted small">Words mastered</div><div class="v">'+masteredCount()+'</div><div class="muted small">right on 3 different days</div></div>'+
+       '<div><div class="muted small">Drills solid</div><div class="v">'+solid+' / 9</div><div class="muted small">'+building+' building · '+upRanks+' ranked up</div></div></div>';
+  if(L){
+    const due = addDays(L.t,28);
+    h += '<p style="margin-top:12px"><b>Benchmark (Scouting Combine):</b> '+(S.combines.length>1 ? F.score+'/27 on '+niceDate(F.t)+' → <b>'+L.score+'/27</b> on '+niceDate(L.t) : '<b>'+L.score+'/27</b> on '+niceDate(L.t))+'. Next one '+niceDate(due)+'.</p>';
+  }
+  if(A) h += '<p><b>Training now:</b> '+esc(A.focus.map(f=>f.name).join(', '))+'.</p>';
+  return h + '</div>';
+}
+function renderWatch(){
+  let h = '<div class="topbar"><div class="brand"><span class="dot" style="background:var(--sky)"></span>Watching Graham</div><div class="row" style="gap:6px"><button class="iconbtn" data-act="watchrefresh" aria-label="Refresh">↻</button><button class="iconbtn" data-act="coach" aria-label="Coach Room">⚙︎</button></div></div>';
+  h += '<div class="banner" style="background:color-mix(in srgb,var(--sky) 14%,var(--panel));border-color:color-mix(in srgb,var(--sky) 40%,var(--line))">Parent view. This phone only reads Graham\'s progress; it never changes it. '+(GSync.status==='error'?'Could not reach Google Drive just now.':GSync.pulledAt?'Updated '+new Date(GSync.pulledAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+'.':'Loading…')+'</div>';
+  if(!S.combines.length && !S.reps.length){ return h + '<div class="card"><p>Loading Graham\'s progress from Google Drive…</p></div>'; }
+  h += '<div class="board" style="margin-top:14px"><div class="bankrow"><div><div class="lab">Bank</div><div class="bank-total money">'+fmt$(S.bank.wallet+S.bank.vault)+'</div></div><div><div class="lab">Wallet</div><div class="bank-sub money">'+fmt$(S.bank.wallet)+'</div></div><div><div class="lab">Vault 🔒</div><div class="bank-sub money">'+fmt$(S.bank.vault)+'</div></div></div>'+
+       '<div class="stats"><div class="stat"><div class="lab">This week</div><div class="v money">'+fmt$(weekEarned(S))+'</div><div class="lab">of '+fmt$(S.settings.weeklyCap)+'</div></div><div class="stat"><div class="lab">Day streak</div><div class="v">'+(S.streak.last===today()||S.streak.last===addDays(today(),-1)?S.streak.days:0)+'</div><div class="lab">days</div></div><div class="stat"><div class="lab">Mastered</div><div class="v">'+masteredCount()+'</div><div class="lab">words</div></div></div></div>';
+  h += progressCard();
+  h += '<div class="card"><h2>Drill ranks</h2><div class="drills">'+DRILLS.map((_,d)=>drillBadge(d,false)).join('')+'</div><p class="muted small" style="margin-top:8px">More detail: tap ⚙︎ for the Plan, Progress and Benchmark tabs.</p></div>';
+  return h;
+}
 function renderHome(){
   const cs=combineStatus(); const ts=todayStats();
   let h = topbar();
@@ -1584,7 +1642,8 @@ function renderModal(){
   } else if(m.type==='forgot'){
     h+='<h2>Reset PIN</h2><p class="muted">Type the recovery code you wrote down.</p><input id="rec" class="pin" style="letter-spacing:.15em" type="text" autocomplete="off" autocapitalize="characters"><div class="err">'+esc(m.err||'')+'</div><div class="row"><button class="btn" data-act="forgotok">Reset</button><button class="btn ghost" data-act="modalclose">Cancel</button></div>';
   } else if(m.type==='join'){
-    h+='<h2>Pick up where you left off</h2><p class="muted">Type the family key. Your bank and stats load from your other device.</p><input id="joinkey" class="pin" style="letter-spacing:.05em;font-size:22px" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="err">'+esc(m.err||'')+'</div>'+
+    h+='<h2>Pick up where you left off</h2><p class="muted">Type the family key. Your bank and stats load from your other device.</p><input id="joinkey" class="pin" style="letter-spacing:.05em;font-size:22px" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">'+
+       '<label class="chk" style="margin-top:10px"><input type="checkbox" id="joinwatch"> This is a parent\'s phone (watch only, never changes his progress)</label><div class="err">'+esc(m.err||'')+'</div>'+
        '<div class="row"><button class="btn" data-act="joinok">Connect</button><button class="btn ghost" data-act="modalclose">Cancel</button></div>';
   } else if(m.type==='reads'){
     const it=curItem();
@@ -1610,7 +1669,7 @@ function coachPlan(){
   const A = analyze();
   if(!A) return '<div class="card"><h2>Practice plan</h2><p class="muted">The plan appears after the first Scouting Combine.</p></div>';
   const st = {focus:'Train first', building:'Building', solid:'Solid'};
-  let h='<div class="card"><h2>Practice plan</h2><p class="muted small">Built from the '+niceDate(A.L.t)+' Combine (Form '+A.L.form+') and every practice rep since. It updates on its own after each practice.</p>';
+  let h=progressCard()+'<div class="card"><h2>Practice plan</h2><p class="muted small">Built from the '+niceDate(A.L.t)+' Combine (Form '+A.L.form+') and every practice rep since. It updates on its own after each practice.</p>';
   h+='<div class="grid2"><div><div class="muted small">Combine</div><div class="v">'+A.total+'/27</div><div class="muted small">spelled right</div></div><div><div class="muted small">Pattern right</div><div class="v">'+A.patTotal+'/27</div><div class="muted small">target chunk right</div></div></div>';
   h+='<h3>Train first</h3><ol>'+A.focus.map(f=>'<li><b>'+esc(f.name)+'</b>: Combine '+f.comb+'/3'+(f.acc!==null?', practice '+pct(f.acc)+' on '+f.prN+' reps':'')+(f.mainWhy?'. Main error: '+esc(f.mainWhy):'')+'. <span class="muted small">'+esc(GOAL_LINK[f.d])+'</span></li>').join('')+'</ol>';
   if(A.strong.length) h+='<p><b>Strengths:</b> '+esc(A.strong.join(', '))+'.</p>';
@@ -1771,8 +1830,11 @@ function coachSync(){
   let h='<div class="card"><h2>Sync between devices</h2>';
   if(IN_ONLINE && !c){ h+='<p class="muted small">This copy already saves to your Claude account.</p></div>'; return h; }
   if(c){
-    h+='<p>'+esc(Cloud.label())+'</p><div class="row"><button class="btn sm" data-act="syncnow">Sync now</button><button class="btn sm gold" data-act="synclink">Make a link for another device</button><button class="btn sm ghost" data-act="syncoff">Turn off on this device</button></div>';
-    if(ui.syncLink) h+='<p class="small" style="margin-top:10px">Open this link once on the other device (text or AirDrop it). It sets up sync there. Keep it private; it contains the family key.</p><textarea id="synclinkbox" readonly>'+esc(ui.syncLink)+'</textarea><button class="btn sm" data-act="copy" data-target="synclinkbox" style="margin-top:8px">Copy link</button>';
+    h+='<p>'+esc(Cloud.label())+'</p>';
+    h+= c.watch ? '<p class="small"><b>This device is in parent view:</b> it reads Graham\'s progress and never writes. Change settings on Graham\'s own device.</p><div class="row"><button class="btn sm ghost" data-act="watchoff">Make this Graham\'s device instead</button></div>'
+                : '<div class="row"><button class="btn sm ghost" data-act="watchon">Make this a parent\'s phone (watch only)</button></div>';
+    h+='<div class="row" style="margin-top:10px"><button class="btn sm" data-act="syncnow">Sync now</button><button class="btn sm gold" data-act="synclink">Link for Graham\'s device</button><button class="btn sm sky" data-act="synclinkwatch">Link for a parent\'s phone</button><button class="btn sm ghost" data-act="syncoff">Turn off on this device</button></div>';
+    if(ui.syncLink) h+='<p class="small" style="margin-top:10px">'+(ui.syncLinkWatch?'Parent link: the phone that opens it only watches Graham\'s progress.':'Graham link: the device that opens it plays and saves his progress.')+' Open it once (text or AirDrop it), then Add to Home Screen from that page. Keep it private; it contains the family key.</p><textarea id="synclinkbox" readonly>'+esc(ui.syncLink)+'</textarea><button class="btn sm" data-act="copy" data-target="synclinkbox" style="margin-top:8px">Copy link</button>';
   } else {
     h+='<p class="muted small">Keeps the bank and results the same on his iPhone and computer, using a file in your Google Drive. One-time setup: follow the Sync setup steps, then paste the two values here.</p>'+
       '<div class="form"><label style="grid-column:1/-1">Web app address (starts with https://script.google.com/)<input type="text" id="sync-url" autocapitalize="off" autocomplete="off" spellcheck="false" value="'+esc(DEFAULT_SYNC_URL)+'"></label><label>Family key<input type="text" id="sync-key" autocapitalize="off" autocomplete="off" spellcheck="false"></label></div>'+
@@ -1850,6 +1912,7 @@ const app = document.getElementById('app');
 function render(){
   let h='';
   if(ui.coachOpen) h=renderCoach();
+  else if(GSync.watch()) h=renderWatch();
   else if(!S.onboarded) h=renderWelcome();
   else if(ui.screen==='rep' && SES) h=renderRep();
   else if(ui.screen==='final' && SES) h=renderFinal();
@@ -1946,13 +2009,17 @@ function act(a, el){
         .catch(err=>{ ui.syncMsg = /bad_key/.test(String(err&&err.message)) ? 'The family key does not match the one in the script.' : 'Could not reach the script. Check the address, and that it is deployed with access set to Anyone.'; render(); });
       break; }
     case 'join': ui.modal={type:'join', err:''}; render(); break;
-    case 'joinok': { const key=((document.getElementById('joinkey')||{}).value||'').trim(); if(!key){ ui.modal.err='Type the family key.'; render(); break; }
+    case 'joinok': { const key=((document.getElementById('joinkey')||{}).value||'').trim(); const watch=!!(document.getElementById('joinwatch')||{}).checked; if(!key){ ui.modal.err='Type the family key.'; render(); break; }
       ui.modal.err='Connecting…'; render();
-      GSync.call({action:'load'}, {url:DEFAULT_SYNC_URL, key}).then(()=>{ GSync.setCfg({url:DEFAULT_SYNC_URL, key}); ui.modal=null; return GSync.init(); })
+      GSync.call({action:'load'}, {url:DEFAULT_SYNC_URL, key}).then(()=>{ GSync.setCfg({url:DEFAULT_SYNC_URL, key, watch}); ui.modal=null; return GSync.init(); })
         .catch(err=>{ if(!ui.modal) return; ui.modal.err = /bad_key/.test(String(err&&err.message)) ? 'That key does not match. Check with a parent.' : 'Could not connect. Check the internet and try again.'; render(); });
       break; }
     case 'syncnow': ui.syncMsg=''; GSync.init().then(()=>{ ui.syncMsg = GSync.status==='online' ? 'Synced.' : 'Could not sync right now.'; render(); }); break;
-    case 'synclink': ui.syncLink=GSync.linkFor(); render(); break;
+    case 'synclink': ui.syncLink=GSync.linkFor(false); ui.syncLinkWatch=false; render(); break;
+    case 'synclinkwatch': ui.syncLink=GSync.linkFor(true); ui.syncLinkWatch=true; render(); break;
+    case 'watchon': { const c=GSync.cfg(); if(c){ c.watch=true; GSync.setCfg(c); ui.coachOpen=false; GSync.init(); } break; }
+    case 'watchoff': { const c=GSync.cfg(); if(c){ c.watch=false; GSync.setCfg(c); render(); } break; }
+    case 'watchrefresh': GSync.init(); break;
     case 'syncoff': GSync.setCfg(null); GSync.status='off'; ui.syncLink=''; ui.syncMsg='Sync is off on this device. Data stays here.'; render(); break;
     case 'csv': download('spelling-reps-'+today()+'.csv', buildCSV()); break;
     case 'makebackup': ui.backupCode=Store.exportCode(S); S.lastBackup=today(); save(); ui.backupCode=Store.exportCode(S); render(); break;
@@ -1964,6 +2031,7 @@ document.addEventListener('visibilitychange', ()=>{
   if(document.hidden){ Store.save(S); if(GSync.cfg()){ clearTimeout(GSync.timer); GSync.push(); } }
   else if(GSync.cfg() && !GSync.busyPlaying()) GSync.init();     // pick up play from the other device
 });
+setInterval(()=>{ if(GSync.watch() && !document.hidden && !ui.coachOpen) GSync.init(); }, 60000);   // parent phones refresh every minute
 
 /* Test hooks (used by tests.html) */
 window.GSG = {

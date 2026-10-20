@@ -382,6 +382,17 @@ async function main(){
     let t=0; while(!G.S.combines.length && t++<40) await sleep(50);
     if(!G.S.combines.length) errs.push('family key did not load progress');
     if(!G.GSync.cfg()) errs.push('family key did not save sync on the device');
+    // parent phone in watch-only mode: reads newer play, never writes, shows the progress view
+    G.GSync.setCfg({url, key:KEY, watch:true});
+    const before2=JSON.stringify(file);
+    G.S.bank={wallet:99,vault:99}; G.save(); await G.GSync.push();
+    if(JSON.stringify(file)!==before2) errs.push('watch-only phone wrote to Drive');
+    await G.GSync.init();
+    if(G.S.bank.wallet===99) errs.push('watch-only phone did not reload from Drive');
+    if(D.body.innerText.indexOf("Graham's progress")<0 || D.body.innerText.indexOf('Right with no help')<0) errs.push('watch view missing the progress card');
+    if(q('[data-act="practice"]')) errs.push('watch view shows practice buttons');
+    const wl=G.GSync.linkFor(true); G.GSync.setCfg(null); W.history.replaceState(null,'',W.location.pathname+'?test=1&sync='+wl.split('?sync=')[1]); G.GSync.takeLink();
+    if(!G.GSync.watch()) errs.push('parent link did not set watch-only');
     // setup link round trip
     G.GSync.setCfg({url,key:KEY});
     const link=G.GSync.linkFor(); if(link.indexOf('?sync=')<0) errs.push('no setup link');
