@@ -368,7 +368,22 @@ async function main(){
     // a stale device cannot overwrite
     const before=file.bank.wallet; const stale=JSON.parse(JSON.stringify(G.S)); stale.bank.wallet=0.01; stale.savedAt=1;
     const j=await G.GSync.call({action:'save',state:stale}); if(!j.stale||file.bank.wallet!==before) errs.push('stale overwrite allowed');
+    // a brand-new device (like an iPhone Home Screen app) with a newer clock never wipes real progress
+    file.combines=[{t:'2026-10-19',form:'A',items:[],byDrill:Array.from({length:9},()=>({ok:1,pat:1})),score:7,patScore:12,fixes:1}]; file.savedAt=1000;
+    const keep=JSON.stringify(file);
+    G.S=G.freshState(); G.S.combineCur={form:'A',idx:2,items:[],started:'2026-10-20'}; G.save();   // newer savedAt, no finished Combine
+    await G.GSync.init();
+    if(!G.S.combines.length || G.S.combines[0].score!==7) errs.push('fresh device did not load the real progress');
+    if(JSON.stringify(file)!==keep) errs.push('fresh device overwrote Drive');
+    // join with only the family key from the first screen
+    G.GSync.setCfg(null); G.S=G.freshState(); G.save(); G.ui.welcome=2; G.render();
+    if(!q('[data-act="join"]')) errs.push('no family-key option on the first screen');
+    G.act('join'); q('#joinkey').value=KEY; G.act('joinok');
+    let t=0; while(!G.S.combines.length && t++<40) await sleep(50);
+    if(!G.S.combines.length) errs.push('family key did not load progress');
+    if(!G.GSync.cfg()) errs.push('family key did not save sync on the device');
     // setup link round trip
+    G.GSync.setCfg({url,key:KEY});
     const link=G.GSync.linkFor(); if(link.indexOf('?sync=')<0) errs.push('no setup link');
     G.GSync.setCfg(null); W.history.replaceState(null,'',W.location.pathname+'?test=1&sync='+link.split('?sync=')[1]);
     G.GSync.takeLink(); const c=G.GSync.cfg(); if(!c||c.url!==url||c.key!==KEY) errs.push('setup link did not configure the device');

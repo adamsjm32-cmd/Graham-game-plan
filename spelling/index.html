@@ -572,6 +572,8 @@ function save(){ S.savedAt = Date.now(); Store.save(S); Cloud.schedule(); GSync.
 /* ---------- Google Drive sync (website version): a small Apps Script web app in the parent's
    Google account keeps one JSON file. Each device keeps the script address + family key. ---------- */
 const SYNC_KEY = IS_TEST ? 'gsg.test.sync' : 'gsg.sync';
+/* The family's sync script. Not secret on its own: every read and write also needs the family key. */
+const DEFAULT_SYNC_URL = 'https://script.google.com/macros/s/AKfycbwMgFBKzpeOI-dvR7S4bKLBPHMY4HRpytNifxgEwmTKasMQ93zuABaXdMXWUbUB3Vsq/exec';
 const GSync = {
   status:'off', timer:null, busy:false, again:false,
   cfg(){ try{ const c=JSON.parse(localStorage.getItem(SYNC_KEY)||'null'); return c && c.url && c.key ? c : null; }catch(e){ return null; } },
@@ -590,10 +592,13 @@ const GSync = {
     try{
       const j = await this.call({action:'load'});
       const remote = j.state;
-      if(remote && typeof remote==='object' && (remote.savedAt||0) > (S.savedAt||0) && !this.busyPlaying()){
+      const remoteOk = remote && typeof remote==='object';
+      // A device with no finished Combine or practice never replaces real progress, even if its clock is newer.
+      const freshDevice = remoteOk && (remote.combines||[]).length && !(S.combines||[]).length;
+      if(remoteOk && !this.busyPlaying() && (freshDevice || (remote.savedAt||0) > (S.savedAt||0))){
         S = Store.migrate(remote); Store.save(S);
       }
-      if(!remote || (S.savedAt||0) > (remote.savedAt||0)) await this.push();
+      else if(!remoteOk || (!freshDevice && (S.savedAt||0) > (remote.savedAt||0))) await this.push();
       this.status='online';
     }catch(e){ this.status='error'; }
     if(!this.busyPlaying()) render();
@@ -616,7 +621,8 @@ const GSync = {
   takeLink(){
     const m = /[?&]sync=([^&]+)/.exec(location.search); if(!m) return false;
     try{ const o=JSON.parse(atob(decodeURIComponent(m[1]))); if(o.u && o.k){ this.setCfg({url:o.u, key:o.k}); } }catch(e){}
-    try{ history.replaceState(null,'',location.pathname); }catch(e){}
+    // The link stays in the address bar on purpose: an iPhone Home Screen app has its own storage,
+    // and keeping the code means "Add to Home Screen" connects that app too.
     return true;
   }
 };
@@ -1420,7 +1426,8 @@ const WELCOME = [
 function renderWelcome(){
   const i=ui.welcome;
   return topbar()+'<div class="welcome"><div class="step">'+(i+1)+' of 3</div><div class="huge">'+esc(WELCOME[i])+'</div>'+
-    (i<2?'<button class="btn block" data-act="welnext">Next</button>':'<p class="muted">First up: the Scouting Combine. It shows your starting stats.</p><button class="btn block gold" data-act="welgo">Start the Combine</button>')+'</div>';
+    (i<2?'<button class="btn block" data-act="welnext">Next</button>':'<p class="muted">First up: the Scouting Combine. It shows your starting stats.</p><button class="btn block gold" data-act="welgo">Start the Combine</button>')+
+    (GSync.cfg()?'':'<p style="margin-top:28px"><button class="btn ghost" data-act="join">Already playing on another device? Enter your family key</button></p>')+'</div>';
 }
 function renderHome(){
   const cs=combineStatus(); const ts=todayStats();
@@ -1576,6 +1583,9 @@ function renderModal(){
     h+='<h2>Write this down</h2><p>Your recovery code, in case you forget the PIN:</p><div class="bigword">'+esc(m.code)+'</div><p class="muted small">It will not be shown again.</p><button class="btn block" data-act="recok">I wrote it down</button>';
   } else if(m.type==='forgot'){
     h+='<h2>Reset PIN</h2><p class="muted">Type the recovery code you wrote down.</p><input id="rec" class="pin" style="letter-spacing:.15em" type="text" autocomplete="off" autocapitalize="characters"><div class="err">'+esc(m.err||'')+'</div><div class="row"><button class="btn" data-act="forgotok">Reset</button><button class="btn ghost" data-act="modalclose">Cancel</button></div>';
+  } else if(m.type==='join'){
+    h+='<h2>Pick up where you left off</h2><p class="muted">Type the family key. Your bank and stats load from your other device.</p><input id="joinkey" class="pin" style="letter-spacing:.05em;font-size:22px" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="err">'+esc(m.err||'')+'</div>'+
+       '<div class="row"><button class="btn" data-act="joinok">Connect</button><button class="btn ghost" data-act="modalclose">Cancel</button></div>';
   } else if(m.type==='reads'){
     const it=curItem();
     h+='<h2>Coach reads it</h2><p class="muted">Read the word, the sentence, then the word again.</p><div class="bigword">'+esc(it?it.w:'')+'</div><p class="sentence">'+esc(it?it.s:'')+'</p><button class="btn block" data-act="modalclose">Done</button>';
@@ -1765,7 +1775,7 @@ function coachSync(){
     if(ui.syncLink) h+='<p class="small" style="margin-top:10px">Open this link once on the other device (text or AirDrop it). It sets up sync there. Keep it private; it contains the family key.</p><textarea id="synclinkbox" readonly>'+esc(ui.syncLink)+'</textarea><button class="btn sm" data-act="copy" data-target="synclinkbox" style="margin-top:8px">Copy link</button>';
   } else {
     h+='<p class="muted small">Keeps the bank and results the same on his iPhone and computer, using a file in your Google Drive. One-time setup: follow the Sync setup steps, then paste the two values here.</p>'+
-      '<div class="form"><label style="grid-column:1/-1">Web app address (starts with https://script.google.com/)<input type="text" id="sync-url" autocapitalize="off" autocomplete="off" spellcheck="false"></label><label>Family key<input type="text" id="sync-key" autocapitalize="off" autocomplete="off" spellcheck="false"></label></div>'+
+      '<div class="form"><label style="grid-column:1/-1">Web app address (starts with https://script.google.com/)<input type="text" id="sync-url" autocapitalize="off" autocomplete="off" spellcheck="false" value="'+esc(DEFAULT_SYNC_URL)+'"></label><label>Family key<input type="text" id="sync-key" autocapitalize="off" autocomplete="off" spellcheck="false"></label></div>'+
       '<button class="btn sm" data-act="syncconnect" style="margin-top:10px">Connect</button>';
   }
   if(ui.syncMsg) h+='<div class="hint">'+esc(ui.syncMsg)+'</div>';
@@ -1934,6 +1944,12 @@ function act(a, el){
       ui.syncMsg='Connecting…'; render();
       GSync.call({action:'load'}, {url,key}).then(()=>{ GSync.setCfg({url,key}); ui.syncMsg='Connected. This device now syncs.'; return GSync.init(); })
         .catch(err=>{ ui.syncMsg = /bad_key/.test(String(err&&err.message)) ? 'The family key does not match the one in the script.' : 'Could not reach the script. Check the address, and that it is deployed with access set to Anyone.'; render(); });
+      break; }
+    case 'join': ui.modal={type:'join', err:''}; render(); break;
+    case 'joinok': { const key=((document.getElementById('joinkey')||{}).value||'').trim(); if(!key){ ui.modal.err='Type the family key.'; render(); break; }
+      ui.modal.err='Connecting…'; render();
+      GSync.call({action:'load'}, {url:DEFAULT_SYNC_URL, key}).then(()=>{ GSync.setCfg({url:DEFAULT_SYNC_URL, key}); ui.modal=null; return GSync.init(); })
+        .catch(err=>{ if(!ui.modal) return; ui.modal.err = /bad_key/.test(String(err&&err.message)) ? 'That key does not match. Check with a parent.' : 'Could not connect. Check the internet and try again.'; render(); });
       break; }
     case 'syncnow': ui.syncMsg=''; GSync.init().then(()=>{ ui.syncMsg = GSync.status==='online' ? 'Synced.' : 'Could not sync right now.'; render(); }); break;
     case 'synclink': ui.syncLink=GSync.linkFor(); render(); break;
