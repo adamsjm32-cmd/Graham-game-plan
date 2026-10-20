@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Graham's Two-Week Game Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>:root{color-scheme:light}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<style>
+/* Layout: sticky tab bar → Calendar (2 weeks × Mon–Fri grid, stacks to a day list on phones) · Science packet · Fish in a Tree coach · Essay coach. Same family as the Thermal Energy Game Plan. */
+:root{
+  --bg:#F4F7FC; --card:#FFFFFF; --ink:#14213D; --muted:#4A5672; --line:#DCE3EF; --soft:#EEF2F9;
+  --sci:#1D6FD8; --sci-soft:#E2EEFF; --ela:#B43C8C; --ela-soft:#FBE6F3; --read:#7A4CC2; --read-soft:#EFE7FB;
+  --math:#1B8A5A; --math-soft:#E3F4EA; --span:#C2611A; --span-soft:#FDEBDD; --skill:#8A5800; --skill-soft:#FFF4D6;
+  --due:#B4232F; --due-soft:#FDE4E6; --gold:#FFB703;
+  --hot:#D62839; --hot-soft:#FFE3E5; --cold:#1D6FD8; --cold-soft:#E2EEFF; --gold-ink:#8A5800; --gold-soft:#FFF4D6; --good:#1B8A5A; --good-soft:#E3F4EA; --bad:#B4232F;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1626; --card:#18223A; --ink:#EEF2FA; --muted:#AAB6CF; --line:#2B3858; --soft:#1F2A44;
+  --sci:#6FAEFF; --sci-soft:#17294A; --ela:#F07BC8; --ela-soft:#3A1A33; --read:#B796F2; --read-soft:#2A1E45;
+  --math:#4FCB8C; --math-soft:#163426; --span:#F29B57; --span-soft:#3A2414; --skill:#FFD66B; --skill-soft:#33290F;
+  --hot:#FF5A68; --hot-soft:#3A1D26; --cold:#5EA2FF; --cold-soft:#17294A; --gold-ink:#FFD66B; --gold-soft:#33290F; --good:#4FCB8C; --good-soft:#163426; --bad:#FF7782;
+  --due:#FF7782; --due-soft:#3A1D22; --gold:#FFC93D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1626; --card:#18223A; --ink:#EEF2FA; --muted:#AAB6CF; --line:#2B3858; --soft:#1F2A44;
+  --sci:#6FAEFF; --sci-soft:#17294A; --ela:#F07BC8; --ela-soft:#3A1A33; --read:#B796F2; --read-soft:#2A1E45;
+  --math:#4FCB8C; --math-soft:#163426; --span:#F29B57; --span-soft:#3A2414; --skill:#FFD66B; --skill-soft:#33290F;
+  --hot:#FF5A68; --hot-soft:#3A1D26; --cold:#5EA2FF; --cold-soft:#17294A; --gold-ink:#FFD66B; --gold-soft:#33290F; --good:#4FCB8C; --good-soft:#163426; --bad:#FF7782;
+  --due:#FF7782; --due-soft:#3A1D22; --gold:#FFC93D; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.12;text-wrap:balance}
+h1{font-size:clamp(30px,6vw,46px);font-weight:700}
+h2{font-size:26px;font-weight:700}
+h3{font-size:19px;font-weight:600}
+p{margin:0}
+.sub{color:var(--muted)}
+header{padding-top:26px;display:flex;flex-direction:column;gap:8px}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:8px;flex-wrap:wrap;padding-block:10px;border-bottom:1px solid var(--line)}
+.tab{font-family:var(--display);font-weight:600;font-size:16px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 16px;min-height:44px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.panel{display:flex;flex-direction:column;gap:18px}
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-weight:600;font-size:13px}
+.s-sci{background:var(--sci-soft);color:var(--sci)}.s-ela{background:var(--ela-soft);color:var(--ela)}.s-read{background:var(--read-soft);color:var(--read)}
+.s-math{background:var(--math-soft);color:var(--math)}.s-span{background:var(--span-soft);color:var(--span)}.s-skill{background:var(--skill-soft);color:var(--skill)}
+/* bigs */
+.bigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.big{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.big .d{font-family:var(--display);font-weight:700;font-size:15px;color:var(--due);letter-spacing:.04em}
+.big b{font-family:var(--display);font-size:19px}
+/* calendar */
+.week{display:flex;flex-direction:column;gap:10px}
+.weekhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.day.today{border:3px solid var(--gold)}
+.day.past{opacity:.6}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.dayhead b{font-family:var(--display);font-size:18px}
+.mins{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.grp{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.grp.due{color:var(--due)}
+.item{display:flex;gap:8px;align-items:flex-start;font-size:14.5px;line-height:1.35}
+.item input{flex-shrink:0;width:22px;height:22px;margin-top:1px;accent-color:var(--math)}
+.item.duebox{background:var(--due-soft);border-radius:10px;padding:6px 8px}
+.item label{display:flex;flex-direction:column;gap:3px;min-width:0}
+.item .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px}
+.item.checked .txt{text-decoration:line-through;color:var(--muted)}
+.item a{color:var(--sci);font-weight:600}
+.weekend{background:var(--soft);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.note{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+/* coaches */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.qnum{font-family:var(--display);font-weight:700;color:var(--ela);font-size:15px;letter-spacing:.04em}
+.lbl{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.look{background:var(--soft);border-radius:12px;padding:10px 12px}
+.starter{border-left:0;background:var(--ela-soft);color:var(--ink);border-radius:12px;padding:10px 12px}
+.tag{display:inline-block;font-family:var(--display);font-weight:600;font-size:13px;padding:3px 10px;border-radius:999px;background:var(--skill-soft);color:var(--skill)}
+.race{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:640px){.race{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.race div{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px}
+.race b{font-family:var(--display);font-size:26px;color:var(--ela);line-height:1}
+.steps{display:flex;flex-direction:column;gap:12px}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.words span{background:var(--soft);border-radius:999px;padding:4px 10px;font-size:14px}
+ul.clean{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:700px){.cols{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+/* science packet tab (scoped) */
+#science .sp-wrap{display:flex;flex-direction:column;gap:22px}
+#science .sp-title,#science h2,#science h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.1}
+#science .sp-title{font-size:clamp(34px,7vw,52px);font-weight:700}
+#science h2{font-size:28px;font-weight:700}
+#science h3{font-size:20px;font-weight:600}
+#science p{margin:0}
+#science .sptag{display:inline-block;background:var(--ink);color:var(--bg);font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.06em;padding:5px 14px;border-radius:999px}
+#science .sub{color:var(--muted)}
+#science .sp-sec{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px}
+#science .rephead{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+#science .time{font-family:var(--display);font-weight:600;font-size:15px;color:var(--gold-ink);background:var(--gold-soft);padding:4px 12px;border-radius:999px}
+#science .done-row{display:flex;justify-content:flex-end}
+#science button{font:inherit;cursor:pointer}
+#science .btn{font-family:var(--display);font-weight:600;font-size:17px;border:2px solid var(--ink);background:var(--card);color:var(--ink);padding:9px 18px;border-radius:12px;min-height:44px}
+#science .btn.primary{background:var(--ink);color:var(--bg)}
+#science .btn:focus-visible,#science .chip:focus-visible,#science .flash:focus-visible,#science input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#science .speak{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:4px 12px;font-size:14px;min-height:36px}
+#science .speak svg{width:16px;height:16px}
+/* hero */
+#science .hero{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:center}
+@media (max-width:640px){#science .hero{grid-template-columns:1fr}}
+#science .score{display:flex;flex-direction:column;gap:6px;background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:18px}
+#science .score b{font-family:var(--display);font-size:22px}
+#science .bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+#science .bar i{display:block;height:100%;width:0;background:var(--good);transition:width .4s}
+#science .spsteps{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+#science .spsteps li{display:flex;gap:10px;align-items:flex-start}
+#science .check{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center}
+#science .check.on{background:var(--good);border-color:var(--good)}
+#science .check svg{width:16px;height:16px;stroke:#fff;opacity:0}#science .check.on svg{opacity:1}
+/* flashcards */
+#science .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+#science .flash{position:relative;min-height:150px;border-radius:16px;border:2px solid var(--line);background:var(--bg);padding:16px;text-align:left;color:var(--ink);display:flex;flex-direction:column;gap:8px}
+#science .flash .term{font-family:var(--display);font-weight:700;font-size:24px}
+#science .flash .hint{font-size:14px;color:var(--muted)}
+#science .flash .def{display:none}
+#science .flash.flip .def{display:block}#science .flash.flip .hint{display:none}
+#science .flash.flip{border-color:var(--cold);background:var(--cold-soft)}
+#science .flash.got{border-color:var(--good);background:var(--good-soft)}
+#science .key{font-weight:600;background:var(--gold-soft);color:var(--gold-ink);padding:0 4px;border-radius:4px}
+#science .cardbtns{display:flex;gap:8px;margin-top:auto}
+#science .mini{font-size:14px;padding:6px 10px;min-height:36px;border-radius:10px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);font-family:var(--display);font-weight:600}
+/* particle boxes */
+#science .duo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:560px){#science .duo{grid-template-columns:1fr}}
+#science .box{border-radius:16px;border:3px solid var(--hot);background:var(--hot-soft);padding:14px;display:flex;flex-direction:column;gap:10px}
+#science .box.cool{border-color:var(--cold);background:var(--cold-soft)}
+#science .field{position:relative;height:130px;border-radius:10px;background:var(--card);overflow:hidden}
+#science .pt{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--hot);animation:jig .34s linear infinite}
+#science .pt.slow{background:var(--cold);animation:jigS 1.6s ease-in-out infinite}
+@keyframes jig{0%,100%{transform:translate(0,0)}25%{transform:translate(5px,-5px)}50%{transform:translate(-5px,4px)}75%{transform:translate(4px,5px)}}
+@keyframes jigS{0%,100%{transform:translate(0,0)}50%{transform:translate(1.5px,-1.5px)}}
+#science .spbig{font-family:var(--display);font-weight:700;font-size:20px}
+#science .rule{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){#science .rule{grid-template-columns:1fr}}
+#science .rule div{border-radius:14px;padding:14px;background:var(--gold-soft)}
+#science .rule b{font-family:var(--display);font-size:19px}
+/* calculator drill */
+#science .drill{display:flex;flex-direction:column;gap:12px;border:2px dashed var(--line);border-radius:16px;padding:16px}
+#science .mols{display:flex;flex-wrap:wrap;gap:8px}
+#science .mol{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:18px;background:var(--hot-soft);border:2px solid var(--hot);font-variant-numeric:tabular-nums}
+#science .inrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#science .inrow label{font-weight:600;min-width:170px}
+#science input[type=number],#science input[type=text]{font:inherit;font-size:18px;padding:8px 12px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);width:130px;min-height:44px}
+#science .fb{font-weight:600;min-height:1.5em}
+#science .fb.ok{color:var(--good)}#science .fb.no{color:var(--bad)}
+/* equilibrium */
+#science .eq{display:grid;grid-template-columns:1fr 1fr;border-radius:14px;overflow:hidden;border:3px solid var(--ink);height:110px}
+#science .eq div{display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:30px;color:#fff;transition:background 2.4s ease}
+#science .eq .l{background:#1D6FD8}#science .eq .r{background:#D62839}
+#science .eq.mix .l,#science .eq.mix .r{background:#8A3FA0}
+/* sorting quiz */
+#science .q{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:var(--bg)}
+#science .chips{display:flex;flex-wrap:wrap;gap:8px}
+#science .chip{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 16px;font-family:var(--display);font-weight:600;min-height:44px}
+#science .chip.right{background:var(--good);border-color:var(--good);color:#fff}
+#science .chip.wrong{background:var(--card);border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+#science .why{display:none;font-size:15px;color:var(--muted)}
+#science .q.answered .why{display:block}
+/* CER */
+#science table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+#science .tablewrap{overflow-x:auto}
+#science th,#science td{border:1px solid var(--line);padding:8px 10px;text-align:center}
+#science th{font-family:var(--display);font-weight:600;background:var(--bg)}
+#science .frame{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:14px;border:2px solid var(--line)}
+#science .frame b{font-family:var(--display);font-size:18px}
+#science .cklist{display:flex;flex-direction:column;gap:6px}
+#science .cklist label{display:flex;gap:10px;align-items:flex-start}
+#science .cklist input{width:22px;height:22px;margin-top:3px;accent-color:var(--good)}
+#science .film{display:flex;flex-direction:column;gap:10px}
+#science .film div{border-radius:14px;padding:14px;background:var(--bg);display:flex;flex-direction:column;gap:4px}
+#science .film .lbl{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+#science textarea{font:inherit;width:100%;min-height:90px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+#science .linkout{color:var(--cold);font-weight:600}
+@media (prefers-reduced-motion:reduce){#science .pt,#science .pt.slow{animation:none}#science .eq div{transition:none}}
+
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="sub" style="font-family:var(--display);font-weight:600;letter-spacing:.06em">MADISON MIDDLE · GRADE 6 · OCT 19 – OCT 30</span>
+    <h1>Graham's Two-Week Game Plan</h1>
+    <p class="sub">Every assignment from Google Classroom, placed on the night you'll work on it. Check boxes as you go. Big projects are split into short reps so no night gets crushed.</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="t-calendar" aria-controls="calendar" aria-selected="true">Calendar</button>
+    <button class="tab" role="tab" id="t-science" aria-controls="science" aria-selected="false">Science study packet</button>
+    <button class="tab" role="tab" id="t-fish" aria-controls="fish" aria-selected="false">Fish in a Tree coach</button>
+    <button class="tab" role="tab" id="t-essay" aria-controls="essay" aria-selected="false">Trick-or-treat essay coach</button>
+  </nav>
+
+  <!-- CALENDAR -->
+  <section class="panel" id="calendar" role="tabpanel" aria-labelledby="t-calendar">
+    <div class="bigs">
+      <div class="big"><span class="d">WED 10/21</span><b>Science: Thermal Energy test</b><span class="sub">Miss Moriello · <a href="#science" style="color:var(--sci);font-weight:600">Study packet</a></span></div>
+      <div class="big"><span class="d">FRI 10/23</span><b>Trick-or-treat opinion essay</b><span class="sub">Mrs. Marini · Extended Language Arts</span></div>
+      <div class="big"><span class="d">FRI 10/23</span><b>Percy Jackson Ch. 6–10 check</b><span class="sub">Mrs. Pacelli · Reading</span></div>
+      <div class="big"><span class="d">THU 10/22</span><b>Fish in a Tree study guide</b><span class="sub">Mrs. Heffernan · turn in by 11:59 PM</span></div>
+      <div class="big"><span class="d">TUE 10/27</span><b>Fish in a Tree assessment</b><span class="sub">Mrs. Heffernan · in class</span></div>
+    </div>
+
+    <div class="legend" aria-label="Subject colors">
+      <span class="pill s-sci">Science</span><span class="pill s-ela">ELA / Language Arts</span><span class="pill s-read">Reading</span>
+      <span class="pill s-math">Math</span><span class="pill s-span">Spanish</span><span class="pill s-skill">Skill reps</span>
+    </div>
+
+    <div class="week">
+      <div class="weekhead"><h2>Week 1</h2><span class="sub">Oct 19 – 23 · Science test, study guide, essay</span></div>
+      <div class="grid" id="w1"></div>
+      <div class="weekend"><b style="font-family:var(--display)">Weekend Oct 24–25</b>
+        <div class="item" id="wk1sun"></div>
+        <span class="sub">Saturday is off. Sunday is one 20-minute catch-up rep, then you're done.</span>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="weekhead"><h2>Week 2</h2><span class="sub">Oct 26 – 30 · Fish in a Tree assessment Tuesday</span></div>
+      <div class="grid" id="w2"></div>
+    </div>
+
+    <div class="note">
+      <b style="font-family:var(--display)">How to use this each day</b>
+      <ul class="clean">
+        <li><b>Get ready:</b> open the Daily School Report and this calendar. Anything new? Add it to tonight.</li>
+        <li><b>Do:</b> "Due" items first, then the planned rep. Set a timer for each one.</li>
+        <li><b>Done:</b> turn it in on Classroom, check the box, pack your bag.</li>
+      </ul>
+      <span class="sub">Week 2 homework from math, reading and science isn't posted yet. Those slots say “Check the Daily Report.” Mrs. Marini's Percy Jackson chapter questions are due Nov 13: one every school night or two keeps them small.</span>
+    </div>
+  </section>
+
+  <!-- SCIENCE -->
+  <section class="panel" id="science" role="tabpanel" aria-labelledby="t-science" hidden>
+
+
+<div class="sp-wrap">
+
+  <header class="hero">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="sptag">SCIENCE · MISS MORIELLO · TEST WED 10/21</span>
+      <h2 class="sp-title">Thermal Energy Game Plan</h2>
+      <p class="sub">Four short reps, then a scrimmage quiz. About 25 minutes total. Do one rep, take a break, do the next.</p>
+      <div><button class="speak" data-say="Thermal Energy Game Plan. Four short reps, then a scrimmage quiz. About 25 minutes total. Do one rep, take a break, do the next."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>Read to me</button></div>
+    </div>
+    <div class="score" aria-live="polite">
+      <b>Tonight's reps</b>
+      <ul class="spsteps" id="steps">
+        <li><span class="check" data-step="1"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Rep 1 · Word cards (5 min)</li>
+        <li><span class="check" data-step="2"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Rep 2 · Average vs. total (6 min)</li>
+        <li><span class="check" data-step="3"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Rep 3 · How heat moves (5 min)</li>
+        <li><span class="check" data-step="4"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Rep 4 · Claim, Evidence, Reasoning (6 min)</li>
+        <li><span class="check" data-step="5"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Scrimmage quiz (5 min)</li>
+      </ul>
+      <div class="bar"><i id="bar"></i></div>
+    </div>
+  </header>
+
+  <!-- REP 1 -->
+  <div class="sp-sec" id="rep1">
+    <div class="rephead"><span class="sptag">REP 1</span><h2>Word cards</h2><span class="time">5 min</span></div>
+    <p>Say the meaning out loud <b>before</b> you flip. Then tap <b>Got it</b> or <b>Again</b>. Goal: all 10 green.</p>
+    <div class="cards" id="cards"></div>
+    <div class="done-row"><button class="btn primary" data-done="1">Rep 1 done</button></div>
+  </div>
+
+  <!-- REP 2 -->
+  <div class="sp-sec" id="rep2">
+    <div class="rephead"><span class="sptag">REP 2</span><h2>Average vs. total</h2><span class="time">6 min</span></div>
+    <p>This is the big idea on the test. Same speed can mean <b>different</b> thermal energy.</p>
+    <div class="duo">
+      <div class="box">
+        <span class="spbig" style="color:var(--hot)">Small cup · 75°C</span>
+        <div class="field" id="fieldA" aria-hidden="true"></div>
+        <span>Fast particles, but only a few.</span>
+      </div>
+      <div class="box">
+        <span class="spbig" style="color:var(--hot)">Big pot · 75°C</span>
+        <div class="field" id="fieldB" aria-hidden="true"></div>
+        <span>Same speed, <b>many more</b> particles.</span>
+      </div>
+    </div>
+    <div class="rule">
+      <div><b>Temperature = AVERAGE</b><p>Add the energies, then <b>divide</b> by how many particles. Both are 75°C.</p></div>
+      <div><b>Thermal energy = TOTAL</b><p>Just <b>add</b> them all up. More particles means more total. The big pot wins.</p></div>
+    </div>
+    <div><button class="speak" data-say="Temperature is the average kinetic energy. Add the energies, then divide by how many particles. Thermal energy is the total kinetic energy. Just add them all up. More particles means more total thermal energy."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Read to me</button></div>
+
+    <div class="drill">
+      <h3>Practice reps: new numbers every time</h3>
+      <p class="sub">Each circle is one particle's energy. Use a calculator, just like on the test. Round temperature to 2 decimals if it doesn't come out even.</p>
+      <div class="mols" id="mols"></div>
+      <div class="inrow"><label for="totIn">Thermal energy (total)</label><input id="totIn" type="number" inputmode="decimal"></div>
+      <div class="inrow"><label for="avgIn">Temperature (average)</label><input id="avgIn" type="number" inputmode="decimal" step="0.01"></div>
+      <div class="inrow"><button class="btn primary" id="checkCalc">Check</button><button class="btn" id="newCalc">New numbers</button><span>Streak: <b id="streak">0</b></span></div>
+      <p class="fb" id="calcFb" aria-live="polite"></p>
+    </div>
+    <div class="done-row"><button class="btn primary" data-done="2">Rep 2 done</button></div>
+  </div>
+
+  <!-- REP 3 -->
+  <div class="sp-sec" id="rep3">
+    <div class="rephead"><span class="sptag">REP 3</span><h2>How heat moves</h2><span class="time">5 min</span></div>
+    <p>Energy always moves <b>hot → cold</b>. It stops when both sides reach the <b>same temperature</b>. That's equilibrium.</p>
+    <div class="eq" id="eq"><div class="l" id="eqL">0°C</div><div class="r" id="eqR">100°C</div></div>
+    <div class="inrow"><button class="btn primary" id="eqGo">Push them together</button><button class="btn" id="eqReset">Reset</button></div>
+    <p class="fb" id="eqFb" aria-live="polite"></p>
+    <p class="sub">Want to see the particles move? Open your <a class="linkout" href="https://claude.ai/code/artifact/74b9fc97-9f36-4fe5-af59-bb5b9d23874b" target="_blank" rel="noopener">Heat Transfer Motion Models</a> (conduction, convection, radiation).</p>
+    <h3>Call the play: conduction, convection or radiation?</h3>
+    <div id="sort" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div class="done-row"><button class="btn primary" data-done="3">Rep 3 done</button></div>
+  </div>
+
+  <!-- REP 4 -->
+  <div class="sp-sec" id="rep4">
+    <div class="rephead"><span class="sptag">REP 4</span><h2>Claim, Evidence, Reasoning</h2><span class="time">6 min</span></div>
+    <p>The test ends with a CER like the three beakers. Practice on <b>new</b> data first. Say your answer out loud, then type it.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Sample</th><th>Mass of water</th><th>Temperature</th><th>Particle speed</th></tr></thead>
+      <tbody>
+        <tr><td>Mug</td><td>250 g</td><td>60°C</td><td>Faster</td></tr>
+        <tr><td>Bathtub</td><td>2,000 g</td><td>60°C</td><td>Faster</td></tr>
+        <tr><td>Ice bath</td><td>2,000 g</td><td>5°C</td><td>Slower</td></tr>
+      </tbody>
+    </table></div>
+    <div class="frame"><b>Claim</b><span>Which one has the MOST thermal energy?</span><span class="sub">Frame: The ______ has the most thermal energy.</span><textarea id="cerC" aria-label="Claim"></textarea></div>
+    <div class="frame"><b>Evidence</b><span>Use <b>two numbers</b> from the table.</span><span class="sub">Frame: The ______ and the ______ are both ___°C, but the ______ has ___ g and the ______ has only ___ g.</span><textarea id="cerE" aria-label="Evidence"></textarea></div>
+    <div class="frame"><b>Reasoning</b><span>Explain WHY with the science words.</span><span class="sub">Frame: Same temperature means the particles have the same ______ speed. More mass means more ______. Thermal energy is the ______ kinetic energy, so ______.</span><textarea id="cerR" aria-label="Reasoning"></textarea></div>
+    <div class="frame">
+      <b>Self-check before you're done</b>
+      <div class="cklist">
+        <label><input type="checkbox" id="ck1">My claim names ONE sample.</label>
+        <label><input type="checkbox" id="ck2">My evidence has at least two numbers with units (g or °C).</label>
+        <label><input type="checkbox" id="ck3">My reasoning uses the words <b>total</b> and <b>molecules</b> (or particles).</label>
+        <label><input type="checkbox" id="ck4">I explained why the ice bath loses, even though it's just as big.</label>
+      </div>
+    </div>
+
+    <h3>Film review: your study guide</h3>
+    <p class="sub">Your study guide is strong. Here are three spots to level up for the test. Read each one and say how you'd make it stronger.</p>
+    <div class="film">
+      <div><span class="lbl">Question 4b · Energy movement</span><span>You wrote that energy moves from object two to object… but the word after “object” is missing. <b>On the test:</b> name both objects and say which way the energy goes, hot to cold.</span></div>
+      <div><span class="lbl">Question 5 · Why it stopped</span><span>“Same speed” is right. Make it sharper with one more science word: the molecules have the same <b>______</b> speed. (Hint: temperature is the ______ kinetic energy.)</span></div>
+      <div><span class="lbl">Beaker CER · Evidence</span><span>The directions asked for <b>numbers</b>. “More mass in beaker C” is the right idea. Which two masses prove it?</span></div>
+    </div>
+    <div class="done-row"><button class="btn primary" data-done="4">Rep 4 done</button></div>
+  </div>
+
+  <!-- SCRIMMAGE -->
+  <div class="sp-sec" id="quiz">
+    <div class="rephead"><span class="sptag">SCRIMMAGE</span><h2>Test-style quiz</h2><span class="time">5 min</span></div>
+    <p>Read every answer choice before you tap. Missed one? It comes back at the end.</p>
+    <div id="qbox" style="display:flex;flex-direction:column;gap:10px"></div>
+    <p class="spbig" id="qscore" aria-live="polite"></p>
+    <div class="inrow"><button class="btn" id="qRetry">Retry the ones I missed</button></div>
+    <div class="done-row"><button class="btn primary" data-done="5">Scrimmage done</button></div>
+  </div>
+
+  <!-- POSTGAME -->
+  <div class="sp-sec" id="post">
+    <div class="rephead"><span class="sptag">POSTGAME</span><h2>Quick film review</h2><span class="time">1 min</span></div>
+    <div class="frame"><b>What clicked tonight?</b><textarea id="r1" aria-label="What clicked tonight"></textarea></div>
+    <div class="frame"><b>One thing to ask Miss Moriello before the test</b><textarea id="r2" aria-label="Question for Miss Moriello"></textarea></div>
+    <div class="frame">
+      <b>Test-day game plan</b>
+      <div class="cklist">
+        <label><input type="checkbox" id="t1">Bring a calculator.</label>
+        <label><input type="checkbox" id="t2">Read each question twice. Underline the key word (total? average?).</label>
+        <label><input type="checkbox" id="t3">For CER: claim, two numbers, then the science word.</label>
+        <label><input type="checkbox" id="t4">Before turning it in, go back and check every answer once.</label>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+  </section>
+
+  <!-- FISH IN A TREE -->
+  <section class="panel" id="fish" role="tabpanel" aria-labelledby="t-fish" hidden>
+    <div class="card">
+      <span class="tag">GUIDE DUE THU 10/22 · ASSESSMENT TUE 10/27 · MRS. HEFFERNAN</span>
+      <h2>Fish in a Tree study guide coach</h2>
+      <p>This page gives you <b>clues and questions</b>, not answers. You do the thinking; this is your scouting report. Two short reps: <b>Wednesday</b> (questions 1–6) and <b>Thursday</b> (questions 7–14, then Turn in). On <b>Monday</b>, use your finished guide to study for Tuesday’s assessment.</p>
+      <div class="race" aria-label="RACE answer strategy">
+        <div><b>R</b><span><b>Restate</b> the question in your answer.</span></div>
+        <div><b>A</b><span><b>Answer</b> every part of it.</span></div>
+        <div><b>C</b><span><b>Cite</b> the book: a quote or detail + page.</span></div>
+        <div><b>E</b><span><b>Explain</b> what that proves.</span></div>
+      </div>
+      <p class="sub">Some questions have two parts (look for two question marks). Answer both.</p>
+    </div>
+    <div id="fishQs" class="steps"></div>
+    <div class="note"><b style="font-family:var(--display)">Heads up</b><span>There's no question 5 or 9 on the sheet. The numbers skip; you're not missing anything.</span></div>
+  </section>
+
+  <!-- ESSAY -->
+  <section class="panel" id="essay" role="tabpanel" aria-labelledby="t-essay" hidden>
+    <div class="card">
+      <span class="tag">DUE FRI 10/23 · MRS. MARINI</span>
+      <h2>Trick-or-treat essay coach</h2>
+      <p>You already picked your side: <b>yes, teens should be allowed</b>. Now prove it with the article. Three reps: <b>Wed</b> scout, <b>Thu</b> fill the organizer, <b>Fri</b> write, edit and turn in.</p>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Rep 1 · Wed · 15 min</span>
+      <h3>Level up your opinion sentence</h3>
+      <p>Your sentence is a good start. A strong opinion sentence gives a reason you can <b>prove with the article</b>. Ask yourself:</p>
+      <ul class="clean">
+        <li>Which part of the article backs up my reason? If none does yet, can I swap in a reason the article supports?</li>
+        <li>Did I write <b>trick-or-treat</b> with hyphens, the way the title does?</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Rep 1 · Wed · Scouting report</span>
+      <h3>Where to look in the article</h3>
+      <p>The article has three sections after the opening. Skim each heading, then hunt for these:</p>
+      <div class="steps">
+        <div class="look"><b>“Playful and Carefree”</b><br>Find what a family therapist and a 13-year-old say about why teens still enjoy Halloween. What pressures do teens have the rest of the year?</div>
+        <div class="look"><b>“Not All Teens”</b><br>Find the argument about fairness: should <i>all</i> teens lose out because <i>some</i> caused trouble? Also find what an advocate says about people with developmental disabilities.</div>
+        <div class="look"><b>“The Right Solution?”</b><br>Find out how often these age rules are actually enforced. What compromise does the writer suggest?</div>
+      </div>
+      <p><b>Pick your best 2</b> (a 3rd is optional). Highlight the exact words you'll use. Copy them with “quotation marks.”</p>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Rep 2 · Thu · 15 min</span>
+      <h3>Fill Step 2 of your organizer</h3>
+      <p>For each argument, three boxes: <b>reason</b> → <b>evidence</b> (exact words) → <b>this shows that…</b></p>
+      <p>The "this shows" box is where you think. Ask: <i>why does this fact mean teens should be allowed?</i> Say it out loud first, then write it.</p>
+      <div class="look"><b>Bonus move</b> (strong writers do this): name the other side in one sentence, then answer it. Start with “Some people say…” and “However,…”</div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Rep 3 · Fri · 25 min (two halves)</span>
+      <h3>Write it, then edit it. Two different jobs.</h3>
+      <div class="cols">
+        <div class="look"><b>Half 1 · Draft (15 min)</b><br>Talk your paragraph out loud to Mom or Dad first. Then type it straight from Step 3 of the organizer. Don't fix spelling yet. Just get it down.</div>
+        <div class="look"><b>Half 2 · Edit (10 min, after a break)</b><br>Read it out loud. Then use the checklist on the assignment one line at a time: capitals, punctuation, spelling, no run-ons, quotes in quotation marks.</div>
+      </div>
+      <span class="lbl">Transition words to try (pick 3+)</span>
+      <div class="words"><span>To begin with</span><span>First</span><span>In addition</span><span>Furthermore</span><span>For example</span><span>According to the article</span><span>This shows that</span><span>However</span><span>In conclusion</span><span>For all these reasons</span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const S={get(k,d){try{const v=localStorage.getItem('ggp:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('ggp:'+k,JSON.stringify(v))}catch(e){}}};
+  const SCI='#science';
+  // [id, subject, text, minutes, isDue]
+  const PJ='If not finished in class: Percy Jackson chapter + question (Pacelli)';
+  const days={
+    w1:[
+      ['2026-10-19','Mon 10/19',[
+        ['d1a','read','Percy Jackson Ch. 6 reading (Pacelli)',0,1],
+        ['d1b','math','Pear Assessment: Ratio Review (DeNuzzo)',0,1]
+      ],[]],
+      ['2026-10-20','Tue 10/20',[
+        ['d2a','ela','Fish in a Tree questions, Ch. 48–50 (Heffernan)',0,1],
+        ['d2b','read','Percy Jackson Ch. 7 reading + question (Pacelli)',0,1],
+        ['d2c','math','Edgems 2.3 Online Exit Card (DeNuzzo)',0,1]
+      ],[
+        ['p2a','sci','Science study packet: Reps 1–4 + scrimmage',25,0,SCI],
+        ['p2b','math','Weekly Review #8, first half',10,0],
+        ['p2c','ela','Ask Mrs. Heffernan: is the Oct 16 Character Change Response still open?',2,0],
+        ['p2d','read',PJ,0,0]
+      ]],
+      ['2026-10-21','Wed 10/21',[
+        ['d3a','sci','THERMAL ENERGY TEST (Moriello). Bring a calculator.',0,1]
+      ],[
+        ['p3a','ela','Fish in a Tree guide Rep 1: questions 1–6',20,0,'#fish'],
+        ['p3b','ela','Essay Rep 1: level up opinion + scout the article',15,0,'#essay'],
+        ['p3c','math','Weekly Review #8, second half',10,0],
+        ['p3d','read',PJ,0,0]
+      ]],
+      ['2026-10-22','Thu 10/22',[
+        ['d4a','ela','Fish in a Tree STUDY GUIDE, turn in by 11:59 PM (Heffernan)',0,1]
+      ],[
+        ['p4a','ela','Fish in a Tree guide Rep 2: questions 7–14, then Turn in',25,0,'#fish'],
+        ['p4b','ela','Essay Rep 2: fill Step 2 of the organizer',15,0,'#essay'],
+        ['p4c','read','Skim Percy Jackson Ch. 6–10 for Friday check',5,0]
+      ]],
+      ['2026-10-23','Fri 10/23',[
+        ['d5a','ela','Trick-or-treat essay, by 11:59 PM (Marini, 100 pts)',0,1],
+        ['d5b','ela','Weekly Log 10/19–10/23, by 11:59 PM (Marini)',0,1],
+        ['d5c','math','Weekly Review #8 (DeNuzzo)',0,1],
+        ['d5d','read','Percy Jackson Ch. 6–10 Comprehension Check, in class (Pacelli)',0,1]
+      ],[
+        ['p5a','ela','Essay Rep 3: draft (15) → break → edit (10) → Turn in',25,0,'#essay'],
+        ['p5b','ela','Weekly Log',10,0],
+        ['p5c','skill','Done before dinner. Rest of the night is yours.',0,0]
+      ]]
+    ],
+    w2:[
+      ['2026-10-26','Mon 10/26',[],[
+        ['p6a','ela','Fish in a Tree test prep: read your study guide answers out loud, then cover and quiz yourself',20,0,'#fish'],
+        ['p6b','skill','Check the Daily Report for new work',2,0]
+      ]],
+      ['2026-10-27','Tue 10/27',[
+        ['d7a','ela','FISH IN A TREE ASSESSMENT, in class (Heffernan)',0,1]
+      ],[
+        ['p7a','ela','Percy Jackson Ch. 1 question for Mrs. Marini',15,0],
+        ['p7b','skill','Spelling game: one practice set',10,0],
+        ['p7c','skill','Check the Daily Report for new work',2,0]
+      ]],
+      ['2026-10-28','Wed 10/28',[],[
+        ['p8a','ela','Percy Jackson Ch. 2 question for Mrs. Marini',15,0],
+        ['p8b','skill','Check the Daily Report for new work',2,0]
+      ]],
+      ['2026-10-29','Thu 10/29',[],[
+        ['p9a','math','October Extra Credit (optional, due Fri)',15,0],
+        ['p9b','skill','Spelling game: one practice set',10,0],
+        ['p9c','skill','Check the Daily Report for new work',2,0]
+      ]],
+      ['2026-10-30','Fri 10/30',[
+        ['d10a','math','October Extra Credit, optional (DeNuzzo)',0,1]
+      ],[
+        ['p10a','ela','Percy Jackson Ch. 4 question for Mrs. Marini',15,0],
+        ['p10b','skill','Weekly film review: what worked, what’s next?',5,0]
+      ]]
+    ]
+  };
+  const done=new Set(S.get('done',[]));
+  const todayISO=new Date().toLocaleDateString('en-CA');
+  function itemEl([id,subj,txt,min,isDue,link]){
+    const w=document.createElement('div');w.className='item'+(isDue?' duebox':'')+(done.has(id)?' checked':'');
+    const inner=link?`<a href="${link}" ${link.startsWith('#')?'':'target="_blank" rel="noopener"'}>${txt}</a>`:txt;
+    w.innerHTML=`<input type="checkbox" id="${id}" ${done.has(id)?'checked':''}><label for="${id}"><span class="pill s-${subj}" style="align-self:flex-start">${{sci:'Science',ela:'ELA',read:'Reading',math:'Math',span:'Spanish',skill:'Skill reps'}[subj]}</span><span class="txt">${inner}</span>${min?`<span class="t">${min} min</span>`:''}</label>`;
+    w.querySelector('input').addEventListener('change',e=>{e.target.checked?done.add(id):done.delete(id);w.classList.toggle('checked',e.target.checked);S.set('done',[...done])});
+    return w}
+  function build(key){const g=document.getElementById(key);
+    days[key].forEach(([iso,label,due,plan])=>{
+      const d=document.createElement('article');d.className='day'+(iso===todayISO?' today':'')+(iso<todayISO?' past':'');
+      const mins=plan.reduce((a,x)=>a+x[3],0);
+      d.innerHTML=`<div class="dayhead"><b>${label}${iso===todayISO?' · Today':''}</b>${mins?`<span class="mins">~${mins} min</span>`:''}</div>`;
+      if(due.length){const h=document.createElement('span');h.className='grp due';h.textContent='Due';d.appendChild(h);due.forEach(x=>d.appendChild(itemEl(x)))}
+      if(plan.length){const h=document.createElement('span');h.className='grp';h.textContent='Tonight';d.appendChild(h);plan.forEach(x=>d.appendChild(itemEl(x)))}
+      g.appendChild(d)})}
+  build('w1');build('w2');
+  const sun=itemEl(['p_sun','span','Sun 10/25 · Spanish catch-up: workbook p.10 + Hispanic Heritage Month intro (both listed Missing)',20,0]);
+  document.getElementById('wk1sun').replaceWith(sun);
+
+  // tabs
+  const tabs=[...document.querySelectorAll('.tab')];
+  function show(id){tabs.forEach(t=>{const on=t.getAttribute('aria-controls')===id;t.setAttribute('aria-selected',on);document.getElementById(t.getAttribute('aria-controls')).hidden=!on});
+    S.set('tab',id);window.scrollTo({top:0})}
+  tabs.forEach(t=>t.addEventListener('click',()=>show(t.getAttribute('aria-controls'))));
+  document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(a){e.preventDefault();show(a.getAttribute('href').slice(1))}});
+  const h=(location.hash||'').slice(1);show(['calendar','science','fish','essay'].includes(h)?h:S.get('tab','calendar'));
+
+  // Fish in a Tree coach (hints only)
+  const F=[
+    ['1','p. 29','Author\'s craft','You answered this. Level-up check.',
+     ['Who is the whale? Whose world is the forest?','How much do a whale and a forest have in common? What does that say about how far apart Ally\'s world and her mom\'s are?','Does your answer explain WHY the author picked two worlds that are so different?'],
+     'The author compares ___ to ___ to show that ___. This reveals that Ally feels ___.'],
+    ['2','p. 28','Author\'s purpose','You answered this. Level-up check: it has two parts.',
+     ['What did Ally\'s third-grade teacher say about her? How would hearing that make you feel?','Does “a hundred times” sound happy, tired or fed up?','Part 1 asks WHY the author included this memory. Does your answer say what it teaches us about Ally\'s past?','Pick the feeling word that matches the quote best, then prove it: frustrated · embarrassed · hurt · discouraged · misunderstood · jealous'],
+     'The author includes this memory to show ___. Ally feels ___ because ___.'],
+    ['3','p. 134','Author\'s craft',null,
+     ['When would YOU wish the floor would swallow you up? What feeling is that?','The sentence uses “like.” What kind of comparison is that? Name it.','Answer both: the emotion AND how the author shows it.'],
+     'Ally is feeling ___. The author shows this by using a ___ that compares ___ to ___.'],
+    ['4','Whole book','Summarizing',null,
+     ['A summary event is BIG: it changes Ally or changes the story.','Test each one: “If I took this out, would the story still make sense?” If yes, it\'s a small detail.','Small, one-time moments usually stay out of a summary.'],
+     null],
+    ['6','p. 2 + early chapters','Setting & character',null,
+     ['If you changed schools every single year, would you bother getting close to teachers? Why or why not?','How does Ally act toward teachers in the first chapters? Find one example.'],
+     'Moving so often makes Ally ___ about school. For example, ___ (p. __). This shows ___.'],
+    ['7','p. 175 and pp. 182–183','Dialogue & character',null,
+     ['Scene 1: Ally asks if she\'ll ever be “normal.” What does that question show about how she sees herself? What does Mr. Daniels do or say back, and what does that show about him?','Scene 2: Keisha already knew. What does that tell Ally? Albert promises to keep her secret. What kind of friends are they?'],
+     'This conversation shows that Ally ___ and that Mr. Daniels/Keisha/Albert ___.'],
+    ['8','Chapters where Mr. Daniels arrives and starts working with Ally','Character traits',null,
+     ['Think back: when did Mr. Daniels notice something about Ally that other teachers missed?','Look for moments where he watches her closely, or tries a new way to see what she can do.','You need TWO different clues.'],
+     'One clue is ___ (p. __). Another clue is ___ (p. __).'],
+    ['10','p. 136','Character development',null,
+     ['What does “pity” mean? (Hint: feeling sorry for someone.)','Why might Ally think people feel sorry for her, instead of believing she earned it?','What does this show about how Ally sees her own work at this point?'],
+     'Ally thinks it is a pity award because ___. This shows she believes ___.'],
+    ['11','Whole book','Point of view',null,
+     ['A narrator can only share their own thoughts and what they see.','For each choice ask: would only Mr. Daniels know this, or only Ally?','“Highlight ALL that apply” means it could be more than one.'],
+     null],
+    ['12','Whole book','Theme',null,
+     ['The five statements are squished into one box. Read them as five separate sentences.','A theme is a lesson for everyone, not just Ally.','Test each: would Ally at the END of the book agree? Watch for one that\'s the opposite of what the book teaches.'],
+     null],
+    ['13','pp. 20, 116, 224, 256–257','Theme evidence',null,
+     ['The theme is friendship as TEAMWORK: friends acting together for each other.','Test each quote: does it show the friends DOING something as a team? Or is it about wanting friends, or advice from someone else?','Pick the two strongest.'],
+     null],
+    ['14','p. 159','Theme & title',null,
+     ['In the book, who is the “fish”? What is the “tree”?','What happens to a fish judged on climbing? How is that like Ally before Mr. Daniels?','What does the author want readers to do differently? That\'s the message.'],
+     'The title connects to the quote because ___. Lynda Mullaly Hunt\'s message is ___. For example, ___ (p. __).']
+  ];
+  const box=document.getElementById('fishQs');
+  F.forEach(([n,page,skill,status,hints,starter])=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML=`<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><span class="qnum">QUESTION ${n}</span><span class="tag">${skill}</span>${status?`<span class="sub" style="font-weight:600">${status}</span>`:''}</div>
+      <div class="look"><span class="lbl">Look here</span><br>${page}</div>
+      <div><span class="lbl">Think about</span><ul class="clean">${hints.map(h=>`<li>${h}</li>`).join('')}</ul></div>
+      ${starter?`<div class="starter"><span class="lbl">Sentence starter</span><br>${starter}</div>`:''}
+      <label class="lbl" for="fn${n}">My notes (stay on this device)</label><textarea id="fn${n}"></textarea>`;
+    const ta=c.querySelector('textarea');ta.value=S.get('fn'+n,'');ta.addEventListener('input',()=>S.set('fn'+n,ta.value));
+    box.appendChild(c)});
+})();
+</script>
+<script>
+
+(function(){
+  const store={get(k,d){try{const v=localStorage.getItem('tegp:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+               set(k,v){try{localStorage.setItem('tegp:'+k,JSON.stringify(v))}catch(e){}}};
+
+  // read-aloud
+  function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b)say(b.dataset.say)});
+
+  // progress
+  const done=new Set(store.get('done',[]));
+  function paint(){document.querySelectorAll('#science .check').forEach(c=>c.classList.toggle('on',done.has(+c.dataset.step)));
+    document.getElementById('bar').style.width=(done.size/5*100)+'%'}
+  document.querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',()=>{done.add(+b.dataset.done);store.set('done',[...done]);paint();
+    const n=document.querySelectorAll('#science .sp-sec')[+b.dataset.done];if(n)n.scrollIntoView({behavior:'smooth',block:'start'})}));
+  paint();
+
+  // REP 1 cards (from the study guide's vocabulary)
+  const vocab=[
+    ['Energy','the ability to <span class="key">move</span> or <span class="key">change</span>.','the ability to move or change'],
+    ['Equilibrium','a balanced state where a system is <span class="key">stable</span>, like when two samples are at the same <span class="key">temperature</span>.','a balanced state where a system is stable, like when two samples are at the same temperature'],
+    ['Kinetic energy','the <span class="key">energy</span> an object has because it is <span class="key">moving</span>.','the energy an object has because it is moving'],
+    ['Temperature','found through the <span class="key">average</span> kinetic energy of the molecules.','found through the average kinetic energy of the molecules'],
+    ['Thermal energy','the <span class="key">total</span> kinetic energy of all the molecules in a sample.','the total kinetic energy of all the molecules in a sample'],
+    ['Transfer','to <span class="key">move</span> from one object or place to another.','to move from one object or place to another'],
+    ['Conduction','heat moves through direct <span class="key">contact</span> (touching).','heat moves through direct contact, touching'],
+    ['Convection','heat moves by the <span class="key">movement</span> of a fluid (<span class="key">liquid</span> or gas).','heat moves by the movement of a fluid, a liquid or gas'],
+    ['Radiation','the direct transfer of <span class="key">energy</span> by electromagnetic waves.','the direct transfer of energy by electromagnetic waves'],
+    ['Average','add all the numbers, then <span class="key">divide</span> by how many numbers there are.','add all the numbers, then divide by how many numbers there are']
+  ];
+  const got=new Set(store.get('got',[]));
+  const cardsEl=document.getElementById('cards');
+  vocab.forEach(([t,d,spoken],i)=>{
+    const c=document.createElement('div');c.className='flash'+(got.has(i)?' got':'');
+    c.innerHTML=`<span class="term">${t}</span><span class="hint">Say it, then flip.</span><span class="def">${d}</span>
+      <div class="cardbtns"><button class="mini" data-act="flip">Flip</button><button class="mini" data-act="say" aria-label="Read ${t} aloud">Read</button><button class="mini" data-act="got">Got it</button><button class="mini" data-act="again">Again</button></div>`;
+    c.addEventListener('click',e=>{const a=e.target.dataset.act;if(!a)return;
+      if(a==='flip')c.classList.toggle('flip');
+      if(a==='say')say(t+'. '+spoken);
+      if(a==='got'){got.add(i);c.classList.add('got');c.classList.remove('flip')}
+      if(a==='again'){got.delete(i);c.classList.remove('got','flip')}
+      store.set('got',[...got])});
+    cardsEl.appendChild(c)});
+
+  // REP 2 particle fields
+  function fill(el,n){for(let i=0;i<n;i++){const p=document.createElement('span');p.className='pt';
+    p.style.left=(6+Math.random()*86)+'%';p.style.top=(8+Math.random()*72)+'%';p.style.animationDelay=(-Math.random())+'s';el.appendChild(p)}}
+  fill(document.getElementById('fieldA'),5);fill(document.getElementById('fieldB'),22);
+
+  // REP 2 calculator drill (parallel problems, never the study guide's own numbers)
+  let set=[],streak=0;
+  const molsEl=document.getElementById('mols'),fb=document.getElementById('calcFb');
+  function newSet(){const n=4+Math.floor(Math.random()*4);set=Array.from({length:n},()=>2+Math.floor(Math.random()*11));
+    molsEl.innerHTML=set.map(v=>`<span class="mol">${v}</span>`).join('');
+    document.getElementById('totIn').value='';document.getElementById('avgIn').value='';fb.textContent='';fb.className='fb'}
+  document.getElementById('newCalc').onclick=newSet;
+  document.getElementById('checkCalc').onclick=()=>{
+    const tot=set.reduce((a,b)=>a+b,0),avg=tot/set.length;
+    const t=parseFloat(document.getElementById('totIn').value),a=parseFloat(document.getElementById('avgIn').value);
+    const tOk=t===tot,aOk=Math.abs(a-avg)<0.06;
+    if(tOk&&aOk){streak++;fb.className='fb ok';fb.textContent='Nailed it. Total = add. Average = add, then divide by '+set.length+'.'}
+    else{streak=0;fb.className='fb no';
+      fb.textContent=!tOk?'Check the total: add every circle. Count them: there are '+set.length+'.':'Total is right. For temperature, take your total and divide by how many circles ('+set.length+').'}
+    document.getElementById('streak').textContent=streak};
+  newSet();
+
+  // REP 3 equilibrium
+  const eq=document.getElementById('eq'),L=document.getElementById('eqL'),R=document.getElementById('eqR'),eqFb=document.getElementById('eqFb');
+  let timer=null;
+  document.getElementById('eqGo').onclick=()=>{clearInterval(timer);eq.classList.add('mix');let l=0,r=100;
+    eqFb.textContent='Energy flows from the 100°C side into the 0°C side…';
+    timer=setInterval(()=>{l+=5;r-=5;L.textContent=l+'°C';R.textContent=r+'°C';
+      if(l>=50){clearInterval(timer);eqFb.textContent='Both 50°C. Same average speed, same temperature. Energy stops moving: equilibrium.'}},150)};
+  document.getElementById('eqReset').onclick=()=>{clearInterval(timer);eq.classList.remove('mix');L.textContent='0°C';R.textContent='100°C';eqFb.textContent=''};
+
+  // REP 3 sorting
+  const sortQs=[
+    ['A metal spoon gets hot in a bowl of soup.','Conduction','The spoon touches the soup. Direct contact = conduction.'],
+    ['Warm air rises from a heater and cool air sinks to take its place.','Convection','Air is a fluid (a gas) moving in a loop.'],
+    ['You feel the sun warm your face.','Radiation','Energy travels through space as waves. Nothing is touching.'],
+    ['Water at the bottom of a pot heats, rises, and the cooler water sinks.','Convection','A liquid moving in a loop carries the heat.'],
+    ['Your hand melts an ice cube.','Conduction','Hand and ice are touching. Energy moves hot (hand) → cold (ice).'],
+    ['You warm your hands near a campfire without touching it.','Radiation','No touching, no moving fluid needed: waves carry the energy.']
+  ];
+  const sortEl=document.getElementById('sort');
+  sortQs.forEach(([s,ans,why])=>{const q=document.createElement('div');q.className='q';
+    q.innerHTML=`<span>${s}</span><div class="chips">${['Conduction','Convection','Radiation'].map(o=>`<button class="chip">${o}</button>`).join('')}</div><span class="why">${why}</span>`;
+    q.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(b.textContent===ans){b.classList.add('right');q.classList.add('answered')}else b.classList.add('wrong')});
+    sortEl.appendChild(q)});
+
+  // REP 4 save drafts
+  ['cerC','cerE','cerR','r1','r2'].forEach(id=>{const el=document.getElementById(id);el.value=store.get(id,'');el.addEventListener('input',()=>store.set(id,el.value))});
+  ['ck1','ck2','ck3','ck4','t1','t2','t3','t4'].forEach(id=>{const el=document.getElementById(id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked))});
+
+  // SCRIMMAGE
+  const Q=[
+    ['When an object gets hotter, its molecules…',['move faster and have more kinetic energy','move slower and have less kinetic energy','stop moving'],0,'Hotter = more kinetic energy = faster.'],
+    ['Temperature measures the ____ kinetic energy of the molecules.',['total','average','smallest'],1,'Temperature is the AVERAGE.'],
+    ['Thermal energy is the ____ kinetic energy of the molecules.',['average','total','fastest'],1,'Thermal energy is the TOTAL.'],
+    ['Two pots of water are both 80°C. Pot X has 500 g, Pot Y has 1,500 g. Which has more thermal energy?',['Pot X','Pot Y','They are the same'],1,'Same temperature, but more mass means more molecules, so a bigger total.'],
+    ['Particles have energies 6, 8, 4, 6. What is the temperature (average)?',['24','6','4'],1,'6+8+4+6 = 24, and 24 ÷ 4 = 6.'],
+    ['A hot block touches a cold block. Which way does energy move?',['Cold → hot','Hot → cold','Both ways equally'],1,'Energy always flows from hot to cold.'],
+    ['Why does energy stop moving between two touching objects?',['They reach the same temperature (equilibrium)','The hot one runs out of molecules','The cold one gets full'],0,'Same temperature = same average speed = equilibrium.'],
+    ['Heat moving by a liquid or gas flowing in a loop is…',['conduction','convection','radiation'],1,'Moving fluid = convection.'],
+    ['Heat from the sun reaches Earth by…',['conduction','convection','radiation'],2,'Electromagnetic waves through space = radiation.'],
+    ['In the class lab, the 100 mL and 300 mL beakers were the same temperature. Which had more thermal energy?',['100 mL','300 mL','The same'],1,'More water, more molecules, more total kinetic energy.']
+  ];
+  let order=Q.map((_,i)=>i),missed=[],answered=0,right=0;
+  const qbox=document.getElementById('qbox'),qscore=document.getElementById('qscore');
+  function renderQuiz(list){qbox.innerHTML='';answered=0;right=0;missed=[];qscore.textContent='';
+    list.forEach(i=>{const [stem,opts,ans,why]=Q[i];const q=document.createElement('div');q.className='q';
+      q.innerHTML=`<span><b>${stem}</b></span><div class="chips">${opts.map((o,k)=>`<button class="chip" data-k="${k}">${o}</button>`).join('')}</div><span class="why">${why}</span>`;
+      let first=true;
+      q.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(q.classList.contains('answered'))return;
+        if(+b.dataset.k===ans){b.classList.add('right');q.classList.add('answered');answered++;if(first)right++;else missed.push(i);
+          if(answered===list.length)qscore.textContent=`Score: ${right} of ${list.length} on the first try.`+(missed.length?' Hit "Retry" for the rest.':' Clean sheet.')}
+        else{b.classList.add('wrong');first=false}});
+      qbox.appendChild(q)})}
+  document.getElementById('qRetry').onclick=()=>{if(missed.length)renderQuiz([...missed])};
+  renderQuiz(order);
+})();
+
+</script>
+
+</body>
+</html>
