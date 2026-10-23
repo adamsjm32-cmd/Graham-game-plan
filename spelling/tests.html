@@ -70,8 +70,8 @@ async function main(){
       if(!G.sentenceUses(x.s,x.w)) errs.push(x.w+': sentence does not use the word');
     });
     EXPECTED.forEach((line,d)=>{
-      const exp=line.split(' ').map(w=>w.toLowerCase()).sort().join(','), got=G.WORDS.filter(x=>x.d===d).map(x=>x.w.toLowerCase()).sort().join(',');
-      if(exp!==got) errs.push('Drill '+(d+1)+' list differs from the prompt');
+      const got=G.WORDS.filter(x=>x.d===d).map(x=>x.w.toLowerCase());
+      line.split(' ').forEach(w=>{ if(got.indexOf(w.toLowerCase())<0) errs.push('Drill '+(d+1)+' is missing '+w); });
     });
     if(G.FORMS.A.length!==27||G.FORMS.B.length!==27) errs.push('Forms must have 27 words each');
     report('1. Every word has a matching sentence (8 words or fewer), a correct syllable split, a target chunk inside the word, and matches the prompt lists ('+G.WORDS.length+' practice words, 54 Combine words)', !errs.length, errs.join('\n'));
@@ -271,6 +271,34 @@ async function main(){
     G.ui.coachOpen=false; G.setNow(null); G.render();
     report('10c. Re-tests alternate Form A and B every 28 days (locks after 3 more days); Benchmark Report shows baseline vs every re-test', !errs.length, errs.join('\n'));
   }catch(e){ report('10c. Re-tests', false, e.stack); }
+
+  // Levels: every drill has Warm-ups; practice opens with Warm-ups, never two Big plays in a row; a miss brings a Warm-up next
+  try{
+    const errs=[];
+    for(let d=0;d<9;d++){ const e=G.WORDS.filter(x=>x.d===d && G.tierOf(x)==='e').length; if(e<4) errs.push('Drill '+(d+1)+' has only '+e+' Warm-up words'); }
+    reset({onboarded:true}); finishCombineWith(i=>i.w);
+    for(let k=0;k<30;k++){
+      const q=G.buildPracticeQueue(null); const t=q.map(G.tierOf);
+      if(t[0]!=='e'||t[1]!=='e') { errs.push('practice did not open with two Warm-ups: '+t.join('')); break; }
+      if(/hh/.test(t.join(''))) { errs.push('two Big plays in a row: '+t.join('')); break; }
+      if(t.filter(x=>x==='e').length<5) { errs.push('too few Warm-ups at Rookie: '+t.join('')); break; }
+      if(new Set(q.map(x=>x.w)).size!==q.length) { errs.push('duplicate word in a practice'); break; }
+    }
+    G.startPractice(null); let guard=0, checked=0;
+    while(G.SES && G.SES.mode==='practice' && guard++<60 && checked<3){
+      const rep=G.SES.rep;
+      if(rep.phase==='chunk'){ rep.phase='spell'; G.render(); }
+      if(rep.phase==='spell'){ const it=G.SES.queue[G.SES.idx]; answerCurrent('zzzz'); G.doCheck(); G.doLock(false);
+        const nx=G.SES.queue[G.SES.idx+1]; if(nx){ checked++; if(G.tierOf(nx)!=='e') errs.push('after missing '+it.w+' the next word was '+nx.w+' ('+G.tierOf(nx)+')'); } }
+      else if(rep.phase==='result'){ G.act('next'); }
+      else if(rep.phase==='fix'){ const w=G.SES.queue[G.SES.idx].w; answerCurrent(w); G.act('fix'); if(G.SES&&G.SES.rep&&G.SES.rep.phase==='fix'){ answerCurrent(w); G.act('fix'); } }
+    }
+    G.endSession(false); G.act('home');
+    G.S.settings.pinHash=G.simpleHash('1234'); G.ui.coachOpen=true; G.ui.coachTab='words'; G.render();
+    if(D.body.innerText.indexOf('All practice words')<0 || D.querySelectorAll('.tbl tr').length<200) errs.push('Words tab does not list all the words');
+    G.ui.coachOpen=false; G.render();
+    report('Levels. Each drill has Warm-ups; practice opens with 2 Warm-ups, never 2 Big plays in a row; a miss brings a Warm-up next; the Words tab lists every word', !errs.length, errs.join('\n'));
+  }catch(e){ report('Levels', false, e.stack); }
 
   // Voice: never auto-picks a robot voice; prefers Premium/Enhanced; uses coach recordings when present
   try{

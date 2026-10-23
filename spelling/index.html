@@ -184,6 +184,25 @@ svg text{fill:var(--muted);font-family:inherit}
   .barrow{grid-template-columns:96px 1fr}
   .pip{width:26px}
 }
+.cashpop{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:70;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px;animation:cashpop 1.45s ease-out forwards}
+.cp-coin{width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe9a6,var(--gold) 55%,#b97a00);color:#5a3b00;font-size:50px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px rgba(232,163,23,.35),0 10px 30px rgba(0,0,0,.25);animation:coinspin .6s ease-out}
+.cashpop.big .cp-coin{width:110px;height:110px;font-size:64px}
+.cp-amt{font-size:44px;font-weight:800;color:var(--ok);font-variant-numeric:tabular-nums;text-shadow:0 2px 0 var(--panel),0 0 12px var(--panel)}
+.cashpop.big .cp-amt{font-size:56px}
+.cp-word{font-size:26px;font-weight:800;color:var(--ink);background:var(--panel);border-radius:999px;padding:4px 16px;box-shadow:var(--shadow)}
+.cp-fire{font-size:18px;color:var(--coral)}
+@keyframes cashpop{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}25%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-75%) scale(1)}}
+@keyframes coinspin{from{transform:rotateY(0) scale(.6)}to{transform:rotateY(720deg) scale(1)}}
+.cashflash{position:fixed;inset:0;z-index:65;pointer-events:none;box-shadow:inset 0 0 0 10px var(--gold),inset 0 0 120px rgba(232,163,23,.45);animation:flash .65s ease-out forwards}
+@keyframes flash{from{opacity:1}to{opacity:0}}
+.coinfly{position:fixed;left:50%;top:34%;z-index:66;pointer-events:none;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe9a6,var(--gold) 60%,#b97a00);color:#5a3b00;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;animation:coinfly 1.2s cubic-bezier(.15,.7,.3,1) forwards}
+@keyframes coinfly{0%{transform:translate(0,0) scale(.4)}70%{opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 140px)) rotate(var(--r)) scale(1);opacity:0}}
+.pill.money.bump{animation:bump .5s ease-out}
+@keyframes bump{30%{transform:scale(1.35);background:var(--gold);color:var(--gold-ink)}}
+.tierpill.e{background:color-mix(in srgb,var(--ok) 22%,var(--panel))}
+.tierpill.m{background:color-mix(in srgb,var(--sky) 20%,var(--panel))}
+.tierpill.h{background:color-mix(in srgb,var(--gold) 35%,var(--panel))}
+@media (prefers-reduced-motion: reduce){ .cashpop,.cp-coin{animation-duration:.01s} }
 @media (prefers-reduced-motion: reduce){ .float,.confetti,.shake{animation-duration:.01s} }
 </style>
 </head>
@@ -239,7 +258,17 @@ played|played|ayed|We played two games on Saturday.
 enjoyed|en-joyed|oyed|I enjoyed the science fair.
 stayed|stayed|ayed|We stayed late after practice.
 carrying|car-ry-ing|rying|He is carrying three sticks.
-worrying|wor-ry-ing|rying|Stop worrying about the test.`,
+worrying|wor-ry-ing|rying|Stop worrying about the test.
+cried|cried|ied|The baby cried at night.
+dried|dried|ied|Mom dried the wet towels.
+fried|fried|ied|We had fried rice for dinner.
+spied|spied|ied|I spied a deer in the yard.
+flies|flies|ies|Time flies when you have fun.
+skies|skies|ies|The skies were clear and blue.
+puppies|pup-pies|ies|The puppies rolled in the grass.
+ponies|po-nies|ies|We rode ponies at the farm.
+berries|ber-ries|ies|She picked berries in July.
+carries|car-ries|ies|He carries the water jug.`,
 `hoping|hop-ing|oping|I am hoping for a sunny day.
 making|mak-ing|aking|We are making a poster for class.
 writing|writ-ing|iting|She is writing a story.
@@ -256,7 +285,15 @@ careful|care-ful|eful|Be careful on the wet field.
 hopeful|hope-ful|eful|The coach was hopeful about the season.
 movement|move-ment|ement|Footwork is all about movement.
 excitement|ex-cite-ment|ement|The crowd buzzed with excitement.
-lovely|love-ly|ely|What a lovely day for a hike.`,
+lovely|love-ly|ely|What a lovely day for a hike.
+baking|bak-ing|aking|We are baking cookies today.
+riding|rid-ing|iding|She is riding her bike.
+hiding|hid-ing|iding|The cat is hiding under the bed.
+taking|tak-ing|aking|I am taking the bus home.
+liked|liked|iked|He liked the new game.
+hoped|hoped|oped|We hoped for a snow day.
+raced|raced|aced|The kids raced to the fence.
+smiled|smiled|iled|The coach smiled at us.`,
 `running|run-ning|nning|He is running laps after practice.
 stopped|stopped|pped|The rain stopped at noon.
 planning|plan-ning|nning|We are planning a trip.
@@ -271,7 +308,16 @@ admitted|ad-mit-ted|tted|He admitted he was wrong.
 preferred|pre-ferred|rred|She preferred the blue jersey.
 occurred|oc-curred|rred|The mistake occurred in the first half.
 controlled|con-trolled|lled|He controlled the ball well.
-permitted|per-mit-ted|tted|Phones are not permitted in class.`,
+permitted|per-mit-ted|tted|Phones are not permitted in class.
+hopped|hopped|pped|The frog hopped onto a log.
+jogging|jog-ging|gging|We went jogging in the park.
+digging|dig-ging|gging|The dog is digging a hole.
+batted|bat-ted|tted|He batted first in the game.
+hugged|hugged|gged|She hugged her grandma.
+cutting|cut-ting|tting|Mom is cutting the cake.
+nodded|nod-ded|dded|The teacher nodded at me.
+tapping|tap-ping|pping|He kept tapping his pencil.
+wagged|wagged|gged|The puppy wagged its tail.`,
 `their|their|their|The kids packed their own lunches.|their = belongs to them. It has "heir" in it.
 there|there|there|Put the cones over there.|there = a place, like here and where.
 they're|they're|they're|I think they're on the bus.|they're = they are.
@@ -323,7 +369,13 @@ curious|cu-ri-ous|ous|The curious cat opened the box.
 various|var-i-ous|ous|We ran various drills.
 animal|an-i-mal|al|What is your favorite animal?
 natural|nat-u-ral|al|The park has a natural pond.
-final|fi-nal|al|The final score was five to four.`,
+final|fi-nal|al|The final score was five to four.
+giant|gi-ant|ant|A giant wave hit the beach.
+parent|par-ent|ent|Ask a parent to sign it.
+recent|re-cent|ent|This is a recent photo.
+total|to-tal|al|The total was ten dollars.
+metal|met-al|al|The fence is made of metal.
+normal|nor-mal|al|It was a normal school day.`,
 `simple|sim-ple|ple|The plan is simple.
 sample|sam-ple|ple|Try a sample of the soup.
 purple|pur-ple|ple|She wore a purple jersey.
@@ -338,7 +390,15 @@ handle|han-dle|dle|Hold the stick by the handle.
 castle|cas-tle|tle|We built a sand castle.
 people|peo-ple|ple|Lots of people came to watch.
 terrible|ter-ri-ble|ble|The traffic was terrible.
-possible|pos-si-ble|ble|Anything is possible with practice.`,
+possible|pos-si-ble|ble|Anything is possible with practice.
+bubble|bub-ble|ble|He blew a huge bubble.
+jungle|jun-gle|gle|Tigers live in the jungle.
+giggle|gig-gle|gle|The joke made her giggle.
+turtle|tur-tle|tle|A turtle sat on the rock.
+pickle|pick-le|kle|I want a pickle with lunch.
+needle|nee-dle|dle|Thread the needle with care.
+uncle|un-cle|cle|My uncle coaches my team.
+maple|ma-ple|ple|We saw a tall maple tree.`,
 `brought|brought|ough|She brought snacks for the team.|The ough family: brought, bought, fought.
 bought|bought|ough|Dad bought new cleats.|The ough family: bought, brought, fought.
 fought|fought|ough|They fought hard to the end.|The ough family: fought, bought, brought.
@@ -357,7 +417,13 @@ favorite|fa-vor-ite|ite|Pizza is my favorite food.|fa + vor + ite. Say it the si
 separate|sep-a-rate|par|Separate the red and blue cones.|There is A RAT in separate.
 receive|re-ceive|ei|Did you receive my message?|i before e, except after c: re-CEIVE.
 science|sci-ence|sci|Science is my best class.|s-c-i, like scissors.
-Wednesday|Wednes-day|dnes|We have practice on Wednesday.|Say it the silly way: WED-NES-DAY.`,
+Wednesday|Wednes-day|dnes|We have practice on Wednesday.|Say it the silly way: WED-NES-DAY.
+could|could|oul|I could not find my shoe.|could, would, should: Oh U Lucky Duck.
+would|would|oul|Would you like some water?|could, would and should all have oul.
+should|should|oul|You should drink more water.|could, would and should all have oul.
+eight|eight|eigh|I go to bed at eight.|eight has eigh, like weigh and sleigh.
+once|once|nce|We went there once.|once: o + nce. It sounds like wunce.
+great|great|ea|That was a great pass!|great: gr + eat.`,
 `accident|ac-ci-dent|cc|It was just an accident.
 attention|at-ten-tion|tten|Pay attention to the play.
 tomorrow|to-mor-row|rrow|We have a game tomorrow.
@@ -375,7 +441,14 @@ government|gov-ern-ment|ern|The government builds roads.
 temperature|tem-per-a-ture|per|The temperature dropped tonight.
 experiment|ex-per-i-ment|per|Our experiment used baking soda.
 vocabulary|vo-cab-u-lar-y|bu|We had a vocabulary quiz.
-comfortable|com-fort-a-ble|fort|These cleats are comfortable.`,
+comfortable|com-fort-a-ble|fort|These cleats are comfortable.
+together|to-geth-er|geth|We worked together on the project.
+remember|re-mem-ber|mem|Remember to bring your stick.
+computer|com-pu-ter|pu|I typed it on the computer.
+yesterday|yes-ter-day|ter|It rained all day yesterday.
+basketball|bas-ket-ball|ket|We played basketball after school.
+umbrella|um-brel-la|ll|Bring an umbrella just in case.
+hamburger|ham-bur-ger|bur|I ate a hamburger for lunch.`,
 `impossible|im-pos-si-ble|imp|Nothing is impossible.
 imperfect|im-per-fect|imp|The pass was imperfect but worked.
 impatient|im-pa-tient|imp|The crowd grew impatient.
@@ -387,7 +460,12 @@ incorrect|in-cor-rect|inc|That answer is incorrect.
 invisible|in-vis-i-ble|inv|The ghost was invisible.
 illegal|il-le-gal|ill|That hit was illegal.
 irregular|ir-reg-u-lar|irr|The shape had irregular sides.
-irresponsible|ir-re-spon-si-ble|irr|Leaving the gate open was irresponsible.`
+irresponsible|ir-re-spon-si-ble|irr|Leaving the gate open was irresponsible.
+indoor|in-door|ind|We have indoor practice today.
+inside|in-side|ins|Come inside when it rains.
+input|in-put|inp|Type your input in the box.
+import|im-port|imp|We import fruit from far away.
+impact|im-pact|imp|The impact cracked the window.`
 ];
 
 /* Scouting Combine forms: [drill index] -> lines */
@@ -472,13 +550,13 @@ const DEFAULT_MONEY = {
   correct:0.10, fixed:0.12, hint:0.05, chunk:0.05, pattern:0.02,
   wrong:0.05, sureRight:0.05, sureWrong:0.05, hintCost:0.02,
   streak5:0.25, dailyGoal:0.25, dayStreak5:1.00, personalBest:0.50,
-  mastered:0.25, rankUp:1.00, combine:1.00, combineGain:0.25
+  mastered:0.25, rankUp:1.00, combine:1.00, combineGain:0.25, bigPlay:0.05
 };
 const MONEY_LABELS = {
   correct:'Correct, no hint (earn)', fixed:'Correct after fixing own mistake (earn)', hint:'Correct with a hint (earn)', chunk:'Chunk Builder correct (earn)', pattern:'Wrong but pattern right (earn)',
   wrong:'Wrong final answer (lose)', sureRight:'"Sure" and right bonus (earn)', sureWrong:'"Sure" and wrong (lose)', hintCost:'JV hint cost (lose)',
   streak5:'Every 5 in a row (earn)', dailyGoal:'Daily goal: full practice (earn)', dayStreak5:'5 days in a row (earn)', personalBest:'New personal best (earn)',
-  mastered:'Word mastered, to Vault (earn)', rankUp:'Drill rank up, to Vault (earn)', combine:'Finish a Combine, to Vault (earn)', combineGain:'Each drill up on a re-test, to Vault (earn)'
+  mastered:'Word mastered, to Vault (earn)', rankUp:'Drill rank up, to Vault (earn)', combine:'Finish a Combine, to Vault (earn)', combineGain:'Each drill up on a re-test, to Vault (earn)', bigPlay:'Big play bonus: hard word right (earn)'
 };
 
 /* =========================================================
@@ -775,7 +853,24 @@ function tone(freq, dur, type, vol, when){
     o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+0.05);
   }catch(e){}
 }
+function noiseBurst(dur, vol, when, hp){
+  if(S.settings.muted) return; const c=ac(); if(!c) return;
+  try{
+    const t=c.currentTime+(when||0), len=Math.floor(c.sampleRate*dur), buf=c.createBuffer(1,len,c.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);
+    const src=c.createBufferSource(); src.buffer=buf; const f=c.createBiquadFilter(); f.type='highpass'; f.frequency.value=hp||3000;
+    const g=c.createGain(); g.gain.value=vol||0.2; src.connect(f); f.connect(g); g.connect(c.destination); src.start(t);
+  }catch(e){}
+}
 const Sound = {
+  /* cash register: "cha" (drawer clack) + "ching" (bell) + a coin jingle */
+  cash(big){
+    noiseBurst(0.06,0.25,0,2500); noiseBurst(0.05,0.18,0.07,4000);
+    [2093,2637,3136].forEach((f,i)=>tone(f,0.9,'sine',0.11-i*0.025,0.12));
+    [4186,5274].forEach(f=>tone(f,0.5,'sine',0.04,0.13));
+    [1568,1976,2349,2637].forEach((f,i)=>tone(f,0.08,'triangle',0.05,0.3+i*0.06));
+    if(big){ [2093,2637,3136,4186].forEach((f,i)=>tone(f,0.6,'sine',0.07,0.55+i*0.07)); }
+  },
   coin(){ tone(988,0.09,'square',0.08); tone(1319,0.16,'square',0.08,0.08); },
   horn(){ [196,247,294].forEach(f=>tone(f,0.55,'sawtooth',0.06)); tone(392,0.45,'triangle',0.05,0.05); },
   soft(){ tone(330,0.18,'sine',0.08); tone(262,0.22,'sine',0.07,0.12); },
@@ -1027,28 +1122,64 @@ function pickWeighted(list, k, wfn){
 }
 function drillWeight(d){ const a=drillAcc(d,30); return 1 + (1-(a===null?0.5:a))*2; }
 
+/* ---------- Word levels: Warm-up (easy), Game speed (medium), Big play (hard) ---------- */
+const TIERS = {e:{name:'Warm-up', cls:'e'}, m:{name:'Game speed', cls:'m'}, h:{name:'Big play', cls:'h'}};
+const LA_TIER = {to:'e',too:'e',two:'e',no:'e',know:'e',hear:'e',here:'e',then:'e',than:'e',your:'m',"you're":'m',its:'m',"it's":'m',their:'m',there:'m',"they're":'m',whose:'m',"who's":'m',piece:'m',peace:'m',threw:'m',through:'m',weather:'h',whether:'h',accept:'h',except:'h'};
+/* Difficulty = syllables and length. Each drill is ranked against itself, so every drill has
+   about 40% Warm-ups, 35% Game speed and 25% Big plays. */
+function difficulty(x){ return sylCount(x)*3 + x.w.length + (/([a-z])\1/i.test(x.w)?1:0); }
+const TIER_MAP = {};
+DRILLS.forEach((_,d)=>{
+  if(d===3) return;
+  const ws_ = WORDS.filter(x=>x.d===d).slice().sort((a,b)=>difficulty(a)-difficulty(b) || a.w.length-b.w.length || a.w.localeCompare(b.w));
+  ws_.forEach((x,i)=>{ const f=i/ws_.length; TIER_MAP[norm(x.w)] = f<0.4 ? 'e' : f<0.75 ? 'm' : 'h'; });
+});
+function tierOf(x){
+  if(x.tier) return x.tier;
+  if(x.d===3) return LA_TIER[norm(x.w)] || 'm';
+  const t = TIER_MAP[norm(x.w)]; if(t) return t;
+  // added words: place against the drill's own words
+  const sc = WORDS.filter(y=>y.d===x.d).map(difficulty), s=difficulty(x);
+  const f = sc.filter(v=>v<s).length / Math.max(1,sc.length);
+  return f<0.4 ? 'e' : f<0.75 ? 'm' : 'h';
+}
+/* Mix of levels by rank: more Warm-ups while he is a Rookie, more Big plays as he ranks up */
+const TIER_MIX = [[0.4,0.4,0.2],[0.3,0.45,0.25],[0.2,0.45,0.35],[0.15,0.45,0.4],[0.1,0.4,0.5]];
+function wordPriority(x, low){
+  const st=ws(x.w), t=today();
+  let p = st.b===0 ? 2 : (!st.m && st.due<=t) ? 3 : st.m ? (st.due<=t ? 1 : 0.3) : 1;
+  if(low.indexOf(x.d)>=0) p += 1;
+  return p * drillWeight(x.d);
+}
+/* Warm-up first, no Big plays back to back, Warm-ups sprinkled in so wins keep coming */
+function orderByTier(list){
+  const B={e:[],m:[],h:[]}; shuffle(list.slice()).forEach(x=>B[tierOf(x)].push(x));
+  const out=[]; const take=k=>{ if(B[k].length) { out.push(B[k].shift()); return true; } return false; };
+  take('e') || take('m') || take('h');
+  take('e') || take('m') || take('h');
+  const pattern=['m','h','e','m','m','h','e'];
+  let i=0, guard=0;
+  while((B.e.length||B.m.length||B.h.length) && guard++<200){
+    const want=pattern[i++%pattern.length];
+    const last=out[out.length-1];
+    if(want==='h' && last && tierOf(last)==='h'){ if(take('e')||take('m')) continue; }
+    take(want) || take('m') || take('e') || take('h');
+  }
+  return out;
+}
 function buildPracticeQueue(drillFilter){
   const n = Math.max(5, Number(S.settings.practiceReps)||15);
-  const t = today();
-  let pool = allPractice().filter(x=>S.settings.drillsOn[x.d] && (drillFilter==null || x.d===drillFilter));
-  const st = x=>ws(x.w);
-  const due = pool.filter(x=>st(x).b>0 && !st(x).m && st(x).due<=t);
-  const later = pool.filter(x=>st(x).b>0 && !st(x).m && st(x).due>t);
-  const fresh = pool.filter(x=>st(x).b===0);
-  const mast = pool.filter(x=>st(x).m);
-  const nDue=Math.round(n*0.6), nNew=Math.round(n*0.25), nM=n-nDue-nNew;
+  const pool = allPractice().filter(x=>S.settings.drillsOn[x.d] && (drillFilter==null || x.d===drillFilter));
   const low = focusDrills();
-  let q = pickWeighted(due, nDue, x=>drillWeight(x.d) + (low.indexOf(x.d)>=0?1:0));
-  // new words: about half from the 3 lowest Combine drills
-  const lowFresh = fresh.filter(x=>low.indexOf(x.d)>=0), otherFresh = fresh.filter(x=>low.indexOf(x.d)<0);
-  let newPick = pickWeighted(lowFresh, Math.ceil(nNew/2), x=>drillWeight(x.d));
-  newPick = newPick.concat(pickWeighted(otherFresh, nNew-newPick.length, x=>drillWeight(x.d)));
-  q = q.concat(newPick);
-  q = q.concat(pickWeighted(mast.slice().sort((a,b)=>(st(a).due||'').localeCompare(st(b).due||'')).slice(0,12), nM, ()=>1));
-  // fill any shortfall
-  const fillers = [later.sort((a,b)=>st(a).due.localeCompare(st(b).due)), shuffle(fresh.slice()), shuffle(due.slice()), shuffle(mast.slice())];
-  for(const f of fillers){ for(const x of f){ if(q.length>=n) break; if(q.indexOf(x)<0) q.push(x); } }
-  q = shuffle(q.slice(0,n));
+  const ranks = drillFilter!=null ? [S.drills[drillFilter].r] : S.drills.filter((_,d)=>S.settings.drillsOn[d]).map(d=>d.r);
+  const avgRank = Math.round(ranks.reduce((a,b)=>a+b,0)/Math.max(1,ranks.length));
+  const mix = TIER_MIX[Math.min(4,Math.max(0,avgRank))];
+  const want = {e:Math.round(n*mix[0]), h:Math.round(n*mix[2])}; want.m = n - want.e - want.h;
+  let q=[];
+  ['e','m','h'].forEach(k=>{ q = q.concat(pickWeighted(pool.filter(x=>tierOf(x)===k), want[k], x=>wordPriority(x,low))); });
+  // fill any shortfall (small drills), easiest first
+  ['e','m','h'].forEach(k=>{ const rest=pool.filter(x=>tierOf(x)===k && q.indexOf(x)<0); while(q.length<n && rest.length){ q.push(pickWeighted(rest,1,x=>wordPriority(x,low))[0]); rest.splice(rest.indexOf(q[q.length-1]),1); } });
+  q = orderByTier(q.slice(0,n));
   // contrast pair: hoping / hopping
   const has = w=>q.findIndex(x=>x.w===w);
   [['hoping','hopping'],['hopping','hoping']].forEach(([a,b])=>{
@@ -1059,15 +1190,27 @@ function buildPracticeQueue(drillFilter){
   });
   return q;
 }
+/* After a miss, the next rep is a Warm-up so a win comes right back */
+function easyNext(){
+  if(!SES || SES.mode!=='practice') return;
+  const i=SES.idx+1;
+  if(SES.queue[i] && tierOf(SES.queue[i])==='e') return;
+  for(let j=i+1;j<SES.queue.length;j++){ if(tierOf(SES.queue[j])==='e'){ const [x]=SES.queue.splice(j,1); SES.queue.splice(i,0,x); return; } }
+  const used=new Set(SES.queue.map(x=>x.w));
+  const pool=allPractice().filter(x=>S.settings.drillsOn[x.d] && tierOf(x)==='e' && !used.has(x.w) && (SES.drillFilter==null || x.d===SES.drillFilter));
+  if(!pool.length) return;
+  const pick=pickWeighted(pool,1,x=>wordPriority(x,focusDrills()))[0];
+  SES.queue.splice(i,0,pick);
+  const cap = Math.max(5, Number(S.settings.practiceReps)||15);
+  if(SES.queue.length>cap) SES.queue.length=cap;
+}
 function buildBossQueue(){
   const pool = allPractice().filter(x=>S.settings.drillsOn[x.d]);
-  const seen = shuffle(pool.filter(x=>ws(x.w).b>0));
-  const out = [];
-  // spread across drills
-  for(let d=0; d<9 && out.length<10; d++){ const x=seen.find(y=>y.d===d && out.indexOf(y)<0); if(x) out.push(x); }
-  for(const x of seen){ if(out.length>=10) break; if(out.indexOf(x)<0) out.push(x); }
+  const seenFirst = x=> (ws(x.w).b>0 ? 2 : 1);
+  const want={e:3,m:4,h:3}; let out=[];
+  ['e','m','h'].forEach(k=>{ out=out.concat(pickWeighted(pool.filter(x=>tierOf(x)===k), want[k], seenFirst)); });
   for(const x of shuffle(pool.slice())){ if(out.length>=10) break; if(out.indexOf(x)<0) out.push(x); }
-  return shuffle(out);
+  return orderByTier(out.slice(0,10));
 }
 
 /* =========================================================
@@ -1251,6 +1394,10 @@ function doLock(sure){
   if(ok){ SES.streak++; SES.bestStreak=Math.max(SES.bestStreak,SES.streak);
     if(SES.streak%5===0){ applied += addMoney(S, m.streak5, '5 in a row', {boss}); msgs.push(SES.streak+' in a row!'); }
   } else SES.streak=0;
+  // Big play bonus for hard words; after a miss the next rep is a Warm-up
+  if(ok && tierOf(item)==='h'){ applied += addMoney(S, m.bigPlay, 'Big play bonus', {boss}); msgs.push('Big play bonus: +'+fmt$(m.bigPlay*(boss?2:1))+'!'); }
+  if(!ok && SES.mode==='practice'){ SES.missRun=(SES.missRun||0)+1; easyNext(); if(SES.missRun>=2) msgs.push("Shake it off. Next one's a warm-up."); }
+  else if(ok) SES.missRun=0;
   // word + drill tracking
   const newlyMastered = updateWordAfterRep(item, ok, helped);
   if(newlyMastered){ applied += addMoney(S, m.mastered, 'Word mastered: '+item.w, {vault:true}); msgs.push('Word mastered! +'+fmt$(m.mastered)+' to your Vault.'); }
@@ -1270,9 +1417,8 @@ function doLock(sure){
   rep.result = {ok, pattern, fixed, applied, msgs, sure};
   rep.phase = 'result';
   save();
-  if(ok){ Sound.horn(); confetti(); } else Sound.soft();
-  floatMoney(applied);
   render();
+  if(ok) celebrate(applied, item, SES.streak, fixed); else { Sound.soft(); floatMoney(applied); }
 }
 function lockCombine(item, rep){
   const ok = norm(rep.ans)===norm(item.w);
@@ -1365,6 +1511,30 @@ function floatMoney(a){
   const el=document.createElement('div'); el.className='float '+(a>0?'plus':'minus'); el.textContent=(a>0?'+':'-')+'$'+Math.abs(a).toFixed(2);
   document.body.appendChild(el); setTimeout(()=>el.remove(),1200);
   if(a>0) Sound.coin();
+}
+const CHEERS = ['Cha-ching!','Snipe!','Top shelf!','Money!','Goal!','Cash it!','Nailed it!','Clean!'];
+function celebrate(amount, item, streak, fixed){
+  const big = (item && tierOf(item)==='h') || streak>=5 || fixed;
+  Sound.cash(big);
+  if(IS_TEST) return;
+  try{ if(navigator.vibrate) navigator.vibrate(big?[30,40,30]:25); }catch(e){}
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wrap = document.createElement('div'); wrap.className='cashpop'+(big?' big':'');
+  const word = fixed ? 'Great catch!' : (item && tierOf(item)==='h') ? 'Big play!' : CHEERS[Math.floor(Math.random()*CHEERS.length)];
+  wrap.innerHTML = '<div class="cp-coin">$</div><div class="cp-amt">+$'+Math.max(0,amount).toFixed(2)+'</div><div class="cp-word">'+word+(streak>=3?' <span class="cp-fire">🔥 '+streak+' in a row</span>':'')+'</div>';
+  document.body.appendChild(wrap); setTimeout(()=>wrap.remove(), 1500);
+  const flash=document.createElement('div'); flash.className='cashflash'; document.body.appendChild(flash); setTimeout(()=>flash.remove(), 700);
+  if(reduce) return;
+  const n = big ? 26 : 16;
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div'); c.className='coinfly'; c.textContent='$';
+    const ang=Math.random()*Math.PI*2, dist=120+Math.random()*(big?260:180);
+    c.style.setProperty('--dx',Math.cos(ang)*dist+'px'); c.style.setProperty('--dy',(Math.sin(ang)*dist-60)+'px'); c.style.setProperty('--r',(Math.random()*720-360)+'deg');
+    c.style.animationDelay=(Math.random()*0.12)+'s';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),1500);
+  }
+  confetti();
+  const bank=document.querySelector('.pill.money'); if(bank){ bank.classList.remove('bump'); void bank.offsetWidth; bank.classList.add('bump'); }
 }
 function confetti(){
   if(IS_TEST) return;
@@ -1536,7 +1706,7 @@ function renderRep(){
   const total=SES.queue.length;
   let h = topbar(mode==='boss'?'Boss Battle':mode==='combine'?'Scouting Combine':'Practice');
   h+='<div class="rephead"><span class="pill">Rep '+(SES.idx+1)+' of '+total+'</span>';
-  if(mode!=='combine') h+='<span class="pill">'+esc(DRILLS[item.d].name)+' · '+RANKS[rankOf(item.d)]+'</span><span class="pill money">'+fmt$(S.bank.wallet+S.bank.vault)+'</span>';
+  if(mode!=='combine') h+='<span class="pill tierpill '+tierOf(item)+'">'+TIERS[tierOf(item)].name+'</span><span class="pill">'+esc(DRILLS[item.d].name)+' · '+RANKS[rankOf(item.d)]+'</span><span class="pill money">'+fmt$(S.bank.wallet+S.bank.vault)+'</span>';
   if(mode!=='combine' && SES.streak>=2) h+='<span class="pill">🔥 '+SES.streak+' in a row</span>';
   h+='</div><div class="progress"><i style="width:'+Math.round(100*SES.idx/total)+'%"></i></div>';
   h+='<div class="stage">';
@@ -1764,12 +1934,15 @@ function coachVoice(){
   else {
     const vs=Speech.voices(); const cur=Speech.voice?Speech.voice.name:'';
     h+='<p class="muted small">The game picks the clearest English voice on this device. Pick another and it plays a test right away.</p>';
+    const zoe = vs.filter(v=>/zoe/i.test(v.name)), best = vs.filter(v=>/Premium|Enhanced/i.test(v.name));
+    h+='<div class="hint">Now using: <b>'+esc(cur||'none')+'</b>. This device offers '+vs.length+' English voices. '+(zoe.length?'Zoe found: '+esc(zoe.map(v=>v.name).join(', '))+'.':'Zoe is not in this list yet.')+(best.length?'':' No Enhanced or Premium voice found.')+'</div>';
     h+='<div class="form"><label>Voice<select data-act-change="setvoice">'+vs.map(v=>'<option value="'+esc(v.name)+'" '+(v.name===cur?'selected':'')+'>'+esc(v.name)+' ('+esc(v.lang)+')'+(voiceScore(v)>=80?' ★ best':voiceScore(v)===0?' (robot)':'')+'</option>').join('')+'</select></label>'+
        '<label>Speed: '+(Number(S.settings.voiceRate)||0.9).toFixed(2)+'<input type="range" min="0.6" max="1.1" step="0.05" value="'+(Number(S.settings.voiceRate)||0.9)+'" data-act-change="setrate"></label></div>';
     h+='<div class="row" style="margin-top:10px"><button class="btn sm sky" data-act="testvoice">🔈 Test voice</button></div>';
     h+='<details style="margin-top:12px"><summary>Get a much better voice (free, 2 minutes)</summary><div class="small" style="margin-top:8px">'+
        '<p><b>Mac:</b> Apple menu → System Settings → Accessibility → Spoken Content → System voice → Manage Voices. Under English (US), download <b>Ava (Premium)</b> or <b>Zoe (Premium)</b>. Then reopen the game; it picks the Premium voice by itself. Works best in Safari.</p>'+
-       '<p><b>iPad:</b> Settings → Accessibility → Spoken Content → Voices → English → pick <b>Ava</b> or <b>Zoe</b> and download the <b>Enhanced</b> or <b>Premium</b> version. Then reopen the game in Safari.</p>'+
+       '<p><b>iPhone or iPad:</b> Settings → Accessibility → Spoken Content → Voices → English → <b>Zoe</b> (or Ava). Download <b>Zoe (Enhanced)</b>; Premium may not be offered to web pages. Then swipe the game app fully closed and reopen it, open this tab, pick Zoe in the Voice list and tap Test. If Zoe still is not listed, restart the phone once.</p>'+
+       '<p><b>No cha-ching sound on iPhone?</b> The ring/silent switch on the side mutes game sounds (the voice still works). Flip it to ring and turn the volume up.</p>'+
        '<p><b>Chrome:</b> the voice called <b>Google US English</b> is clear but needs internet.</p>'+
        '<p>Also turn the device volume all the way up. Headphones help most.</p></div></details>';
   }
@@ -1812,6 +1985,25 @@ function coachSettings(){
   h+='<div class="row" style="margin-top:14px"><button class="btn" data-act="savesettings">Save settings</button><button class="btn ghost" data-act="resetmoney">Reset money to defaults</button><button class="btn ghost" data-act="changepin">Change PIN</button></div><div class="status" id="setstatus"></div>';
   return h;
 }
+function wordBankCard(){
+  const f = ui.wf || {d:'all', t:'all', q:''};
+  const all = allPractice();
+  const counts = {e:0,m:0,h:0}; all.forEach(x=>counts[tierOf(x)]++);
+  let list = all.filter(x=>(f.d==='all'||String(x.d)===f.d) && (f.t==='all'||tierOf(x)===f.t) && (!f.q || norm(x.w).indexOf(norm(f.q))>=0));
+  list.sort((a,b)=>a.d-b.d || 'emh'.indexOf(tierOf(a))-'emh'.indexOf(tierOf(b)) || a.w.localeCompare(b.w));
+  let h='<div class="card"><h2>All practice words</h2><p class="muted small">'+all.length+' words: '+counts.e+' Warm-up, '+counts.m+' Game speed, '+counts.h+' Big play. Practice starts with Warm-ups, mixes in Big plays, and serves a Warm-up right after a miss.</p>';
+  h+='<div class="form"><label>Drill<select data-act-change="wf-d">'+'<option value="all">All drills</option>'+DRILLS.map((dr,d)=>'<option value="'+d+'" '+(f.d===String(d)?'selected':'')+'>'+esc(dr.name)+'</option>').join('')+'</select></label>'+
+     '<label>Level<select data-act-change="wf-t"><option value="all">All levels</option><option value="e" '+(f.t==='e'?'selected':'')+'>Warm-up (easy)</option><option value="m" '+(f.t==='m'?'selected':'')+'>Game speed (medium)</option><option value="h" '+(f.t==='h'?'selected':'')+'>Big play (hard)</option></select></label>'+
+     '<label>Find a word<input type="text" id="wf-q" data-act-change="wf-q" value="'+esc(f.q)+'" autocapitalize="off" spellcheck="false" placeholder="type, then press Enter"></label></div>';
+  h+='<p class="small" style="margin-top:8px"><b>'+list.length+'</b> shown.</p><div class="tblwrap"><table class="tbl"><tr><th>Word</th><th>Drill</th><th>Level</th><th>Sentence</th><th>His record</th></tr>'+
+    list.map(x=>{ const st=S.words[norm(x.w)]; const rec = !st||!st.seen ? '<span class="muted">not yet</span>' : (st.m?'<span class="ok">✓ mastered</span> · ':'')+st.ok+' of '+st.seen+' right'+(st.due&&!st.m?'<div class="muted small">review '+niceDate(st.due)+'</div>':'');
+      return '<tr><td><b>'+esc(x.w)+'</b>'+(x.src==='custom'?' <span class="muted small">(added)</span>':'')+'</td><td>'+esc(DRILLS[x.d].name)+'</td><td><span class="chip tierpill '+tierOf(x)+'">'+TIERS[tierOf(x)].name+'</span></td><td class="small">'+esc(x.s)+'</td><td class="small">'+rec+'</td></tr>'; }).join('')+'</table></div>';
+  h+='<details style="margin-top:12px"><summary>Words kept out of practice ('+(FORMS.A.length+FORMS.B.length)+' Combine words + '+BANNED.length+' paper-quiz words)</summary>'+
+     '<p class="small" style="margin-top:8px">These are saved for measuring growth, so he never practices them.</p>'+
+     '<p class="small"><b>Combine Form A:</b> '+esc(FORMS.A.map(x=>x.w).join(', '))+'</p><p class="small"><b>Combine Form B:</b> '+esc(FORMS.B.map(x=>x.w).join(', '))+'</p>'+
+     '<p class="small"><b>10/18 paper quiz:</b> '+esc(BANNED.join(', '))+' <span class="muted">(their, you\'re and threw are still used in Look-Alikes)</span></p></details></div>';
+  return h;
+}
 function coachWords(){
   let h='<div class="card"><h2>Add a word</h2><p class="muted small">For words from school spelling lists. The sentence must use the word and be 8 words or fewer.</p><div class="form">'+
     '<label>Word<input type="text" id="cw-w" autocapitalize="off"></label>'+
@@ -1822,7 +2014,7 @@ function coachWords(){
     '<label style="grid-column:1/-1">Memory trick (optional)<input type="text" id="cw-trick"></label></div>'+
     '<button class="btn sm" data-act="addword" style="margin-top:10px">Add word</button><div class="err" id="cwerr"></div></div>';
   h+='<div class="card"><h2>Custom words</h2>'+(S.custom.length?'<table class="tbl"><tr><th>Word</th><th>Drill</th><th>Sentence</th><th></th></tr>'+S.custom.map((c,i)=>'<tr><td>'+esc(c.w)+'</td><td>'+esc(DRILLS[c.d].name)+'</td><td>'+esc(c.s)+'</td><td><button class="btn sm ghost" data-act="delword" data-i="'+i+'">Remove</button></td></tr>').join('')+'</table>':'<p class="muted">None yet.</p>')+'</div>';
-  h+='<div class="card"><h2>Word bank</h2><p class="muted small">'+WORDS.length+' practice words across 9 drills. Combine words (Form A and B) are kept out of practice.</p></div>';
+  h+=wordBankCard();
   return h;
 }
 function coachSync(){
@@ -1936,6 +2128,7 @@ app.addEventListener('click', e=>{
 });
 function act(a, el){
   const ds = el ? el.dataset : {};
+  try{ const c=ac(); if(c && c.state==='suspended') c.resume(); }catch(e){}   // iPhone: sound only starts from a tap
   switch(a){
     case 'welnext': ui.welcome++; render(); break;
     case 'welgo': S.onboarded=true; save(); startCombine(); break;
@@ -2000,6 +2193,9 @@ function act(a, el){
       if(c.d===3) c.chunk=c.chunk||c.w;
       const err=validateCustom(c); if(err){ const e=document.getElementById('cwerr'); if(e) e.textContent=err; break; }
       S.custom.push(c); save(); render(); break; }
+    case 'wf-d': ui.wf=Object.assign({d:'all',t:'all',q:''},ui.wf,{d:el.value}); render(); break;
+    case 'wf-t': ui.wf=Object.assign({d:'all',t:'all',q:''},ui.wf,{t:el.value}); render(); break;
+    case 'wf-q': ui.wf=Object.assign({d:'all',t:'all',q:''},ui.wf,{q:el.value}); render(); break;
     case 'delword': S.custom.splice(Number(ds.i),1); save(); render(); break;
     case 'copy': copyText(ds.target); break;
     case 'syncconnect': { const url=((document.getElementById('sync-url')||{}).value||'').trim(), key=((document.getElementById('sync-key')||{}).value||'').trim();
@@ -2042,7 +2238,7 @@ window.GSG = {
   get SES(){ return SES; }, get ui(){ return ui; },
   setNow(d){ _now = d; }, render, act, startPractice, startBoss, startCombine, doCheck, doLock, endSession, save,
   reload(){ S = Store.load(); render(); },
-  Clips, voiceScore, Rec, Cloud, analyze, focusDrills, GSync
+  Clips, voiceScore, Rec, Cloud, analyze, focusDrills, GSync, tierOf, Sound
 };
 
 render();
