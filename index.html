@@ -225,6 +225,10 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
 .st.doneit{background:var(--math-soft);color:var(--math)}
 .coachtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 
+
+.fq-part{align-self:flex-start;font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--ela-soft);color:var(--ela)}
+.fq-quote{background:var(--card);border-radius:12px;padding:10px 12px;font-style:italic}
+.opts button.pick{outline:3px solid var(--gold);outline-offset:0}
 /* spanish + percy coaches */
 .flip{border:2px solid var(--line);border-radius:18px;background:var(--card);padding:20px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer;font:inherit;color:var(--ink);width:100%}
 .flip .front{font-family:var(--display);font-weight:700;font-size:26px}
@@ -332,7 +336,8 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
           <optgroup label="Use this week">
             <option value="spanish">Spanish quiz: Classroom expressions (Wed)</option>
             <option value="percy">Percy Jackson reading (Ch. 11–15 check Mon 11/2)</option>
-            <option value="fish">Fish in a Tree study guide (review for Tue assessment)</option>
+            <option value="fishquiz">Fish in a Tree practice quiz (test Tue 10/27)</option>
+            <option value="fish">Fish in a Tree study guide (review for Tue test)</option>
           </optgroup>
           <optgroup label="Completed">
             <option value="sketch">Fish in a Tree sketch paragraph</option>
@@ -458,6 +463,31 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
         <li><span>Check your guess with the definition.</span></li>
         <li><span>Make up your own sentence about lacrosse, school or your friends.</span></li>
       </ol>
+    </div>
+  </section>
+
+  <!-- FISH IN A TREE PRACTICE QUIZ -->
+  <section class="panel coach" id="fishquiz" hidden>
+    <div class="card">
+      <span class="tag">TEST TUE 10/27 · 20 MULTIPLE CHOICE · BRING YOUR BOOK</span>
+      <h2>Fish in a Tree practice quiz</h2>
+      <p>18 multiple-choice questions built from Mrs. Heffernan's study guide answer key. Every part of the guide is here: author's craft, summarizing, character, point of view and theme.</p>
+      <div class="sk-rep"><span>Round 1 · first 9 · 10 min</span><span>Round 2 · last 9 · 10 min</span><span>Misses come back</span></div>
+    </div>
+    <div class="card">
+      <span class="lbl">Test-day plays</span>
+      <ol class="sk-steps">
+        <li><span><b>Read the question twice.</b> Look for words like NOT, BEST and TWO.</span></li>
+        <li><span><b>Read ALL the choices</b> before you pick.</span></li>
+        <li><span><b>Cross out the silly ones</b> first. Usually two are easy to cut.</span></li>
+        <li><span><b>Pick TWO means two.</b> Count before you move on.</span></li>
+        <li><span><b>Use your book.</b> Quote questions give a page number. Flip there and reread the lines around it to check your answer.</span></li>
+      </ol>
+    </div>
+    <div class="card">
+      <div class="row"><div class="seg" id="fqRound"><button type="button" data-r="1" aria-pressed="true">Round 1</button><button type="button" data-r="2" aria-pressed="false">Round 2</button><button type="button" data-r="all" aria-pressed="false">All 18</button></div></div>
+      <div class="qbox" id="fqBox" aria-live="polite"></div>
+      <div class="row"><span class="big" id="fqScore" style="font-family:var(--display);font-weight:700"></span></div>
     </div>
   </section>
 
@@ -838,12 +868,12 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
      ],
      weekend:{label:'Weekend Oct 24–25',items:[['p_sun','span','Sun 10/25 · Spanish catch-up: workbook p.10 + Hispanic Heritage Month intro (both listed Missing)',20,0],['p_sun2','ela','Sun 10/25 · Fish in a Tree sketch paragraph: revision reps 1–3 with Mom or Dad, then Turn in',35,0,'#sketch']]}},
 
-    {id:'oct26',label:'Oct 26 – 30',theme:'Math test + Spanish quiz on Wednesday',
-     bigs:[['TUE 10/27','Math: Unit 2 test review (Pear)','Mr. DeNuzzo · 48 pts · by 11:59 PM'],['WED 10/28','Math: Unit 2 Ratios & Rates TEST','Mr. DeNuzzo'],['WED 10/28','Spanish quiz: Common Expressions','Ms. Bedoya · conversation p. 13','#spanish'],['WED 10/28','Heating System Essay','Miss Moriello · 100 pts'],['FRI 10/30','Math: Weekly Review #9','Mr. DeNuzzo · due 2:30 PM']],
+    {id:'oct26',label:'Oct 26 – 30',theme:'Fish in a Tree test Tuesday · math test + Spanish quiz Wednesday',
+     bigs:[['TUE 10/27','Fish in a Tree TEST','Mrs. Heffernan · 20 multiple choice · bring your book','#fishquiz'],['TUE 10/27','Math: Unit 2 test review (Pear)','Mr. DeNuzzo · 48 pts · by 11:59 PM'],['WED 10/28','Math: Unit 2 Ratios & Rates TEST','Mr. DeNuzzo'],['WED 10/28','Spanish quiz: Common Expressions','Ms. Bedoya · conversation p. 13','#spanish'],['WED 10/28','Heating System Essay','Miss Moriello · 100 pts'],['FRI 10/30','Math: Weekly Review #9','Mr. DeNuzzo · due 2:30 PM']],
      days:[
       ['2026-10-26','Mon 10/26',[['w26a','span','Conversation + Study for Quiz (conversation p. 13), by 11:59 PM (Bedoya)',0,1]],
-        [['w26b','span','Finish the conversation on p. 13. Then say it out loud twice.',15,0,'#spanish'],['w26c','read','Percy Jackson Ch. 11 + question, if not finished in class (due Tue). Fill your chapter card.',15,0,'#percy'],['w26d','read','Percy Jackson Ch. 6–10 Vocab Practice (due Tue)',10,0],['w26e','math','Edgems Unit 2 Review worksheet: check your answers with the key in Classroom',10,0]]],
-      ['2026-10-27','Tue 10/27',[['w27a','read','Percy Jackson Ch. 11 reading + question (Pacelli)',0,1],['w27b','read','Percy Jackson Ch. 6–10 Vocab Practice (Pacelli)',0,1],['w27c','math','Pear Assessment: Unit 2 Ratios & Rates Test Review, by 11:59 PM (DeNuzzo, 48 pts)',0,1],['w27d','ela','Fish in a Tree assessment, in class, if still scheduled (Heffernan)',0,1]],
+        [['w26b','span','Finish the conversation on p. 13. Then say it out loud twice.',15,0,'#spanish'],['w26c','read','Percy Jackson Ch. 11 + question, if not finished in class (due Tue). Fill your chapter card.',15,0,'#percy'],['w26d','read','Percy Jackson Ch. 6–10 Vocab Practice (due Tue)',10,0],['w26e','math','Edgems Unit 2 Review worksheet: check your answers with the key in Classroom',10,0],['w26f','ela','Fish in a Tree practice quiz: Round 1 + Round 2 (test tomorrow)',20,0,'#fishquiz'],['w26g','ela','Put Fish in a Tree in your backpack tonight',0,0]]],
+      ['2026-10-27','Tue 10/27',[['w27a','read','Percy Jackson Ch. 11 reading + question (Pacelli)',0,1],['w27b','read','Percy Jackson Ch. 6–10 Vocab Practice (Pacelli)',0,1],['w27c','math','Pear Assessment: Unit 2 Ratios & Rates Test Review, by 11:59 PM (DeNuzzo, 48 pts)',0,1],['w27d','ela','FISH IN A TREE TEST: 20 multiple choice. Bring your book! (Heffernan)',0,1,'#fishquiz']],
         [['w27e','math','Finish the Pear test review. Up to 2 checks per question. No calculator.',20,0],['w27f','math','Edgems Unit 2 Online Review (due Wed 8 AM)',15,0],['w27g','span','Spanish quiz coach: flashcards, match game, say it out loud',15,0,'#spanish'],['w27h','skill','Pack: Chromebook charged. Get to bed on time.',0,0]]],
       ['2026-10-28','Wed 10/28',[['w28c','math','Edgems Unit 2 Online Review, by 8:00 AM (DeNuzzo)',0,1],['w28a','math','UNIT 2 RATIOS & RATES TEST (DeNuzzo)',0,1],['w28b','span','SPANISH QUIZ: Common Expressions (Bedoya)',0,1],['w28d','sci','Heating System Essay (Moriello, 100 pts)',0,1]],
         [['w28e','sci','Heating System Essay: make sure it says Turned in. If you didn’t finish in class, finish it and Turn in.',15,0],['w28f','read',PJ,0,0],['w28g','skill','Two tests today. Keep tonight light.',0,0]]],
@@ -911,7 +941,8 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
   const COACHES=[
     ['spanish','Spanish quiz: Classroom expressions','Ms. Bedoya · Spanish','active','Use this week: quiz Wed 10/28'],
     ['percy','Percy Jackson reading','Mrs. Pacelli + Mrs. Marini','active','Use this week: Ch. 11–15 check Mon 11/2'],
-    ['fish','Fish in a Tree study guide','Mrs. Heffernan · ELA','active','Use for review: Tue assessment'],
+    ['fishquiz','Fish in a Tree practice quiz','Mrs. Heffernan · ELA','active','Use this week: test Tue 10/27'],
+    ['fish','Fish in a Tree study guide','Mrs. Heffernan · ELA','active','Use for review: test Tue 10/27'],
     ['sketch','Fish in a Tree sketch paragraph','Mrs. Heffernan · ELA','done','Completed · revised Oct 24–25'],
     ['essay','Trick-or-treat opinion essay','Mrs. Marini · Extended LA','done','Completed · Oct 23'],
     ['science','Thermal Energy study packet','Miss Moriello · Science','done','Completed · test Oct 21']
@@ -1211,6 +1242,43 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
     Q.forEach(([k])=>{const ta=c.querySelector('#pj'+n+k);ta.value=S.get('pj'+n+k,'');ta.addEventListener('input',()=>S.set('pj'+n+k,ta.value))})});
 })();
 </script>
+
+<script>
+(function(){
+  const Q=[["Author's craft", "Why does the author compare Ally's world to a whale living in a forest?", "“I wish she could understand my world. But it would be like trying to explain to a whale what it’s like to live in a forest” (Hunt 29).", ["Ally feels her world is completely different from other people’s and hard for them to understand.", "Ally wants to move somewhere with more trees and animals.", "Ally thinks her mom is too big and loud, like a whale.", "Ally is excited to teach her mom about her life."], [0], "A whale could never understand a forest. Ally feels just as far from people understanding her world."], ["Author's craft", "In the whale and forest quote, what kind of comparison does the author use?", "", ["A simile, because it uses “like”", "A rhyme", "A fact from science", "An exaggeration about size"], [0], "It compares two things using “like,” so it’s a simile."], ["Author's purpose", "What is the main reason the author includes this memory?", "“I’m so tired of this conversation. We’ve had it a hundred times…” (Hunt 28).", ["To show that Ally’s struggles in school keep getting brought up.", "To show that Ally loves long talks with her mom.", "To show that third grade was Ally’s favorite year.", "To show that Ally’s mom never talks about school."], [0], "“A hundred times” tells us this keeps happening, over and over."], ["Author's purpose", "How does Ally feel about how people see her abilities in that memory?", "", ["Frustrated, and she believes she isn’t capable", "Proud of her grades", "Excited to try harder in third grade", "Bored because school is too easy"], [0], "Being told she “might be slow” makes Ally frustrated, and she starts to believe it."], ["Author's craft", "What emotion is Ally feeling here?", "“I stand and walk toward him like the floor will swallow me up” (Hunt 134).", ["Nervous and scared", "Proud and happy", "Angry and loud", "Sleepy and bored"], [0], "Wishing the floor would swallow you means you want to disappear. Mr. Daniels is holding her poem at the front of the room."], ["Summarizing", "Which event SHOULD be in a summary of the book?", "", ["Ally struggles with reading and writing because of dyslexia no one has noticed yet.", "Ally gets upset when she hurts a butterfly at the butterfly garden.", "Shay charges her friends money for friendship bracelets.", "Ally sits at a certain table at lunch."], [0], "A summary event is big: it drives the whole story. Ally’s struggle with reading is the main problem."], ["Summarizing", "Which event does NOT belong in a summary?", "", ["Shay charges her friends money to buy friendship bracelets.", "Mr. Daniels gives Ally extra help after school with reading strategies.", "Ally builds confidence through her friendships with Keisha and Albert.", "Ally struggles with reading and writing."], [0], "The bracelet detail is small. Take it out and the story still makes sense."], ["Setting & character", "How does moving to so many schools affect Ally at the start of the book?", "“Seven schools in seven years and they’re all the same” (Hunt 2).", ["She doesn’t trust teachers, so she hides her struggles instead of asking for help.", "She makes a close teacher friend at every school.", "She loves starting new schools and meeting people.", "She asks every teacher for extra help right away."], [0], "With no time to build trust, Ally hides what’s hard instead of asking."], ["Dialogue & character", "Ally is happy to do extra work, but asks Mr. Daniels if she’ll ever be “normal” (p. 175). What does this show?", "", ["Ally still feels unsure of herself even though she is making progress.", "Ally doesn’t want to work hard.", "Ally thinks she is the best reader in the class.", "Ally wants to switch teachers."], [0], "She’s getting better, but her doubts haven’t gone away yet."], ["Dialogue & character", "Keisha says “That’s not a secret,” and Albert promises to keep Ally’s secret (pp. 182–183). What does this show?", "", ["They noticed Ally’s struggles, don’t judge her, and want to encourage her.", "They plan to tell the whole class.", "They had no idea Ally found reading hard.", "They are angry Ally kept a secret."], [0], "Keisha already knew, and they stay her friends. That’s support, not judgment."], ["Character traits", "Which clue shows Mr. Daniels pays close attention to Ally?", "", ["He notices her hand playing with something in her pocket, so she shares her 1943 steel penny.", "He sends her to the office for drawing in class.", "He never looks at her during class.", "He gives her extra spelling tests."], [0], "Noticing a tiny detail like a hand in a pocket shows he watches closely."], ["Character traits", "Ally comes to school with her arm in a sling. What does Mr. Daniels do?", "", ["He has her read a book instead of write, and keeps looking over at her.", "He makes her write with her other hand.", "He sends her home.", "He doesn’t notice the sling at all."], [0], "He changes the task and keeps watching. He’s noticing what other teachers missed."], ["Character development", "Why does Ally think “This is a pity award” (p. 136)?", "", ["Her classmates stop clapping and look at each other, so she feels she doesn’t deserve it.", "She doesn’t like poetry at all.", "The award was really for math.", "She came in last place."], [0], "The class reaction makes her feel the award is from feeling sorry for her, not earned."], ["Point of view", "If the story were told by Mr. Daniels, what would change? Pick TWO.", "", ["We would learn his thoughts, doubts and strategies for helping struggling students.", "We would learn what other teachers said about Ally before the year started.", "We would experience Ally’s mind-movies and fears directly.", "The story would be all about his college classes."], [0, 1], "A narrator shares only their own thoughts. Ally’s mind-movies stay inside Ally."], ["Theme", "Which statement is NOT a theme of Fish in a Tree?", "", ["True belonging comes from doing the same thing as everyone else.", "Everyone is different and has individual strengths.", "People can grow when they persevere and have support.", "Everyone should ask for help when struggling."], [0], "The book teaches the opposite: you belong by being yourself, not by copying others."], ["Theme", "Which statement BEST expresses a theme of the book?", "", ["Everyone is different and has individual strengths, even when they struggle in some areas.", "Reading fast is the most important skill a person can have.", "Real friends always agree with each other.", "It’s fun to move to a new school every year."], [0], "It’s a lesson for everyone, and it’s what Ally learns by the end."], ["Theme evidence", "Which TWO details BEST show that friendship means working together as a team? Pick TWO.", "", ["The matching shirts: “You tease one of us, you tease all of us!…We’re allies” (p. 224).", "Albert says he would have done anything to stop them from hurting his friends (pp. 256–257).", "Ally’s mom says new friends would be good (p. 20).", "Ally aches to have a friendship bracelet (p. 116)."], [0, 1], "Teamwork means DOING something together. The other two are advice and wishing."], ["Theme & title", "How does the fish quote connect to the title?", "“But if you judge a fish on its ability to climb a tree, it will spend its whole life thinking that it’s stupid” (Hunt 159).", ["Like a fish can’t climb a tree, people have different strengths, and judging someone by their struggles hides their real abilities.", "Ally’s favorite animal is a fish.", "The book is about a fish that learns to climb.", "It means people should never try hard things."], [0], "Ally is the fish. School judged her on reading, which hid how smart she really is."]];
+  const box=document.getElementById('fqBox'),sc=document.getElementById('fqScore');
+  function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+  let list=[],qi=0,first=0,missed=[],total=0;
+  function start(r){const all=Q.map((_,i)=>i);list=r==='1'?all.slice(0,9):r==='2'?all.slice(9):all;total=list.length;qi=0;first=0;missed=[];sc.textContent='';ask()}
+  function ask(){
+    if(qi>=list.length){
+      if(missed.length){sc.textContent=`${first} of ${total} on the first try. Your misses are next.`;list=missed;missed=[];qi=0;setTimeout(ask,900);return}
+      box.innerHTML='<span class="prompt">Round done. Nice reps.</span><span class="sub">Pick another round above, or read the study guide answers once more.</span>';
+      if(!sc.textContent)sc.textContent=`${first} of ${total} on the first try.`;return}
+    const k=list[qi],[part,stem,quote,opts,ans,why]=Q[k];const multi=ans.length>1;
+    const order=shuffle(opts.map((_,i)=>i));
+    box.innerHTML=`<span class="fq-part">${part}</span>${quote?`<div class="fq-quote">${quote}</div>`:''}<span class="prompt">${stem}</span><div class="row"><button type="button" class="speak" data-t="1">Read to me</button><span class="sub">${qi+1} of ${list.length}${multi?' · pick TWO, then tap Check':''}</span></div><div class="opts"></div>${multi?'<div class="row"><button type="button" class="gbtn" id="fqCheck">Check</button></div>':''}<p class="sub fq-why" hidden></p>`;
+    box.querySelector('[data-t]').addEventListener('click',()=>speak((quote?quote+' ':'')+stem+'. '+order.map((o,i)=>'Choice '+(i+1)+': '+opts[o]).join('. ')));
+    let wrong=false;const picked=new Set();const el=box.querySelector('.opts');
+    const finish=()=>{if(!wrong)first++;else missed.push(k);const w=box.querySelector('.fq-why');w.hidden=false;w.innerHTML='<b>Why:</b> '+why;
+      const nx=document.createElement('button');nx.type='button';nx.className='gbtn';nx.textContent=qi+1<list.length||missed.length?'Next':'Finish';nx.addEventListener('click',()=>{qi++;ask()});box.appendChild(nx);nx.focus()};
+    order.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=opts[o];b.dataset.o=o;
+      b.addEventListener('click',()=>{if(box.querySelector('.fq-why:not([hidden])'))return;
+        if(multi){picked.has(o)?picked.delete(o):picked.add(o);b.classList.toggle('pick',picked.has(o));return}
+        if(ans.includes(o)){b.classList.add('right');finish()}else{b.classList.add('wrong');wrong=true}});
+      el.appendChild(b)});
+    if(multi)box.querySelector('#fqCheck').addEventListener('click',()=>{
+      if(picked.size!==2){sc.textContent='Pick two answers first.';return}sc.textContent='';
+      const ok=ans.every(a=>picked.has(a));
+      el.querySelectorAll('button').forEach(b=>{const o=+b.dataset.o;b.classList.remove('pick');if(ans.includes(o))b.classList.add('right');else if(picked.has(o))b.classList.add('wrong')});
+      if(!ok)wrong=true;box.querySelector('#fqCheck').remove();finish()});
+  }
+  document.querySelectorAll('#fqRound button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#fqRound button').forEach(x=>x.setAttribute('aria-pressed',x===b));start(b.dataset.r)}));
+  start('1');
+})();
+</script>
+
 
 
 </body>
