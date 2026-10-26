@@ -182,7 +182,8 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
 #science .q.answered .why{display:block}
 /* CER */
 #science table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-#science .tablewrap{overflow-x:auto}
+#science .tablewrap{overflow-x:auto;max-width:100%}
+#science .sp-sec > *,#science .drill > *,#science .frame > *{min-width:0}
 #science th,#science td{border:1px solid var(--line);padding:8px 10px;text-align:center}
 #science th{font-family:var(--display);font-weight:600;background:var(--bg)}
 #science .frame{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:14px;border:2px solid var(--line)}
@@ -726,10 +727,10 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
     <div class="frame">
       <b>Self-check before you're done</b>
       <div class="cklist">
-        <label><input type="checkbox" id="ck1">My claim names ONE sample.</label>
-        <label><input type="checkbox" id="ck2">My evidence has at least two numbers with units (g or °C).</label>
-        <label><input type="checkbox" id="ck3">My reasoning uses the words <b>total</b> and <b>molecules</b> (or particles).</label>
-        <label><input type="checkbox" id="ck4">I explained why the ice bath loses, even though it's just as big.</label>
+        <label><input type="checkbox" id="ck1"><span>My claim names ONE sample.</span></label>
+        <label><input type="checkbox" id="ck2"><span>My evidence has at least two numbers with units (g or °C).</span></label>
+        <label><input type="checkbox" id="ck3"><span>My reasoning uses the words <b>total</b> and <b>molecules</b> (or particles).</span></label>
+        <label><input type="checkbox" id="ck4"><span>I explained why the ice bath loses, even though it's just as big.</span></label>
       </div>
     </div>
 
@@ -761,10 +762,10 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
     <div class="frame">
       <b>Test-day game plan</b>
       <div class="cklist">
-        <label><input type="checkbox" id="t1">Bring a calculator.</label>
-        <label><input type="checkbox" id="t2">Read each question twice. Underline the key word (total? average?).</label>
-        <label><input type="checkbox" id="t3">For CER: claim, two numbers, then the science word.</label>
-        <label><input type="checkbox" id="t4">Before turning it in, go back and check every answer once.</label>
+        <label><input type="checkbox" id="t1"><span>Bring a calculator.</span></label>
+        <label><input type="checkbox" id="t2"><span>Read each question twice. Underline the key word (total? average?).</span></label>
+        <label><input type="checkbox" id="t3"><span>For CER: claim, two numbers, then the science word.</span></label>
+        <label><input type="checkbox" id="t4"><span>Before turning it in, go back and check every answer once.</span></label>
       </div>
     </div>
   </div>
