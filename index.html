@@ -198,6 +198,32 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
 @media (prefers-reduced-motion:reduce){#science .pt,#science .pt.slow{animation:none}#science .eq div{transition:none}}
 
 
+
+/* running plan: weeks + coaching library */
+.wkhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.wkhead h2{font-size:28px}
+.pastwk{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.pastwk > summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;min-height:44px}
+.pastwk > summary::-webkit-details-marker{display:none}
+.pastwk > summary b{font-family:var(--display);font-size:20px}
+.pastwk > summary .caret{font-family:var(--display);font-weight:700;color:var(--muted)}
+.pastwk[open] > summary .caret{transform:rotate(90deg)}
+.pastwk[open] > summary{border-bottom:1px solid var(--line)}
+.pastwk .inner{padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.meter{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meter i{display:block;width:90px;height:8px;border-radius:4px;background:var(--line);overflow:hidden;position:relative}
+.meter i b{position:absolute;inset:0 auto 0 0;background:var(--math)}
+.coachpick{display:flex;flex-direction:column;gap:6px;max-width:460px}
+.coachpick select{font:inherit;font-size:16px;padding:10px 12px;border-radius:12px;border:2px solid var(--ink);background:var(--card);color:var(--ink);min-height:44px}
+.coachgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.coachcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;text-align:left;color:var(--ink);font:inherit;cursor:pointer;min-height:44px}
+.coachcard:hover{border-color:var(--ink)}
+.coachcard b{font-family:var(--display);font-size:17px}
+.coachcard.on{border:2px solid var(--ink)}
+.st{align-self:flex-start;font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 10px}
+.st.active{background:var(--skill-soft);color:var(--skill)}
+.st.doneit{background:var(--math-soft);color:var(--math)}
+.coachtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 /* sketch paragraph coach */
 .sk-steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:sk}
 .sk-steps li{display:flex;gap:10px;align-items:flex-start;font-size:15.5px}
@@ -223,64 +249,76 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
 
 <div class="wrap">
   <header>
-    <span class="sub" style="font-family:var(--display);font-weight:600;letter-spacing:.06em">MADISON MIDDLE · GRADE 6 · OCT 19 – OCT 30</span>
+    <span class="sub" style="font-family:var(--display);font-weight:600;letter-spacing:.06em">MADISON MIDDLE · GRADE 6 · UPDATED MON, OCT 26</span>
     <h1>Graham's Two-Week Game Plan</h1>
-    <p class="sub">Every assignment from Google Classroom, placed on the night you'll work on it. Check boxes as you go. Big projects are split into short reps so no night gets crushed.</p>
+    <p class="sub">A running plan, refreshed every Sunday or Monday: this week, next week, and every past week saved. Each assignment from Google Classroom is placed on the night you'll work on it. Check boxes as you go.</p>
     <p class="sub"><a href="spelling/" target="_blank" rel="noopener" style="font-weight:700">Open Spelling Reps, your spelling game</a></p>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
-    <button class="tab" role="tab" id="t-calendar" aria-controls="calendar" aria-selected="true">Calendar</button>
-    <button class="tab" role="tab" id="t-sketch" aria-controls="sketch" aria-selected="false">Sketch paragraph coach</button>
-    <button class="tab" role="tab" id="t-science" aria-controls="science" aria-selected="false">Science study packet</button>
-    <button class="tab" role="tab" id="t-fish" aria-controls="fish" aria-selected="false">Fish in a Tree coach</button>
-    <button class="tab" role="tab" id="t-essay" aria-controls="essay" aria-selected="false">Trick-or-treat essay coach</button>
+    <button class="tab" role="tab" id="t-thisweek" aria-controls="thisweek" aria-selected="true">This week</button>
+    <button class="tab" role="tab" id="t-nextweek" aria-controls="nextweek" aria-selected="false">Next week</button>
+    <button class="tab" role="tab" id="t-past" aria-controls="past" aria-selected="false">Past weeks</button>
+    <button class="tab" role="tab" id="t-coaching" aria-controls="coaching" aria-selected="false">Coaching</button>
   </nav>
 
-  <!-- CALENDAR -->
-  <section class="panel" id="calendar" role="tabpanel" aria-labelledby="t-calendar">
-    <div class="bigs">
-      <div class="big"><span class="d">WED 10/21</span><b>Science: Thermal Energy test</b><span class="sub">Miss Moriello · <a href="#science" style="color:var(--sci);font-weight:600">Study packet</a></span></div>
-      <div class="big"><span class="d">FRI 10/23</span><b>Fish in a Tree sketch paragraph</b><span class="sub">Mrs. Heffernan · 30 pts · <a href="#sketch" style="color:var(--ela);font-weight:600">Paragraph coach</a></span></div>
-      <div class="big"><span class="d">FRI 10/23</span><b>Trick-or-treat opinion essay</b><span class="sub">Mrs. Marini · Extended Language Arts</span></div>
-      <div class="big"><span class="d">FRI 10/23</span><b>Percy Jackson Ch. 6–10 check</b><span class="sub">Mrs. Pacelli · Reading</span></div>
-      <div class="big"><span class="d">THU 10/22</span><b>Fish in a Tree study guide</b><span class="sub">Mrs. Heffernan · turn in by 11:59 PM</span></div>
-      <div class="big"><span class="d">TUE 10/27</span><b>Fish in a Tree assessment</b><span class="sub">Mrs. Heffernan · in class</span></div>
-    </div>
-
+  <!-- THIS WEEK -->
+  <section class="panel" id="thisweek" role="tabpanel" aria-labelledby="t-thisweek">
+    <div id="wk-this" class="week"></div>
     <div class="legend" aria-label="Subject colors">
       <span class="pill s-sci">Science</span><span class="pill s-ela">ELA / Language Arts</span><span class="pill s-read">Reading</span>
       <span class="pill s-math">Math</span><span class="pill s-span">Spanish</span><span class="pill s-skill">Skill reps</span>
     </div>
-
-    <div class="week">
-      <div class="weekhead"><h2>Week 1</h2><span class="sub">Oct 19 – 23 · Science test, study guide, essay</span></div>
-      <div class="grid" id="w1"></div>
-      <div class="weekend"><b style="font-family:var(--display)">Weekend Oct 24–25</b>
-        <div class="item" id="wk1sun"></div>
-        <span class="sub">Saturday is off. Sunday is two catch-up reps, then you're done.</span>
-      </div>
-    </div>
-
-    <div class="week">
-      <div class="weekhead"><h2>Week 2</h2><span class="sub">Oct 26 – 30 · Fish in a Tree assessment Tuesday</span></div>
-      <div class="grid" id="w2"></div>
-    </div>
-
     <div class="note">
       <b style="font-family:var(--display)">How to use this each day</b>
       <ul class="clean">
-        <li><b>Get ready:</b> open the Daily School Report and this calendar. Anything new? Add it to tonight.</li>
-        <li><b>Do:</b> "Due" items first, then the planned rep. Set a timer for each one.</li>
+        <li><b>Get ready:</b> open the Daily School Report and this plan. Anything new? Add it to tonight.</li>
+        <li><b>Do:</b> "Due" items first, then the planned reps. Set a timer for each one.</li>
         <li><b>Done:</b> turn it in on Classroom, check the box, pack your bag.</li>
       </ul>
-      <span class="sub">Week 2 homework from math, reading and science isn't posted yet. Those slots say “Check the Daily Report.” Mrs. Marini's Percy Jackson chapter questions are due Nov 13: one every school night or two keeps them small.</span>
     </div>
   </section>
 
+  <!-- NEXT WEEK -->
+  <section class="panel" id="nextweek" role="tabpanel" aria-labelledby="t-nextweek" hidden>
+    <div id="wk-next" class="week"></div>
+    <div class="note"><b style="font-family:var(--display)">Heads up</b><span>Most teachers post work the day before it's due, so next week fills in as the Daily Report comes in. The plan gets refreshed every Sunday or Monday.</span></div>
+  </section>
+
+  <!-- PAST WEEKS -->
+  <section class="panel" id="past" role="tabpanel" aria-labelledby="t-past" hidden>
+    <div class="card">
+      <h2>Past weeks</h2>
+      <p class="sub">Every finished week is saved here with its checkboxes. Tap a week to open it.</p>
+    </div>
+    <div id="wk-past" style="display:flex;flex-direction:column;gap:12px"></div>
+  </section>
+
+
+  <!-- COACHING LIBRARY -->
+  <section class="panel" id="coaching" role="tabpanel" aria-labelledby="t-coaching" hidden>
+    <div class="card">
+      <div class="coachtop"><h2>Coaching library</h2></div>
+      <p class="sub">Every coach we've built is saved here. Pick one to open it.</p>
+      <div class="coachpick">
+        <label class="lbl" for="coachPick">Choose a coach</label>
+        <select id="coachPick">
+          <option value="">Pick a coach…</option>
+          <optgroup label="Use this week">
+            <option value="fish">Fish in a Tree study guide (review for Tue assessment)</option>
+          </optgroup>
+          <optgroup label="Completed">
+            <option value="sketch">Fish in a Tree sketch paragraph</option>
+            <option value="essay">Trick-or-treat opinion essay</option>
+            <option value="science">Thermal Energy study packet</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="coachgrid" id="coachGrid"></div>
+    </div>
 
   <!-- SKETCH PARAGRAPH -->
-  <section class="panel" id="sketch" role="tabpanel" aria-labelledby="t-sketch" hidden>
+  <section class="panel coach" id="sketch" hidden>
     <div class="card">
       <span class="tag">FISH IN A TREE · MRS. HEFFERNAN · 30 POINTS</span>
       <h2>Sketch paragraph: revision reps</h2>
@@ -416,7 +454,7 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
   </section>
 
   <!-- SCIENCE -->
-  <section class="panel" id="science" role="tabpanel" aria-labelledby="t-science" hidden>
+  <section class="panel coach" id="science" hidden>
 
 
 <div class="sp-wrap">
@@ -563,7 +601,7 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
   </section>
 
   <!-- FISH IN A TREE -->
-  <section class="panel" id="fish" role="tabpanel" aria-labelledby="t-fish" hidden>
+  <section class="panel coach" id="fish" hidden>
     <div class="card">
       <span class="tag">GUIDE DUE THU 10/22 · ASSESSMENT TUE 10/27 · MRS. HEFFERNAN</span>
       <h2>Fish in a Tree study guide coach</h2>
@@ -581,7 +619,7 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
   </section>
 
   <!-- ESSAY -->
-  <section class="panel" id="essay" role="tabpanel" aria-labelledby="t-essay" hidden>
+  <section class="panel coach" id="essay" hidden>
     <div class="card">
       <span class="tag">DUE FRI 10/23 · MRS. MARINI</span>
       <h2>Trick-or-treat essay coach</h2>
@@ -630,115 +668,133 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
       <div class="words"><span>To begin with</span><span>First</span><span>In addition</span><span>Furthermore</span><span>For example</span><span>According to the article</span><span>This shows that</span><span>However</span><span>In conclusion</span><span>For all these reasons</span></div>
     </div>
   </section>
+  </section>
 </div>
 
 <script>
 (function(){
   const S={get(k,d){try{const v=localStorage.getItem('ggp:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('ggp:'+k,JSON.stringify(v))}catch(e){}}};
-  const SCI='#science';
-  // [id, subject, text, minutes, isDue]
+  const SCI='#science', SP='spelling/', GIM='https://www.gimkit.com/view/68ed2ed5a5c782811c89e9d4';
   const PJ='If not finished in class: Percy Jackson chapter + question (Pacelli)';
-  const days={
-    w1:[
-      ['2026-10-19','Mon 10/19',[
-        ['d1a','read','Percy Jackson Ch. 6 reading (Pacelli)',0,1],
-        ['d1b','math','Pear Assessment: Ratio Review (DeNuzzo)',0,1]
-      ],[]],
-      ['2026-10-20','Tue 10/20',[
-        ['d2a','ela','Fish in a Tree questions, Ch. 48–50 (Heffernan)',0,1],
-        ['d2b','read','Percy Jackson Ch. 7 reading + question (Pacelli)',0,1],
-        ['d2c','math','Edgems 2.3 Online Exit Card (DeNuzzo)',0,1]
-      ],[
-        ['p2a','sci','Science study packet: Reps 1–4 + scrimmage',25,0,SCI],
-        ['p2b','math','Weekly Review #8, first half',10,0],
-        ['p2c','ela','Ask Mrs. Heffernan: is the Oct 16 Character Change Response still open?',2,0],
-        ['p2d','read',PJ,0,0]
-      ]],
-      ['2026-10-21','Wed 10/21',[
-        ['d3a','sci','THERMAL ENERGY TEST (Moriello). Bring a calculator.',0,1]
-      ],[
-        ['p3a','ela','Fish in a Tree guide Rep 1: questions 1–6',20,0,'#fish'],
-        ['p3b','ela','Essay Rep 1: level up opinion + scout the article',15,0,'#essay'],
-        ['p3c','math','Weekly Review #8, second half',10,0],
-        ['p3d','read',PJ,0,0]
-      ]],
-      ['2026-10-22','Thu 10/22',[
-        ['d4a','ela','Fish in a Tree STUDY GUIDE, turn in by 11:59 PM (Heffernan)',0,1]
-      ],[
-        ['p4a','ela','Finish the Fish in a Tree study guide (if not done) and Turn in',15,0,'#fish'],
-        ['p4d','ela','Sketch paragraph: Rep A plan → Rep B write → Rep C check and Turn in',30,0,'#sketch'],
-        ['p4c','read','Skim Percy Jackson Ch. 6–10 for Friday check',5,0]
-      ]],
-      ['2026-10-23','Fri 10/23',[
-        ['d5e','ela','Fish in a Tree sketch paragraph (Heffernan, 30 pts)',0,1],
-        ['d5a','ela','Trick-or-treat essay, by 11:59 PM (Marini, 100 pts)',0,1],
-        ['d5b','ela','Weekly Log 10/19–10/23, by 11:59 PM (Marini)',0,1],
-        ['d5c','math','Weekly Review #8 (DeNuzzo)',0,1],
-        ['d5d','read','Percy Jackson Ch. 6–10 Comprehension Check, in class (Pacelli)',0,1]
-      ],[
-        ['p4b','ela','Essay Rep 2: fill Step 2 of the organizer',15,0,'#essay'],
-        ['p5a','ela','Essay Rep 3: draft (15) → break → edit (10) → Turn in',25,0,'#essay'],
-        ['p5b','ela','Weekly Log',10,0],
-        ['p5c','skill','Done before dinner. Rest of the night is yours.',0,0]
-      ]]
-    ],
-    w2:[
-      ['2026-10-26','Mon 10/26',[],[
-        ['p6a','ela','Fish in a Tree test prep: read your study guide answers out loud, then cover and quiz yourself',20,0,'#fish'],
-        ['p6b','skill','Check the Daily Report for new work',2,0]
-      ]],
-      ['2026-10-27','Tue 10/27',[
-        ['d7a','ela','FISH IN A TREE ASSESSMENT, in class (Heffernan)',0,1]
-      ],[
-        ['p7a','ela','Percy Jackson Ch. 1 question for Mrs. Marini',15,0],
-        ['p7b','skill','Spelling game: one practice set',10,0,'spelling/'],
-        ['p7c','skill','Check the Daily Report for new work',2,0]
-      ]],
-      ['2026-10-28','Wed 10/28',[],[
-        ['p8a','ela','Percy Jackson Ch. 2 question for Mrs. Marini',15,0],
-        ['p8b','skill','Check the Daily Report for new work',2,0]
-      ]],
-      ['2026-10-29','Thu 10/29',[],[
-        ['p9a','math','October Extra Credit (optional, due Fri)',15,0],
-        ['p9b','skill','Spelling game: one practice set',10,0,'spelling/'],
-        ['p9c','skill','Check the Daily Report for new work',2,0]
-      ]],
-      ['2026-10-30','Fri 10/30',[
-        ['d10a','math','October Extra Credit, optional (DeNuzzo)',0,1]
-      ],[
-        ['p10a','ela','Percy Jackson Ch. 4 question for Mrs. Marini',15,0],
-        ['p10b','skill','Weekly film review: what worked, what’s next?',5,0]
-      ]]
-    ]
-  };
+  const CHECK=['skill','Check the Daily Report for new work',2,0];
+  // Each item: [id, subject, text, minutes, isDue, link]. Keep ids stable so saved checkmarks survive updates.
+  const WEEKS=[
+    {id:'oct19',label:'Oct 19 – 23',theme:'Science test, study guide, essay, sketch paragraph',
+     bigs:[['WED 10/21','Science: Thermal Energy test','Miss Moriello','#science'],['THU 10/22','Fish in a Tree study guide','Mrs. Heffernan','#fish'],['FRI 10/23','Fish in a Tree sketch paragraph','Mrs. Heffernan · 30 pts','#sketch'],['FRI 10/23','Trick-or-treat opinion essay','Mrs. Marini · 100 pts','#essay'],['FRI 10/23','Percy Jackson Ch. 6–10 check','Mrs. Pacelli']],
+     days:[
+      ['2026-10-19','Mon 10/19',[['d1a','read','Percy Jackson Ch. 6 reading (Pacelli)',0,1],['d1b','math','Pear Assessment: Ratio Review (DeNuzzo)',0,1]],[]],
+      ['2026-10-20','Tue 10/20',[['d2a','ela','Fish in a Tree questions, Ch. 48–50 (Heffernan)',0,1],['d2b','read','Percy Jackson Ch. 7 reading + question (Pacelli)',0,1],['d2c','math','Edgems 2.3 Online Exit Card (DeNuzzo)',0,1]],
+        [['p2a','sci','Science study packet: Reps 1–4 + scrimmage',25,0,SCI],['p2b','math','Weekly Review #8, first half',10,0],['p2c','ela','Ask Mrs. Heffernan: is the Oct 16 Character Change Response still open?',2,0],['p2d','read',PJ,0,0]]],
+      ['2026-10-21','Wed 10/21',[['d3a','sci','THERMAL ENERGY TEST (Moriello). Bring a calculator.',0,1]],
+        [['p3a','ela','Fish in a Tree guide Rep 1: questions 1–6',20,0,'#fish'],['p3b','ela','Essay Rep 1: level up opinion + scout the article',15,0,'#essay'],['p3c','math','Weekly Review #8, second half',10,0],['p3d','read',PJ,0,0]]],
+      ['2026-10-22','Thu 10/22',[['d4a','ela','Fish in a Tree STUDY GUIDE, turn in by 11:59 PM (Heffernan)',0,1]],
+        [['p4a','ela','Finish the Fish in a Tree study guide (if not done) and Turn in',15,0,'#fish'],['p4d','ela','Sketch paragraph: Rep A plan → Rep B write → Rep C check and Turn in',30,0,'#sketch'],['p4c','read','Skim Percy Jackson Ch. 6–10 for Friday check',5,0]]],
+      ['2026-10-23','Fri 10/23',[['d5e','ela','Fish in a Tree sketch paragraph (Heffernan, 30 pts)',0,1],['d5a','ela','Trick-or-treat essay, by 11:59 PM (Marini, 100 pts)',0,1],['d5b','ela','Weekly Log 10/19–10/23, by 11:59 PM (Marini)',0,1],['d5c','math','Weekly Review #8 (DeNuzzo)',0,1],['d5d','read','Percy Jackson Ch. 6–10 Comprehension Check, in class (Pacelli)',0,1]],
+        [['p4b','ela','Essay Rep 2: fill Step 2 of the organizer',15,0,'#essay'],['p5a','ela','Essay Rep 3: draft (15) → break → edit (10) → Turn in',25,0,'#essay'],['p5b','ela','Weekly Log',10,0],['p5c','skill','Done before dinner. Rest of the night is yours.',0,0]]]
+     ],
+     weekend:{label:'Weekend Oct 24–25',items:[['p_sun','span','Sun 10/25 · Spanish catch-up: workbook p.10 + Hispanic Heritage Month intro (both listed Missing)',20,0],['p_sun2','ela','Sun 10/25 · Fish in a Tree sketch paragraph: revision reps 1–3 with Mom or Dad, then Turn in',35,0,'#sketch']]}},
+
+    {id:'oct26',label:'Oct 26 – 30',theme:'Math test + Spanish quiz on Wednesday',
+     bigs:[['TUE 10/27','Math: Unit 2 test review (Pear)','Mr. DeNuzzo · 48 pts · by 11:59 PM'],['WED 10/28','Math: Unit 2 Ratios & Rates TEST','Mr. DeNuzzo'],['WED 10/28','Spanish quiz: Common Expressions','Ms. Bedoya · conversation p. 13'],['WED 10/28','Heating System Essay','Miss Moriello · 100 pts'],['FRI 10/30','Math: Weekly Review #9','Mr. DeNuzzo · due 2:30 PM']],
+     days:[
+      ['2026-10-26','Mon 10/26',[['w26a','span','Conversation + Study for Quiz (conversation p. 13), by 11:59 PM (Bedoya)',0,1]],
+        [['w26b','span','Finish the conversation on p. 13. Then say it out loud twice.',15,0],['w26c','read','Percy Jackson Ch. 11 + question, if not finished in class (due Tue)',15,0],['w26d','read','Percy Jackson Ch. 6–10 Vocab Practice (due Tue)',10,0],['w26e','math','Edgems Unit 2 Review worksheet: check your answers with the key in Classroom',10,0]]],
+      ['2026-10-27','Tue 10/27',[['w27a','read','Percy Jackson Ch. 11 reading + question (Pacelli)',0,1],['w27b','read','Percy Jackson Ch. 6–10 Vocab Practice (Pacelli)',0,1],['w27c','math','Pear Assessment: Unit 2 Ratios & Rates Test Review, by 11:59 PM (DeNuzzo, 48 pts)',0,1],['w27d','ela','Fish in a Tree assessment, in class, if still scheduled (Heffernan)',0,1]],
+        [['w27e','math','Finish the Pear test review. Up to 2 checks per question. No calculator.',20,0],['w27f','math','Edgems Unit 2 Online Review (due Wed 8 AM)',15,0],['w27g','span','Spanish quiz study: Common Expressions Gimkit',10,0,GIM],['w27h','skill','Pack: Chromebook charged. Get to bed on time.',0,0]]],
+      ['2026-10-28','Wed 10/28',[['w28c','math','Edgems Unit 2 Online Review, by 8:00 AM (DeNuzzo)',0,1],['w28a','math','UNIT 2 RATIOS & RATES TEST (DeNuzzo)',0,1],['w28b','span','SPANISH QUIZ: Common Expressions (Bedoya)',0,1],['w28d','sci','Heating System Essay (Moriello, 100 pts)',0,1]],
+        [['w28e','sci','Heating System Essay: make sure it says Turned in. If you didn’t finish in class, finish it and Turn in.',15,0],['w28f','read',PJ,0,0],['w28g','skill','Two tests today. Keep tonight light.',0,0]]],
+      ['2026-10-29','Thu 10/29',[],
+        [['w29a','math','Weekly Review #9, all of it (it’s due Friday at 2:30 PM)',20,0],['w29b','span','Spanish catch-up: workbook p.10 + Hispanic Heritage Month intro (still listed Missing)',20,0],['w29c','read',PJ,0,0]]],
+      ['2026-10-30','Fri 10/30',[['w30a','math','Weekly Review #9, by 2:30 PM (DeNuzzo)',0,1],['w30b','ela','Weekly Log 10/26–10/30, by 11:59 PM (Marini)',0,1]],
+        [['w30c','ela','Weekly Log',10,0],['w30d','skill','Spelling Reps: one practice set',10,0,SP],['w30e','skill','Weekly film review: what worked, what’s next?',5,0]]]
+     ],
+     weekend:{label:'Weekend Oct 31 – Nov 1',items:[['w31a','read','Sun 11/1 · Skim Percy Jackson Ch. 11–15 for Monday’s comprehension check',10,0]]}},
+
+    {id:'nov2',label:'Nov 2 – 6',theme:'Percy Jackson check Monday · more posts coming',
+     bigs:[['MON 11/2','Percy Jackson Ch. 11–15 check','Mrs. Pacelli · in class'],['FRI 11/13','Percy Jackson chapter questions (8)','Mrs. Marini · one at a time, starting this week']],
+     days:[
+      ['2026-11-02','Mon 11/2',[['n2a','read','Percy Jackson Ch. 11–15 Comprehension Check, in class (Pacelli)',0,1]],[['n2b',...CHECK]]],
+      ['2026-11-03','Tue 11/3',[],[['n3a','ela','Percy Jackson Chapter 1 question for Mrs. Marini (due Nov 13)',15,0],['n3b','skill','Spelling Reps: one practice set',10,0,SP],['n3c',...CHECK]]],
+      ['2026-11-04','Wed 11/4',[],[['n4a','ela','Percy Jackson Chapter 2 question for Mrs. Marini',15,0],['n4b',...CHECK]]],
+      ['2026-11-05','Thu 11/5',[],[['n5a','ela','Percy Jackson Chapter 4 question for Mrs. Marini',15,0],['n5b','skill','Spelling Reps: one practice set',10,0,SP],['n5c',...CHECK]]],
+      ['2026-11-06','Fri 11/6',[['n6a','ela','Weekly Log 11/2–11/6, if posted like other weeks (Marini)',0,1]],[['n6b','ela','Weekly Log',10,0],['n6c','skill','Weekly film review: what worked, what’s next?',5,0]]]
+     ]}
+  ];
+  const CURRENT='oct26', NEXT='nov2';
+
   const done=new Set(S.get('done',[]));
   const todayISO=new Date().toLocaleDateString('en-CA');
+  const SUBJ={sci:'Science',ela:'ELA',read:'Reading',math:'Math',span:'Spanish',skill:'Skill reps'};
+  const listeners=[];
   function itemEl([id,subj,txt,min,isDue,link]){
     const w=document.createElement('div');w.className='item'+(isDue?' duebox':'')+(done.has(id)?' checked':'');
     const inner=link?`<a href="${link}" ${link.startsWith('#')?'':'target="_blank" rel="noopener"'}>${txt}</a>`:txt;
-    w.innerHTML=`<input type="checkbox" id="${id}" ${done.has(id)?'checked':''}><label for="${id}"><span class="pill s-${subj}" style="align-self:flex-start">${{sci:'Science',ela:'ELA',read:'Reading',math:'Math',span:'Spanish',skill:'Skill reps'}[subj]}</span><span class="txt">${inner}</span>${min?`<span class="t">${min} min</span>`:''}</label>`;
-    w.querySelector('input').addEventListener('change',e=>{e.target.checked?done.add(id):done.delete(id);w.classList.toggle('checked',e.target.checked);S.set('done',[...done])});
+    w.innerHTML=`<input type="checkbox" id="${id}" ${done.has(id)?'checked':''}><label for="${id}"><span class="pill s-${subj}" style="align-self:flex-start">${SUBJ[subj]}</span><span class="txt">${inner}</span>${min?`<span class="t">${min} min</span>`:''}</label>`;
+    w.querySelector('input').addEventListener('change',e=>{e.target.checked?done.add(id):done.delete(id);w.classList.toggle('checked',e.target.checked);S.set('done',[...done]);listeners.forEach(f=>f())});
     return w}
-  function build(key){const g=document.getElementById(key);
-    days[key].forEach(([iso,label,due,plan])=>{
-      const d=document.createElement('article');d.className='day'+(iso===todayISO?' today':'')+(iso<todayISO?' past':'');
+  function allIds(wk){const ids=[];wk.days.forEach(([,,due,plan])=>due.concat(plan).forEach(x=>ids.push(x[0])));(wk.weekend?wk.weekend.items:[]).forEach(x=>ids.push(x[0]));return ids}
+  function weekBody(wk,box,showHead){
+    if(showHead){const h=document.createElement('div');h.className='wkhead';h.innerHTML=`<h2>Week of ${wk.label}</h2><span class="sub">${wk.theme}</span>`;box.appendChild(h)}
+    if(wk.bigs&&wk.bigs.length){const b=document.createElement('div');b.className='bigs';
+      b.innerHTML=wk.bigs.map(([d,t,sub,link])=>`<div class="big"><span class="d">${d}</span><b>${t}</b><span class="sub">${sub||''}${link?` · <a href="${link}" style="font-weight:600">Open coach</a>`:''}</span></div>`).join('');box.appendChild(b)}
+    const g=document.createElement('div');g.className='grid';
+    wk.days.forEach(([iso,label,due,plan])=>{
+      const d=document.createElement('article');d.className='day'+(iso===todayISO?' today':'')+(iso<todayISO&&wk.id===CURRENT?' past':'');
       const mins=plan.reduce((a,x)=>a+x[3],0);
       d.innerHTML=`<div class="dayhead"><b>${label}${iso===todayISO?' · Today':''}</b>${mins?`<span class="mins">~${mins} min</span>`:''}</div>`;
       if(due.length){const h=document.createElement('span');h.className='grp due';h.textContent='Due';d.appendChild(h);due.forEach(x=>d.appendChild(itemEl(x)))}
       if(plan.length){const h=document.createElement('span');h.className='grp';h.textContent='Tonight';d.appendChild(h);plan.forEach(x=>d.appendChild(itemEl(x)))}
-      g.appendChild(d)})}
-  build('w1');build('w2');
-  const sun=itemEl(['p_sun','span','Sun 10/25 · Spanish catch-up: workbook p.10 + Hispanic Heritage Month intro (both listed Missing)',20,0]);
-  const sunFish=itemEl(['p_sun2','ela','Sun 10/25 · Fish in a Tree sketch paragraph: revision reps 1–3 with Mom or Dad, then Turn in',35,0,'#sketch']);
-  document.getElementById('wk1sun').replaceWith(sun);sun.after(sunFish);
+      g.appendChild(d)});
+    box.appendChild(g);
+    if(wk.weekend){const w=document.createElement('div');w.className='weekend';w.innerHTML=`<b style="font-family:var(--display)">${wk.weekend.label}</b>`;wk.weekend.items.forEach(x=>w.appendChild(itemEl(x)));box.appendChild(w)}
+  }
+  const byId=Object.fromEntries(WEEKS.map(w=>[w.id,w]));
+  weekBody(byId[CURRENT],document.getElementById('wk-this'),true);
+  weekBody(byId[NEXT],document.getElementById('wk-next'),true);
+  const pastBox=document.getElementById('wk-past');
+  const pastWeeks=WEEKS.slice(0,WEEKS.findIndex(w=>w.id===CURRENT)).reverse();
+  if(!pastWeeks.length)pastBox.innerHTML='<p class="sub">No past weeks yet.</p>';
+  pastWeeks.forEach(wk=>{
+    const det=document.createElement('details');det.className='pastwk';
+    const ids=allIds(wk);
+    det.innerHTML=`<summary><span><b>Week of ${wk.label}</b><br><span class="sub">${wk.theme}</span></span><span class="meter"><i><b></b></i><span class="cnt"></span><span class="caret">›</span></span></summary><div class="inner"></div>`;
+    const upd=()=>{const n=ids.filter(i=>done.has(i)).length;det.querySelector('.cnt').textContent=`${n} of ${ids.length} checked`;det.querySelector('.meter i b').style.width=(ids.length?n/ids.length*100:0)+'%'};
+    upd();listeners.push(upd);
+    weekBody(wk,det.querySelector('.inner'),false);
+    pastBox.appendChild(det)});
 
-  // tabs
+  // coaching library
+  const COACHES=[
+    ['fish','Fish in a Tree study guide','Mrs. Heffernan · ELA','active','Use for review: Tue assessment'],
+    ['sketch','Fish in a Tree sketch paragraph','Mrs. Heffernan · ELA','done','Completed · revised Oct 24–25'],
+    ['essay','Trick-or-treat opinion essay','Mrs. Marini · Extended LA','done','Completed · Oct 23'],
+    ['science','Thermal Energy study packet','Miss Moriello · Science','done','Completed · test Oct 21']
+  ];
+  const grid=document.getElementById('coachGrid'),pick=document.getElementById('coachPick');
+  COACHES.forEach(([id,name,cls,st,note])=>{const b=document.createElement('button');b.type='button';b.className='coachcard';b.dataset.coach=id;
+    b.innerHTML=`<span class="st ${st==='active'?'active':'doneit'}">${note}</span><b>${name}</b><span class="sub">${cls}</span>`;
+    b.addEventListener('click',()=>openCoach(id,true));grid.appendChild(b)});
+  function openCoach(id,scroll){
+    COACHES.forEach(([c])=>{document.getElementById(c).hidden=c!==id});
+    grid.querySelectorAll('.coachcard').forEach(b=>b.classList.toggle('on',b.dataset.coach===id));
+    pick.value=id||'';S.set('coach',id||'');
+    if(scroll&&id)document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
+  pick.addEventListener('change',()=>openCoach(pick.value,true));
+
+  // tabs + links (old #calendar / coach links still work)
+  const TABS=['thisweek','nextweek','past','coaching'];
   const tabs=[...document.querySelectorAll('.tab')];
-  function show(id){tabs.forEach(t=>{const on=t.getAttribute('aria-controls')===id;t.setAttribute('aria-selected',on);document.getElementById(t.getAttribute('aria-controls')).hidden=!on});
-    S.set('tab',id);window.scrollTo({top:0})}
+  function show(id){
+    if(id==='calendar')id='thisweek';
+    let coach=null;if(COACHES.some(c=>c[0]===id)){coach=id;id='coaching'}
+    if(!TABS.includes(id))id='thisweek';
+    tabs.forEach(t=>{const on=t.getAttribute('aria-controls')===id;t.setAttribute('aria-selected',on);document.getElementById(t.getAttribute('aria-controls')).hidden=!on});
+    if(id==='coaching')openCoach(coach||S.get('coach',''),false);
+    S.set('tab',id);window.scrollTo({top:0});
+    if(coach)setTimeout(()=>document.getElementById(coach).scrollIntoView({block:'start'}),0)}
   tabs.forEach(t=>t.addEventListener('click',()=>show(t.getAttribute('aria-controls'))));
   document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(a){e.preventDefault();show(a.getAttribute('href').slice(1))}});
-  const h=(location.hash||'').slice(1);show(['calendar','sketch','science','fish','essay'].includes(h)?h:S.get('tab','calendar'));
+  const h=(location.hash||'').slice(1);show(h||'thisweek');
 
   // Fish in a Tree coach (hints only)
   const F=[
