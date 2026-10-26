@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Thermal Energy Study Packet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Lexend:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one column "game plan" — pregame, 4 timed reps, scrimmage quiz, postgame. Matches the Heat Transfer Motion Models look. */
+:root{
+  --bg:#F4F7FC; --card:#FFFFFF; --ink:#14213D; --muted:#4A5672; --line:#DCE3EF;
+  --hot:#D62839; --hot-soft:#FFE3E5; --cold:#1D6FD8; --cold-soft:#E2EEFF;
+  --gold:#FFB703; --gold-ink:#8A5800; --gold-soft:#FFF4D6; --good:#1B8A5A; --good-soft:#E3F4EA; --bad:#B4232F;
+  --display:"Fredoka", "Trebuchet MS", system-ui, sans-serif; --body:"Lexend", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1626; --card:#18223A; --ink:#EEF2FA; --muted:#AAB6CF; --line:#2B3858;
+  --hot:#FF5A68; --hot-soft:#3A1D26; --cold:#5EA2FF; --cold-soft:#17294A;
+  --gold:#FFC93D; --gold-ink:#FFD66B; --gold-soft:#33290F; --good:#4FCB8C; --good-soft:#163426; --bad:#FF7782; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1626; --card:#18223A; --ink:#EEF2FA; --muted:#AAB6CF; --line:#2B3858;
+  --hot:#FF5A68; --hot-soft:#3A1D26; --cold:#5EA2FF; --cold-soft:#17294A;
+  --gold:#FFC93D; --gold-ink:#FFD66B; --gold-soft:#33290F; --good:#4FCB8C; --good-soft:#163426; --bad:#FF7782; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.1}
+h1{font-size:clamp(34px,7vw,52px);font-weight:700}
+h2{font-size:28px;font-weight:700}
+h3{font-size:20px;font-weight:600}
+p{margin:0}
+.tag{display:inline-block;background:var(--ink);color:var(--bg);font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.06em;padding:5px 14px;border-radius:999px}
+.sub{color:var(--muted)}
+section{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.rephead{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.time{font-family:var(--display);font-weight:600;font-size:15px;color:var(--gold-ink);background:var(--gold-soft);padding:4px 12px;border-radius:999px}
+.done-row{display:flex;justify-content:flex-end}
+button{font:inherit;cursor:pointer}
+.btn{font-family:var(--display);font-weight:600;font-size:17px;border:2px solid var(--ink);background:var(--card);color:var(--ink);padding:9px 18px;border-radius:12px;min-height:44px}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn:focus-visible,.chip:focus-visible,.card:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.speak{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:4px 12px;font-size:14px;min-height:36px}
+.speak svg{width:16px;height:16px}
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:center}
+@media (max-width:640px){.hero{grid-template-columns:1fr}}
+.score{display:flex;flex-direction:column;gap:6px;background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:18px}
+.score b{font-family:var(--display);font-size:22px}
+.bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--good);transition:width .4s}
+.steps{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.steps li{display:flex;gap:10px;align-items:flex-start}
+.check{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center}
+.check.on{background:var(--good);border-color:var(--good)}
+.check svg{width:16px;height:16px;stroke:#fff;opacity:0}.check.on svg{opacity:1}
+/* flashcards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.card{position:relative;min-height:150px;border-radius:16px;border:2px solid var(--line);background:var(--bg);padding:16px;text-align:left;color:var(--ink);display:flex;flex-direction:column;gap:8px}
+.card .term{font-family:var(--display);font-weight:700;font-size:24px}
+.card .hint{font-size:14px;color:var(--muted)}
+.card .def{display:none}
+.card.flip .def{display:block}.card.flip .hint{display:none}
+.card.flip{border-color:var(--cold);background:var(--cold-soft)}
+.card.got{border-color:var(--good);background:var(--good-soft)}
+.key{font-weight:600;background:var(--gold-soft);color:var(--gold-ink);padding:0 4px;border-radius:4px}
+.cardbtns{display:flex;gap:8px;margin-top:auto}
+.mini{font-size:14px;padding:6px 10px;min-height:36px;border-radius:10px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);font-family:var(--display);font-weight:600}
+/* particle boxes */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:560px){.duo{grid-template-columns:1fr}}
+.box{border-radius:16px;border:3px solid var(--hot);background:var(--hot-soft);padding:14px;display:flex;flex-direction:column;gap:10px}
+.box.cool{border-color:var(--cold);background:var(--cold-soft)}
+.field{position:relative;height:130px;border-radius:10px;background:var(--card);overflow:hidden}
+.pt{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--hot);animation:jig .34s linear infinite}
+.pt.slow{background:var(--cold);animation:jigS 1.6s ease-in-out infinite}
+@keyframes jig{0%,100%{transform:translate(0,0)}25%{transform:translate(5px,-5px)}50%{transform:translate(-5px,4px)}75%{transform:translate(4px,5px)}}
+@keyframes jigS{0%,100%{transform:translate(0,0)}50%{transform:translate(1.5px,-1.5px)}}
+.big{font-family:var(--display);font-weight:700;font-size:20px}
+.rule{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.rule{grid-template-columns:1fr}}
+.rule div{border-radius:14px;padding:14px;background:var(--gold-soft)}
+.rule b{font-family:var(--display);font-size:19px}
+/* calculator drill */
+.drill{display:flex;flex-direction:column;gap:12px;border:2px dashed var(--line);border-radius:16px;padding:16px}
+.mols{display:flex;flex-wrap:wrap;gap:8px}
+.mol{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:18px;background:var(--hot-soft);border:2px solid var(--hot);font-variant-numeric:tabular-nums}
+.inrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.inrow label{font-weight:600;min-width:170px}
+input[type=number],input[type=text]{font:inherit;font-size:18px;padding:8px 12px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);width:130px;min-height:44px}
+.fb{font-weight:600;min-height:1.5em}
+.fb.ok{color:var(--good)}.fb.no{color:var(--bad)}
+/* equilibrium */
+.eq{display:grid;grid-template-columns:1fr 1fr;border-radius:14px;overflow:hidden;border:3px solid var(--ink);height:110px}
+.eq div{display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:30px;color:#fff;transition:background 2.4s ease}
+.eq .l{background:#1D6FD8}.eq .r{background:#D62839}
+.eq.mix .l,.eq.mix .r{background:#8A3FA0}
+/* sorting quiz */
+.q{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 16px;font-family:var(--display);font-weight:600;min-height:44px}
+.chip.right{background:var(--good);border-color:var(--good);color:#fff}
+.chip.wrong{background:var(--card);border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.why{display:none;font-size:15px;color:var(--muted)}
+.q.answered .why{display:block}
+/* CER */
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;max-width:100%}
+section > *,.drill > *,.frame > *{min-width:0}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}
+th{font-family:var(--display);font-weight:600;background:var(--bg)}
+.frame{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:14px;border:2px solid var(--line)}
+.frame b{font-family:var(--display);font-size:18px}
+.cklist{display:flex;flex-direction:column;gap:6px}
+.cklist label{display:flex;gap:10px;align-items:flex-start}
+.cklist input{width:22px;height:22px;margin-top:3px;accent-color:var(--good)}
+.film{display:flex;flex-direction:column;gap:10px}
+.film div{border-radius:14px;padding:14px;background:var(--bg);display:flex;flex-direction:column;gap:4px}
+.film .lbl{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+textarea{font:inherit;width:100%;min-height:90px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.linkout{color:var(--cold);font-weight:600}
+@media (prefers-reduced-motion:reduce){.pt,.pt.slow{animation:none}.eq div{transition:none}}
+</style>
+</head>
+<body style="margin:0">
+
+
+<div class="wrap">
+
+  <header class="hero">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="tag">GRADE 6 SCIENCE · THERMAL ENERGY</span>
+      <h1>Thermal Energy Study Packet</h1>
+      <p class="sub">Four short reps, then a scrimmage quiz. About 25 minutes total. Do one rep, take a break, do the next.</p>
+      <div><button class="speak" data-say="Thermal Energy Study Packet. Four short reps, then a scrimmage quiz. About 25 minutes total. Do one rep, take a break, do the next."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>Read to me</button></div>
+    </div>
+    <div class="score" aria-live="polite">
+      <b>Tonight's reps</b>
+      <ul class="steps" id="steps">
+        <li><span class="check" data-step="1"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Rep 1 · Word cards (5 min)</li>
+        <li><span class="check" data-step="2"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Rep 2 · Average vs. total (6 min)</li>
+        <li><span class="check" data-step="3"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Rep 3 · How heat moves (5 min)</li>
+        <li><span class="check" data-step="4"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Rep 4 · Claim, Evidence, Reasoning (6 min)</li>
+        <li><span class="check" data-step="5"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>Scrimmage quiz (5 min)</li>
+      </ul>
+      <div class="bar"><i id="bar"></i></div>
+    </div>
+  </header>
+
+  <!-- REP 1 -->
+  <section id="rep1">
+    <div class="rephead"><span class="tag">REP 1</span><h2>Word cards</h2><span class="time">5 min</span></div>
+    <p>Say the meaning out loud <b>before</b> you flip. Then tap <b>Got it</b> or <b>Again</b>. Goal: all 10 green.</p>
+    <div class="cards" id="cards"></div>
+    <div class="done-row"><button class="btn primary" data-done="1">Rep 1 done</button></div>
+  </section>
+
+  <!-- REP 2 -->
+  <section id="rep2">
+    <div class="rephead"><span class="tag">REP 2</span><h2>Average vs. total</h2><span class="time">6 min</span></div>
+    <p>This is the big idea on the test. Same speed can mean <b>different</b> thermal energy.</p>
+    <div class="duo">
+      <div class="box">
+        <span class="big" style="color:var(--hot)">Small cup · 75°C</span>
+        <div class="field" id="fieldA" aria-hidden="true"></div>
+        <span>Fast particles, but only a few.</span>
+      </div>
+      <div class="box">
+        <span class="big" style="color:var(--hot)">Big pot · 75°C</span>
+        <div class="field" id="fieldB" aria-hidden="true"></div>
+        <span>Same speed, <b>many more</b> particles.</span>
+      </div>
+    </div>
+    <div class="rule">
+      <div><b>Temperature = AVERAGE</b><p>Add the energies, then <b>divide</b> by how many particles. Both are 75°C.</p></div>
+      <div><b>Thermal energy = TOTAL</b><p>Just <b>add</b> them all up. More particles means more total. The big pot wins.</p></div>
+    </div>
+    <div><button class="speak" data-say="Temperature is the average kinetic energy. Add the energies, then divide by how many particles. Thermal energy is the total kinetic energy. Just add them all up. More particles means more total thermal energy."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Read to me</button></div>
+
+    <div class="drill">
+      <h3>Practice reps: new numbers every time</h3>
+      <p class="sub">Each circle is one particle's energy. Use a calculator, just like on the test. Round temperature to 2 decimals if it doesn't come out even.</p>
+      <div class="mols" id="mols"></div>
+      <div class="inrow"><label for="totIn">Thermal energy (total)</label><input id="totIn" type="number" inputmode="decimal"></div>
+      <div class="inrow"><label for="avgIn">Temperature (average)</label><input id="avgIn" type="number" inputmode="decimal" step="0.01"></div>
+      <div class="inrow"><button class="btn primary" id="checkCalc">Check</button><button class="btn" id="newCalc">New numbers</button><span>Streak: <b id="streak">0</b></span></div>
+      <p class="fb" id="calcFb" aria-live="polite"></p>
+    </div>
+    <div class="done-row"><button class="btn primary" data-done="2">Rep 2 done</button></div>
+  </section>
+
+  <!-- REP 3 -->
+  <section id="rep3">
+    <div class="rephead"><span class="tag">REP 3</span><h2>How heat moves</h2><span class="time">5 min</span></div>
+    <p>Energy always moves <b>hot → cold</b>. It stops when both sides reach the <b>same temperature</b>. That's equilibrium.</p>
+    <div class="eq" id="eq"><div class="l" id="eqL">0°C</div><div class="r" id="eqR">100°C</div></div>
+    <div class="inrow"><button class="btn primary" id="eqGo">Push them together</button><button class="btn" id="eqReset">Reset</button></div>
+    <p class="fb" id="eqFb" aria-live="polite"></p>
+    <h3>Call the play: conduction, convection or radiation?</h3>
+    <div id="sort" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div class="done-row"><button class="btn primary" data-done="3">Rep 3 done</button></div>
+  </section>
+
+  <!-- REP 4 -->
+  <section id="rep4">
+    <div class="rephead"><span class="tag">REP 4</span><h2>Claim, Evidence, Reasoning</h2><span class="time">6 min</span></div>
+    <p>The test ends with a CER like the three beakers. Practice on <b>new</b> data first. Say your answer out loud, then type it.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Sample</th><th>Mass of water</th><th>Temperature</th><th>Particle speed</th></tr></thead>
+      <tbody>
+        <tr><td>Mug</td><td>250 g</td><td>60°C</td><td>Faster</td></tr>
+        <tr><td>Bathtub</td><td>2,000 g</td><td>60°C</td><td>Faster</td></tr>
+        <tr><td>Ice bath</td><td>2,000 g</td><td>5°C</td><td>Slower</td></tr>
+      </tbody>
+    </table></div>
+    <div class="frame"><b>Claim</b><span>Which one has the MOST thermal energy?</span><span class="sub">Frame: The ______ has the most thermal energy.</span><textarea id="cerC" aria-label="Claim"></textarea></div>
+    <div class="frame"><b>Evidence</b><span>Use <b>two numbers</b> from the table.</span><span class="sub">Frame: The ______ and the ______ are both ___°C, but the ______ has ___ g and the ______ has only ___ g.</span><textarea id="cerE" aria-label="Evidence"></textarea></div>
+    <div class="frame"><b>Reasoning</b><span>Explain WHY with the science words.</span><span class="sub">Frame: Same temperature means the particles have the same ______ speed. More mass means more ______. Thermal energy is the ______ kinetic energy, so ______.</span><textarea id="cerR" aria-label="Reasoning"></textarea></div>
+    <div class="frame">
+      <b>Self-check before you're done</b>
+      <div class="cklist">
+        <label><input type="checkbox" id="ck1"><span>My claim names ONE sample.</span></label>
+        <label><input type="checkbox" id="ck2"><span>My evidence has at least two numbers with units (g or °C).</span></label>
+        <label><input type="checkbox" id="ck3"><span>My reasoning uses the words <b>total</b> and <b>molecules</b> (or particles).</span></label>
+        <label><input type="checkbox" id="ck4"><span>I explained why the ice bath loses, even though it's just as big.</span></label>
+      </div>
+    </div>
+
+    <div class="done-row"><button class="btn primary" data-done="4">Rep 4 done</button></div>
+  </section>
+
+  <!-- SCRIMMAGE -->
+  <section id="quiz">
+    <div class="rephead"><span class="tag">SCRIMMAGE</span><h2>Test-style quiz</h2><span class="time">5 min</span></div>
+    <p>Read every answer choice before you tap. Missed one? It comes back at the end.</p>
+    <div id="qbox" style="display:flex;flex-direction:column;gap:10px"></div>
+    <p class="big" id="qscore" aria-live="polite"></p>
+    <div class="inrow"><button class="btn" id="qRetry">Retry the ones I missed</button></div>
+    <div class="done-row"><button class="btn primary" data-done="5">Scrimmage done</button></div>
+  </section>
+
+  <!-- POSTGAME -->
+  <section id="post">
+    <div class="rephead"><span class="tag">POSTGAME</span><h2>Quick film review</h2><span class="time">1 min</span></div>
+    <div class="frame"><b>What clicked tonight?</b><textarea id="r1" aria-label="What clicked tonight"></textarea></div>
+    <div class="frame"><b>One thing to ask your teacher before the test</b><textarea id="r2" aria-label="Question for your teacher"></textarea></div>
+    <div class="frame">
+      <b>Test-day game plan</b>
+      <div class="cklist">
+        <label><input type="checkbox" id="t1"><span>Bring a calculator.</span></label>
+        <label><input type="checkbox" id="t2"><span>Read each question twice. Underline the key word (total? average?).</span></label>
+        <label><input type="checkbox" id="t3"><span>For CER: claim, two numbers, then the science word.</span></label>
+        <label><input type="checkbox" id="t4"><span>Before turning it in, go back and check every answer once.</span></label>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  const store={get(k,d){try{const v=localStorage.getItem('te-packet:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+               set(k,v){try{localStorage.setItem('te-packet:'+k,JSON.stringify(v))}catch(e){}}};
+
+  // read-aloud
+  function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.92;speechSynthesis.speak(u)}catch(e){}}
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b)say(b.dataset.say)});
+
+  // progress
+  const done=new Set(store.get('done',[]));
+  function paint(){document.querySelectorAll('.check').forEach(c=>c.classList.toggle('on',done.has(+c.dataset.step)));
+    document.getElementById('bar').style.width=(done.size/5*100)+'%'}
+  document.querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',()=>{done.add(+b.dataset.done);store.set('done',[...done]);paint();
+    const n=document.querySelectorAll('section')[+b.dataset.done];if(n)n.scrollIntoView({behavior:'smooth',block:'start'})}));
+  paint();
+
+  // REP 1 cards (from the study guide's vocabulary)
+  const vocab=[
+    ['Energy','the ability to <span class="key">move</span> or <span class="key">change</span>.','the ability to move or change'],
+    ['Equilibrium','a balanced state where a system is <span class="key">stable</span>, like when two samples are at the same <span class="key">temperature</span>.','a balanced state where a system is stable, like when two samples are at the same temperature'],
+    ['Kinetic energy','the <span class="key">energy</span> an object has because it is <span class="key">moving</span>.','the energy an object has because it is moving'],
+    ['Temperature','found through the <span class="key">average</span> kinetic energy of the molecules.','found through the average kinetic energy of the molecules'],
+    ['Thermal energy','the <span class="key">total</span> kinetic energy of all the molecules in a sample.','the total kinetic energy of all the molecules in a sample'],
+    ['Transfer','to <span class="key">move</span> from one object or place to another.','to move from one object or place to another'],
+    ['Conduction','heat moves through direct <span class="key">contact</span> (touching).','heat moves through direct contact, touching'],
+    ['Convection','heat moves by the <span class="key">movement</span> of a fluid (<span class="key">liquid</span> or gas).','heat moves by the movement of a fluid, a liquid or gas'],
+    ['Radiation','the direct transfer of <span class="key">energy</span> by electromagnetic waves.','the direct transfer of energy by electromagnetic waves'],
+    ['Average','add all the numbers, then <span class="key">divide</span> by how many numbers there are.','add all the numbers, then divide by how many numbers there are']
+  ];
+  const got=new Set(store.get('got',[]));
+  const cardsEl=document.getElementById('cards');
+  vocab.forEach(([t,d,spoken],i)=>{
+    const c=document.createElement('div');c.className='card'+(got.has(i)?' got':'');
+    c.innerHTML=`<span class="term">${t}</span><span class="hint">Say it, then flip.</span><span class="def">${d}</span>
+      <div class="cardbtns"><button class="mini" data-act="flip">Flip</button><button class="mini" data-act="say" aria-label="Read ${t} aloud">Read</button><button class="mini" data-act="got">Got it</button><button class="mini" data-act="again">Again</button></div>`;
+    c.addEventListener('click',e=>{const a=e.target.dataset.act;if(!a)return;
+      if(a==='flip')c.classList.toggle('flip');
+      if(a==='say')say(t+'. '+spoken);
+      if(a==='got'){got.add(i);c.classList.add('got');c.classList.remove('flip')}
+      if(a==='again'){got.delete(i);c.classList.remove('got','flip')}
+      store.set('got',[...got])});
+    cardsEl.appendChild(c)});
+
+  // REP 2 particle fields
+  function fill(el,n){for(let i=0;i<n;i++){const p=document.createElement('span');p.className='pt';
+    p.style.left=(6+Math.random()*86)+'%';p.style.top=(8+Math.random()*72)+'%';p.style.animationDelay=(-Math.random())+'s';el.appendChild(p)}}
+  fill(document.getElementById('fieldA'),5);fill(document.getElementById('fieldB'),22);
+
+  // REP 2 calculator drill (parallel problems, never the study guide's own numbers)
+  let set=[],streak=0;
+  const molsEl=document.getElementById('mols'),fb=document.getElementById('calcFb');
+  function newSet(){const n=4+Math.floor(Math.random()*4);set=Array.from({length:n},()=>2+Math.floor(Math.random()*11));
+    molsEl.innerHTML=set.map(v=>`<span class="mol">${v}</span>`).join('');
+    document.getElementById('totIn').value='';document.getElementById('avgIn').value='';fb.textContent='';fb.className='fb'}
+  document.getElementById('newCalc').onclick=newSet;
+  document.getElementById('checkCalc').onclick=()=>{
+    const tot=set.reduce((a,b)=>a+b,0),avg=tot/set.length;
+    const t=parseFloat(document.getElementById('totIn').value),a=parseFloat(document.getElementById('avgIn').value);
+    const tOk=t===tot,aOk=Math.abs(a-avg)<0.06;
+    if(tOk&&aOk){streak++;fb.className='fb ok';fb.textContent='Nailed it. Total = add. Average = add, then divide by '+set.length+'.'}
+    else{streak=0;fb.className='fb no';
+      fb.textContent=!tOk?'Check the total: add every circle. Count them: there are '+set.length+'.':'Total is right. For temperature, take your total and divide by how many circles ('+set.length+').'}
+    document.getElementById('streak').textContent=streak};
+  newSet();
+
+  // REP 3 equilibrium
+  const eq=document.getElementById('eq'),L=document.getElementById('eqL'),R=document.getElementById('eqR'),eqFb=document.getElementById('eqFb');
+  let timer=null;
+  document.getElementById('eqGo').onclick=()=>{clearInterval(timer);eq.classList.add('mix');let l=0,r=100;
+    eqFb.textContent='Energy flows from the 100°C side into the 0°C side…';
+    timer=setInterval(()=>{l+=5;r-=5;L.textContent=l+'°C';R.textContent=r+'°C';
+      if(l>=50){clearInterval(timer);eqFb.textContent='Both 50°C. Same average speed, same temperature. Energy stops moving: equilibrium.'}},150)};
+  document.getElementById('eqReset').onclick=()=>{clearInterval(timer);eq.classList.remove('mix');L.textContent='0°C';R.textContent='100°C';eqFb.textContent=''};
+
+  // REP 3 sorting
+  const sortQs=[
+    ['A metal spoon gets hot in a bowl of soup.','Conduction','The spoon touches the soup. Direct contact = conduction.'],
+    ['Warm air rises from a heater and cool air sinks to take its place.','Convection','Air is a fluid (a gas) moving in a loop.'],
+    ['You feel the sun warm your face.','Radiation','Energy travels through space as waves. Nothing is touching.'],
+    ['Water at the bottom of a pot heats, rises, and the cooler water sinks.','Convection','A liquid moving in a loop carries the heat.'],
+    ['Your hand melts an ice cube.','Conduction','Hand and ice are touching. Energy moves hot (hand) → cold (ice).'],
+    ['You warm your hands near a campfire without touching it.','Radiation','No touching, no moving fluid needed: waves carry the energy.']
+  ];
+  const sortEl=document.getElementById('sort');
+  sortQs.forEach(([s,ans,why])=>{const q=document.createElement('div');q.className='q';
+    q.innerHTML=`<span>${s}</span><div class="chips">${['Conduction','Convection','Radiation'].map(o=>`<button class="chip">${o}</button>`).join('')}</div><span class="why">${why}</span>`;
+    q.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(b.textContent===ans){b.classList.add('right');q.classList.add('answered')}else b.classList.add('wrong')});
+    sortEl.appendChild(q)});
+
+  // REP 4 save drafts
+  ['cerC','cerE','cerR','r1','r2'].forEach(id=>{const el=document.getElementById(id);el.value=store.get(id,'');el.addEventListener('input',()=>store.set(id,el.value))});
+  ['ck1','ck2','ck3','ck4','t1','t2','t3','t4'].forEach(id=>{const el=document.getElementById(id);el.checked=store.get(id,false);el.addEventListener('change',()=>store.set(id,el.checked))});
+
+  // SCRIMMAGE
+  const Q=[
+    ['When an object gets hotter, its molecules…',['move faster and have more kinetic energy','move slower and have less kinetic energy','stop moving'],0,'Hotter = more kinetic energy = faster.'],
+    ['Temperature measures the ____ kinetic energy of the molecules.',['total','average','smallest'],1,'Temperature is the AVERAGE.'],
+    ['Thermal energy is the ____ kinetic energy of the molecules.',['average','total','fastest'],1,'Thermal energy is the TOTAL.'],
+    ['Two pots of water are both 80°C. Pot X has 500 g, Pot Y has 1,500 g. Which has more thermal energy?',['Pot X','Pot Y','They are the same'],1,'Same temperature, but more mass means more molecules, so a bigger total.'],
+    ['Particles have energies 6, 8, 4, 6. What is the temperature (average)?',['24','6','4'],1,'6+8+4+6 = 24, and 24 ÷ 4 = 6.'],
+    ['A hot block touches a cold block. Which way does energy move?',['Cold → hot','Hot → cold','Both ways equally'],1,'Energy always flows from hot to cold.'],
+    ['Why does energy stop moving between two touching objects?',['They reach the same temperature (equilibrium)','The hot one runs out of molecules','The cold one gets full'],0,'Same temperature = same average speed = equilibrium.'],
+    ['Heat moving by a liquid or gas flowing in a loop is…',['conduction','convection','radiation'],1,'Moving fluid = convection.'],
+    ['Heat from the sun reaches Earth by…',['conduction','convection','radiation'],2,'Electromagnetic waves through space = radiation.'],
+    ['Two beakers of water, 100 mL and 300 mL, are the same temperature. Which had more thermal energy?',['100 mL','300 mL','The same'],1,'More water, more molecules, more total kinetic energy.']
+  ];
+  let order=Q.map((_,i)=>i),missed=[],answered=0,right=0;
+  const qbox=document.getElementById('qbox'),qscore=document.getElementById('qscore');
+  function renderQuiz(list){qbox.innerHTML='';answered=0;right=0;missed=[];qscore.textContent='';
+    list.forEach(i=>{const [stem,opts,ans,why]=Q[i];const q=document.createElement('div');q.className='q';
+      q.innerHTML=`<span><b>${stem}</b></span><div class="chips">${opts.map((o,k)=>`<button class="chip" data-k="${k}">${o}</button>`).join('')}</div><span class="why">${why}</span>`;
+      let first=true;
+      q.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{if(q.classList.contains('answered'))return;
+        if(+b.dataset.k===ans){b.classList.add('right');q.classList.add('answered');answered++;if(first)right++;else missed.push(i);
+          if(answered===list.length)qscore.textContent=`Score: ${right} of ${list.length} on the first try.`+(missed.length?' Hit "Retry" for the rest.':' Clean sheet.')}
+        else{b.classList.add('wrong');first=false}});
+      qbox.appendChild(q)})}
+  document.getElementById('qRetry').onclick=()=>{if(missed.length)renderQuiz([...missed])};
+  renderQuiz(order);
+})();
+</script>
+
+</body>
+</html>
