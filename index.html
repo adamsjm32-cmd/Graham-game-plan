@@ -224,6 +224,31 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
 .st.active{background:var(--skill-soft);color:var(--skill)}
 .st.doneit{background:var(--math-soft);color:var(--math)}
 .coachtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* spanish + percy coaches */
+.flip{border:2px solid var(--line);border-radius:18px;background:var(--card);padding:20px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer;font:inherit;color:var(--ink);width:100%}
+.flip .front{font-family:var(--display);font-weight:700;font-size:26px}
+.flip .back{font-size:22px;font-weight:700;color:var(--span)}
+.flip .hint{font-size:13px;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:14px;font-weight:700;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;min-height:40px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.qbox{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:var(--soft)}
+.qbox .prompt{font-family:var(--display);font-weight:700;font-size:20px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:520px){.opts{grid-template-columns:1fr}}
+.opts button{font:inherit;font-size:16px;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:10px;min-height:44px;cursor:pointer;text-align:left}
+.opts button.right{background:var(--math);border-color:var(--math);color:#fff}
+.opts button.wrong{border-color:var(--due);color:var(--due);text-decoration:line-through}
+.phr{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.phr div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;flex-direction:column}
+.phr b{color:var(--span)}
+.chcard{border:2px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--card)}
+.chcard h3{font-size:18px}
+.chgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:600px){.chgrid{grid-template-columns:1fr}}
+.chgrid textarea{min-height:52px}
 /* sketch paragraph coach */
 .sk-steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:sk}
 .sk-steps li{display:flex;gap:10px;align-items:flex-start;font-size:15.5px}
@@ -305,6 +330,8 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
         <select id="coachPick">
           <option value="">Pick a coach…</option>
           <optgroup label="Use this week">
+            <option value="spanish">Spanish quiz: Classroom expressions (Wed)</option>
+            <option value="percy">Percy Jackson reading (Ch. 11–15 check Mon 11/2)</option>
             <option value="fish">Fish in a Tree study guide (review for Tue assessment)</option>
           </optgroup>
           <optgroup label="Completed">
@@ -316,6 +343,123 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
       </div>
       <div class="coachgrid" id="coachGrid"></div>
     </div>
+
+
+  <!-- SPANISH COACH -->
+  <section class="panel coach" id="spanish" hidden>
+    <div class="card">
+      <span class="tag">QUIZ WED 10/28 · MS. BEDOYA · COMMON EXPRESSIONS</span>
+      <h2>Spanish quiz coach: Classroom expressions</h2>
+      <p>These are the 29 expressions from Ms. Bedoya's <b>Common Expressions</b> Gimkit, the same words the quiz is built on. Three short reps:</p>
+      <div class="sk-rep"><span>Mon · Finish p. 13 conversation · 15 min</span><span>Tue · Flashcards + match game · 10 min</span><span>Tue · Say it out loud · 5 min</span></div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Monday · due tonight 11:59 PM</span>
+      <h3>Finish the p. 13 conversation first</h3>
+      <ol class="sk-steps">
+        <li><span>Open <b>Classroom Expressions conversation page 13</b> in Classroom.</span></li>
+        <li><span>Open your binder to <b>pages 4, 8 and 13</b>. Every answer is on one of those pages.</span></li>
+        <li><span>Do one line at a time. Read the English hint in parentheses, then find it in your binder.</span></li>
+        <li><span>Check for ¿ at the start of questions and ¡ at the start of exclamations.</span></li>
+        <li><span>Read the whole conversation out loud twice. Then click <b>Mark as done</b>.</span></li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <span class="lbl">3 patterns that unlock most of the quiz</span>
+      <div class="sk-two">
+        <div class="sk-yes"><b>Asking permission = ¿Puedo…?</b><span>“May I…?” always starts with <b>¿Puedo</b>: ¿Puedo ir al baño? ¿Puedo tomar agua?</span></div>
+        <div class="sk-yes"><b>I need = necesito</b><span>necesito un lápiz · necesito un papel · necesito una pluma</span></div>
+      </div>
+      <div class="look"><b>Teacher commands end in -n</b> (she's talking to the whole class): Abran, Cierren, Escuchen, Escriban, Repitan, Levanten, Respondan.</div>
+      <p class="sub">Accent marks count: lápiz, página, inglés, español, baño, sé, después, mí.</p>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Tuesday · Rep 1 · Flashcards · 5 min</span>
+      <div class="row"><div class="seg" id="spDir"><button type="button" data-dir="en" aria-pressed="true">English → Spanish</button><button type="button" data-dir="es" aria-pressed="false">Spanish → English</button></div></div>
+      <button type="button" class="flip" id="spCard" aria-live="polite"><span class="front" id="spFront"></span><span class="back" id="spBack" hidden></span><span class="hint" id="spHint">Say it out loud, then tap to flip.</span></button>
+      <div class="row">
+        <button type="button" class="gbtn ghost" id="spSay">Hear it</button>
+        <button type="button" class="gbtn ghost" id="spAgain">Again</button>
+        <button type="button" class="gbtn" id="spGot">Got it</button>
+        <span class="sub" id="spCount"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Tuesday · Rep 2 · Match game · 5 min</span>
+      <p>10 questions. Misses come back at the end.</p>
+      <div class="qbox" id="spQuiz"></div>
+      <div class="row"><button type="button" class="gbtn" id="spNew">New game</button><span class="big" id="spScore" style="font-family:var(--display);font-weight:700"></span></div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Tuesday · Rep 3 · Say it out loud · 5 min</span>
+      <p>Read the situation. Say the Spanish out loud. Then tap to check.</p>
+      <div id="spSay3" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">All 29 expressions</span>
+      <div class="phr" id="spList"></div>
+    </div>
+  </section>
+
+  <!-- PERCY JACKSON COACH -->
+  <section class="panel coach" id="percy" hidden>
+    <div class="card">
+      <span class="tag">READING · MRS. PACELLI · CH. 11–15 CHECK MON 11/2</span>
+      <h2>Percy Jackson reading coach</h2>
+      <p>For <i>The Lightning Thief</i>: one chapter card each night, a game plan for Monday's comprehension check, and a play for every chapter question (Mrs. Pacelli's nightly ones and Mrs. Marini's 8 due Nov 13).</p>
+      <div class="sk-rep"><span>Each night · Chapter card · 5 min</span><span>Sun 11/1 · Review your cards · 10 min</span><span>Mon 11/2 · Comprehension check</span></div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">After each chapter · 5 min</span>
+      <h3>Fill one chapter card</h3>
+      <p>Right after you read, answer the four scouting questions in a few words each. By Sunday you'll have your own study guide for Monday.</p>
+      <p class="sub">Using the audiobook? Follow along in the book with your finger at the same time.</p>
+      <div id="pjCards" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Monday 11/2 · Comprehension check game plan</span>
+      <ol class="sk-steps">
+        <li><span><b>Read the question twice.</b> Underline the question word: who, where, why, how.</span></li>
+        <li><span><b>Read ALL the answer choices</b> before you pick. (That's Mrs. Pacelli's rule too.)</span></li>
+        <li><span><b>Cross out two</b> that are clearly wrong.</span></li>
+        <li><span><b>Look back to prove it.</b> If you're allowed the book, find the page. Looking back is your superpower: it's how strong readers check.</span></li>
+        <li><span><b>Pick, then move on.</b> Don't get stuck. Come back to hard ones at the end.</span></li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Chapter questions (Mrs. Pacelli nightly · Mrs. Marini due Nov 13)</span>
+      <h3>RACE every answer</h3>
+      <div class="race" aria-label="RACE answer strategy">
+        <div><b>R</b><span><b>Restate</b> the question.</span></div>
+        <div><b>A</b><span><b>Answer</b> every part of it.</span></div>
+        <div><b>C</b><span><b>Cite</b>: a detail or quote + page.</span></div>
+        <div><b>E</b><span><b>Explain</b> what it proves.</span></div>
+      </div>
+      <div class="starter"><span class="lbl">Sentence starters</span><br>In Chapter ___, Percy ________ because ________. For example, on page ___, ________. This shows that ________.</div>
+      <div class="look"><b>Voice typing?</b> Say one sentence, then stop. Say “period” at the end. Type quotes from the book by hand.</div>
+      <p class="sub">Mrs. Marini's 8 are one per night in the calendar (Ch. 1, 2, 4, then 5, 6, 8, 9, 10), so none of them pile up before Nov 13.</p>
+    </div>
+
+    <div class="card">
+      <span class="lbl">Vocab practice play</span>
+      <h3>Word detective</h3>
+      <ol class="sk-steps">
+        <li><span>Find the word in the chapter. Read the sentence <b>before</b> and <b>after</b> it.</span></li>
+        <li><span>Guess what it means. Say your guess out loud.</span></li>
+        <li><span>Check your guess with the definition.</span></li>
+        <li><span>Make up your own sentence about lacrosse, school or your friends.</span></li>
+      </ol>
+    </div>
+  </section>
 
   <!-- SKETCH PARAGRAPH -->
   <section class="panel coach" id="sketch" hidden>
@@ -695,28 +839,28 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
      weekend:{label:'Weekend Oct 24–25',items:[['p_sun','span','Sun 10/25 · Spanish catch-up: workbook p.10 + Hispanic Heritage Month intro (both listed Missing)',20,0],['p_sun2','ela','Sun 10/25 · Fish in a Tree sketch paragraph: revision reps 1–3 with Mom or Dad, then Turn in',35,0,'#sketch']]}},
 
     {id:'oct26',label:'Oct 26 – 30',theme:'Math test + Spanish quiz on Wednesday',
-     bigs:[['TUE 10/27','Math: Unit 2 test review (Pear)','Mr. DeNuzzo · 48 pts · by 11:59 PM'],['WED 10/28','Math: Unit 2 Ratios & Rates TEST','Mr. DeNuzzo'],['WED 10/28','Spanish quiz: Common Expressions','Ms. Bedoya · conversation p. 13'],['WED 10/28','Heating System Essay','Miss Moriello · 100 pts'],['FRI 10/30','Math: Weekly Review #9','Mr. DeNuzzo · due 2:30 PM']],
+     bigs:[['TUE 10/27','Math: Unit 2 test review (Pear)','Mr. DeNuzzo · 48 pts · by 11:59 PM'],['WED 10/28','Math: Unit 2 Ratios & Rates TEST','Mr. DeNuzzo'],['WED 10/28','Spanish quiz: Common Expressions','Ms. Bedoya · conversation p. 13','#spanish'],['WED 10/28','Heating System Essay','Miss Moriello · 100 pts'],['FRI 10/30','Math: Weekly Review #9','Mr. DeNuzzo · due 2:30 PM']],
      days:[
       ['2026-10-26','Mon 10/26',[['w26a','span','Conversation + Study for Quiz (conversation p. 13), by 11:59 PM (Bedoya)',0,1]],
-        [['w26b','span','Finish the conversation on p. 13. Then say it out loud twice.',15,0],['w26c','read','Percy Jackson Ch. 11 + question, if not finished in class (due Tue)',15,0],['w26d','read','Percy Jackson Ch. 6–10 Vocab Practice (due Tue)',10,0],['w26e','math','Edgems Unit 2 Review worksheet: check your answers with the key in Classroom',10,0]]],
+        [['w26b','span','Finish the conversation on p. 13. Then say it out loud twice.',15,0,'#spanish'],['w26c','read','Percy Jackson Ch. 11 + question, if not finished in class (due Tue). Fill your chapter card.',15,0,'#percy'],['w26d','read','Percy Jackson Ch. 6–10 Vocab Practice (due Tue)',10,0],['w26e','math','Edgems Unit 2 Review worksheet: check your answers with the key in Classroom',10,0]]],
       ['2026-10-27','Tue 10/27',[['w27a','read','Percy Jackson Ch. 11 reading + question (Pacelli)',0,1],['w27b','read','Percy Jackson Ch. 6–10 Vocab Practice (Pacelli)',0,1],['w27c','math','Pear Assessment: Unit 2 Ratios & Rates Test Review, by 11:59 PM (DeNuzzo, 48 pts)',0,1],['w27d','ela','Fish in a Tree assessment, in class, if still scheduled (Heffernan)',0,1]],
-        [['w27e','math','Finish the Pear test review. Up to 2 checks per question. No calculator.',20,0],['w27f','math','Edgems Unit 2 Online Review (due Wed 8 AM)',15,0],['w27g','span','Spanish quiz study: Common Expressions Gimkit',10,0,GIM],['w27h','skill','Pack: Chromebook charged. Get to bed on time.',0,0]]],
+        [['w27e','math','Finish the Pear test review. Up to 2 checks per question. No calculator.',20,0],['w27f','math','Edgems Unit 2 Online Review (due Wed 8 AM)',15,0],['w27g','span','Spanish quiz coach: flashcards, match game, say it out loud',15,0,'#spanish'],['w27h','skill','Pack: Chromebook charged. Get to bed on time.',0,0]]],
       ['2026-10-28','Wed 10/28',[['w28c','math','Edgems Unit 2 Online Review, by 8:00 AM (DeNuzzo)',0,1],['w28a','math','UNIT 2 RATIOS & RATES TEST (DeNuzzo)',0,1],['w28b','span','SPANISH QUIZ: Common Expressions (Bedoya)',0,1],['w28d','sci','Heating System Essay (Moriello, 100 pts)',0,1]],
         [['w28e','sci','Heating System Essay: make sure it says Turned in. If you didn’t finish in class, finish it and Turn in.',15,0],['w28f','read',PJ,0,0],['w28g','skill','Two tests today. Keep tonight light.',0,0]]],
       ['2026-10-29','Thu 10/29',[],
         [['w29a','math','Weekly Review #9, all of it (it’s due Friday at 2:30 PM)',20,0],['w29b','span','Spanish catch-up: workbook p.10 + Hispanic Heritage Month intro (still listed Missing)',20,0],['w29c','read',PJ,0,0]]],
       ['2026-10-30','Fri 10/30',[['w30a','math','Weekly Review #9, by 2:30 PM (DeNuzzo)',0,1],['w30b','ela','Weekly Log 10/26–10/30, by 11:59 PM (Marini)',0,1]],
-        [['w30c','ela','Weekly Log',10,0],['w30d','skill','Spelling Reps: one practice set',10,0,SP],['w30e','skill','Weekly film review: what worked, what’s next?',5,0]]]
+        [['w30c','ela','Weekly Log',10,0],['w30d','skill','Spelling Reps: one practice set',10,0,SP],['w30f','read','Percy Jackson chapter card(s) for any chapters read this week',5,0,'#percy'],['w30e','skill','Weekly film review: what worked, what’s next?',5,0]]]
      ],
-     weekend:{label:'Weekend Oct 31 – Nov 1',items:[['w31a','read','Sun 11/1 · Skim Percy Jackson Ch. 11–15 for Monday’s comprehension check',10,0]]}},
+     weekend:{label:'Weekend Oct 31 – Nov 1',items:[['w31a','read','Sun 11/1 · Read your Ch. 11–15 chapter cards out loud for Monday’s comprehension check',10,0,'#percy']]}},
 
     {id:'nov2',label:'Nov 2 – 6',theme:'Percy Jackson check Monday · more posts coming',
-     bigs:[['MON 11/2','Percy Jackson Ch. 11–15 check','Mrs. Pacelli · in class'],['FRI 11/13','Percy Jackson chapter questions (8)','Mrs. Marini · one at a time, starting this week']],
+     bigs:[['MON 11/2','Percy Jackson Ch. 11–15 check','Mrs. Pacelli · in class','#percy'],['FRI 11/13','Percy Jackson chapter questions (8)','Mrs. Marini · one at a time, starting this week']],
      days:[
       ['2026-11-02','Mon 11/2',[['n2a','read','Percy Jackson Ch. 11–15 Comprehension Check, in class (Pacelli)',0,1]],[['n2b',...CHECK]]],
-      ['2026-11-03','Tue 11/3',[],[['n3a','ela','Percy Jackson Chapter 1 question for Mrs. Marini (due Nov 13)',15,0],['n3b','skill','Spelling Reps: one practice set',10,0,SP],['n3c',...CHECK]]],
-      ['2026-11-04','Wed 11/4',[],[['n4a','ela','Percy Jackson Chapter 2 question for Mrs. Marini',15,0],['n4b',...CHECK]]],
-      ['2026-11-05','Thu 11/5',[],[['n5a','ela','Percy Jackson Chapter 4 question for Mrs. Marini',15,0],['n5b','skill','Spelling Reps: one practice set',10,0,SP],['n5c',...CHECK]]],
+      ['2026-11-03','Tue 11/3',[],[['n3a','ela','Percy Jackson Chapter 1 question for Mrs. Marini (due Nov 13)',15,0,'#percy'],['n3b','skill','Spelling Reps: one practice set',10,0,SP],['n3c',...CHECK]]],
+      ['2026-11-04','Wed 11/4',[],[['n4a','ela','Percy Jackson Chapter 2 question for Mrs. Marini',15,0,'#percy'],['n4b',...CHECK]]],
+      ['2026-11-05','Thu 11/5',[],[['n5a','ela','Percy Jackson Chapter 4 question for Mrs. Marini',15,0,'#percy'],['n5b','skill','Spelling Reps: one practice set',10,0,SP],['n5c',...CHECK]]],
       ['2026-11-06','Fri 11/6',[['n6a','ela','Weekly Log 11/2–11/6, if posted like other weeks (Marini)',0,1]],[['n6b','ela','Weekly Log',10,0],['n6c','skill','Weekly film review: what worked, what’s next?',5,0]]]
      ]}
   ];
@@ -765,6 +909,8 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
 
   // coaching library
   const COACHES=[
+    ['spanish','Spanish quiz: Classroom expressions','Ms. Bedoya · Spanish','active','Use this week: quiz Wed 10/28'],
+    ['percy','Percy Jackson reading','Mrs. Pacelli + Mrs. Marini','active','Use this week: Ch. 11–15 check Mon 11/2'],
     ['fish','Fish in a Tree study guide','Mrs. Heffernan · ELA','active','Use for review: Tue assessment'],
     ['sketch','Fish in a Tree sketch paragraph','Mrs. Heffernan · ELA','done','Completed · revised Oct 24–25'],
     ['essay','Trick-or-treat opinion essay','Mrs. Marini · Extended LA','done','Completed · Oct 23'],
@@ -795,6 +941,7 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
   tabs.forEach(t=>t.addEventListener('click',()=>show(t.getAttribute('aria-controls'))));
   document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(a){e.preventDefault();show(a.getAttribute('href').slice(1))}});
   const h=(location.hash||'').slice(1);show(h||'thisweek');
+  window.addEventListener('hashchange',()=>show((location.hash||'').slice(1)||'thisweek'));
 
   // Fish in a Tree coach (hints only)
   const F=[
@@ -994,6 +1141,77 @@ textarea{font:inherit;width:100%;min-height:70px;padding:10px 12px;border-radius
   });
 })();
 </script>
+
+<script>
+(function(){
+  const S={get(k,d){try{const v=localStorage.getItem('ggp:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('ggp:'+k,JSON.stringify(v))}catch(e){}}};
+  function speak(t,lang){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/_+/g,' ').replace(/[¿?¡!]/g,''));u.lang=lang;u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+  // ----- Spanish: Ms. Bedoya's Common Expressions kit -----
+  const W=[
+    ['How do you say…?','¿Cómo se dice…?'],['You say… / It is said…','se dice'],['What page?','¿Qué página?'],['I don’t understand','No entiendo'],['I don’t know','No sé'],
+    ['Thank you','gracias'],['You’re welcome','de nada'],['I have','tengo'],['I need a paper','necesito un papel'],['I need a pencil','necesito un lápiz'],['I need a pen','necesito una pluma'],
+    ['May I go to my locker?','¿Puedo ir a mi casillero?'],['May I go to the bathroom, please?','¿Puedo ir al baño por favor?'],['May I get some water?','¿Puedo tomar agua?'],['May I speak in English?','¿Puedo hablar en inglés?'],
+    ['Repeat after me (class)','Repitan después de mí'],['Close (class)','Cierren'],['Open (class)','Abran'],['Listen (class)','Escuchen'],['Write (class)','Escriban'],['Raise your hand (class)','Levanten la mano'],['Answer in Spanish (class)','Respondan en español'],['Do you understand? (class)','¿Entienden?'],['Today we are going to…','Hoy vamos a…'],
+    ['in Spanish','en español'],['name','nombre'],['date','la fecha'],['homework','la tarea'],['Today is the ___ of ___','Hoy es el ___ de ___']
+  ];
+  // flashcards
+  let dir='en', deck=[], idx=0, flipped=false; const got=new Set(S.get('spgot',[]));
+  const fr=document.getElementById('spFront'),bk=document.getElementById('spBack'),hint=document.getElementById('spHint'),cnt=document.getElementById('spCount');
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+  function newDeck(){deck=shuffle(W.map((_,i)=>i).filter(i=>!got.has(i)));if(!deck.length){got.clear();S.set('spgot',[]);deck=shuffle(W.map((_,i)=>i))}idx=0;showCard()}
+  function showCard(){const [en,es]=W[deck[idx]];flipped=false;fr.textContent=dir==='en'?en:es;bk.textContent=dir==='en'?es:en;bk.hidden=true;hint.textContent='Say it out loud, then tap to flip.';cnt.textContent=`${got.size} of ${W.length} mastered`}
+  document.getElementById('spCard').addEventListener('click',()=>{flipped=!flipped;bk.hidden=!flipped;hint.textContent=flipped?'Were you right? Tap Got it or Again.':'Say it out loud, then tap to flip.'});
+  document.getElementById('spSay').addEventListener('click',()=>speak(W[deck[idx]][1],'es-MX'));
+  document.getElementById('spGot').addEventListener('click',()=>{got.add(deck[idx]);S.set('spgot',[...got]);idx++;if(idx>=deck.length)newDeck();else showCard()});
+  document.getElementById('spAgain').addEventListener('click',()=>{deck.push(deck[idx]);idx++;showCard()});
+  document.querySelectorAll('#spDir button').forEach(b=>b.addEventListener('click',()=>{dir=b.dataset.dir;document.querySelectorAll('#spDir button').forEach(x=>x.setAttribute('aria-pressed',x===b));showCard()}));
+  newDeck();
+  // match game
+  const qb=document.getElementById('spQuiz'),sc=document.getElementById('spScore');
+  let qs=[],qi=0,first=0,missed=[];
+  function game(list){qs=list||shuffle(W.map((_,i)=>i)).slice(0,10);qi=0;first=0;missed=[];sc.textContent='';ask()}
+  function ask(){
+    if(qi>=qs.length){if(missed.length){sc.textContent=`${first} of ${qs.length} first try. Here come your misses.`;const m=missed.slice();setTimeout(()=>game(m),900)}else{sc.textContent=`Done! ${first} of ${qs.length} on the first try.`;qb.innerHTML='<span class="prompt">Nice reps. Tap New game for another round.</span>'}return}
+    const k=qs[qi],toEs=Math.random()<.6,[en,es]=W[k];
+    const opts=shuffle([k,...shuffle(W.map((_,i)=>i).filter(i=>i!==k)).slice(0,3)]);
+    qb.innerHTML=`<span class="prompt">${toEs?en:es}</span><span class="sub">${toEs?'Pick the Spanish':'Pick the English'} · ${qi+1} of ${qs.length}</span><div class="opts"></div>`;
+    let wrongOnce=false;
+    opts.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=toEs?W[o][1]:W[o][0];
+      b.addEventListener('click',()=>{if(o===k){b.classList.add('right');if(!wrongOnce)first++;else missed.push(k);speak(es,'es-MX');qi++;setTimeout(ask,700)}else{b.classList.add('wrong');wrongOnce=true}});
+      qb.querySelector('.opts').appendChild(b)})}
+  document.getElementById('spNew').addEventListener('click',()=>game());
+  game();
+  // say it out loud: situations
+  const SIT=[
+    ['You left your homework in your locker. Ask to go get it.','¿Puedo ir a mi casillero?'],
+    ['You don’t have anything to write with.','Necesito un lápiz.'],
+    ['Ms. Bedoya asks you something and you have no idea.','No sé.'],
+    ['You missed which page the class is on.','¿Qué página?'],
+    ['You want to know how to say “water bottle” in Spanish.','¿Cómo se dice “water bottle”?'],
+    ['You’re thirsty after gym class.','¿Puedo tomar agua?'],
+    ['A friend hands you a pen. Thank them.','Gracias.'],
+    ['Ms. Bedoya wants the whole class to listen. What does she say?','Escuchen.'],
+    ['She wants everyone to raise their hand.','Levanten la mano.'],
+    ['You didn’t understand the directions.','No entiendo.']
+  ];
+  const box=document.getElementById('spSay3');
+  SIT.forEach(([sit,ans])=>{const d=document.createElement('div');d.className='qbox';
+    d.innerHTML=`<span>${sit}</span><div class="row"><button type="button" class="seg-b gbtn ghost">Check</button><b class="ans" hidden style="color:var(--span);font-size:18px">${ans}</b></div>`;
+    d.querySelector('button').addEventListener('click',()=>{d.querySelector('.ans').hidden=false;speak(ans,'es-MX')});box.appendChild(d)});
+  // list
+  document.getElementById('spList').innerHTML=W.map(([en,es])=>`<div><b>${es}</b><span class="sub">${en}</span></div>`).join('');
+
+  // ----- Percy Jackson chapter cards -----
+  const CH=[[11,'We Visit the Garden Gnome Emporium'],[12,'We Get Advice from a Poodle'],[13,'I Plunge to My Death'],[14,'I Become a Known Fugitive'],[15,'A God Buys Us Cheeseburgers']];
+  const Q=[['who','Who was in this chapter?'],['where','Where were they?'],['problem','What was the problem or danger?'],['change','What changed by the end?']];
+  const pj=document.getElementById('pjCards');
+  CH.forEach(([n,t])=>{const c=document.createElement('div');c.className='chcard';
+    c.innerHTML=`<h3>Chapter ${n}: ${t}</h3><div class="chgrid">${Q.map(([k,q])=>`<label class="lbl" style="display:flex;flex-direction:column;gap:4px">${q}<textarea id="pj${n}${k}"></textarea></label>`).join('')}</div>`;
+    pj.appendChild(c);
+    Q.forEach(([k])=>{const ta=c.querySelector('#pj'+n+k);ta.value=S.get('pj'+n+k,'');ta.addEventListener('input',()=>S.set('pj'+n+k,ta.value))})});
+})();
+</script>
+
 
 </body>
 </html>
